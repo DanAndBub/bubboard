@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+*.backup.tsx
+.env
+.env.local
+/tmp/
+CLAUDE.md
