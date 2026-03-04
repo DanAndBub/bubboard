@@ -29,10 +29,12 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        fields: {
-          'Email': email.trim().toLowerCase(),
-          'Time Stamp': new Date().toISOString(),
-        },
+        records: [{
+          fields: {
+            'Email': email.trim().toLowerCase(),
+            'Time Stamp': new Date().toISOString(),
+          },
+        }],
       }),
     });
 
