@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
         records: [{
           fields: {
             'Email': email.trim().toLowerCase(),
-            'Time Stamp': new Date().toISOString(),
           },
         }],
       }),
