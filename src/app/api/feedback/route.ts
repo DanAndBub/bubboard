@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync, writeFileSync } from 'fs';
 
-const FEEDBACK_FILE = '/tmp/bubboard-feedback.json';
+const FEEDBACK_FILE = '/tmp/driftwatch-feedback.json';
 
 interface FeedbackEntry {
   type: 'bug' | 'suggestion' | 'review';

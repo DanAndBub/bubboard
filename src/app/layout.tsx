@@ -10,12 +10,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'BubBoard — See Inside Your OpenClaw Agent',
+  title: 'Driftwatch — See Inside Your OpenClaw Agent',
   description:
     'Interactive architecture map for OpenClaw AI agents. Visualize your agent\'s files, models, skills, and configuration in seconds.',
   keywords: ['OpenClaw', 'AI agent', 'architecture map', 'agent monitoring', 'LLM'],
   openGraph: {
-    title: 'BubBoard — See Inside Your OpenClaw Agent',
+    title: 'Driftwatch — See Inside Your OpenClaw Agent',
     description:
       'Interactive architecture map for OpenClaw AI agents. Visualize your agent\'s files, models, skills, and configuration in seconds.',
     type: 'website',

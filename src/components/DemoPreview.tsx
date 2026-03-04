@@ -61,7 +61,7 @@ export default function DemoPreview() {
               <div className="w-3 h-3 rounded-full bg-[#f59e0b]/60" />
               <div className="w-3 h-3 rounded-full bg-[#10b981]/60" />
             </div>
-            <span className="font-mono text-xs text-[#475569]">bubboard — ~/.openclaw/workspace/</span>
+            <span className="font-mono text-xs text-[#475569]">driftwatch — ~/.openclaw/workspace/</span>
             <div className="ml-auto flex items-center gap-2 text-xs text-[#475569]">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 status-dot-ok" />
               Score: 10/10

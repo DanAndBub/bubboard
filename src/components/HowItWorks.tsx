@@ -10,7 +10,7 @@ export default function HowItWorks() {
       ),
       title: 'Scan Your Workspace',
       description:
-        'Point BubBoard at your OpenClaw directory. We check ~30 specific files by name — no recursive scanning, no uploads.',
+        'Point Driftwatch at your OpenClaw directory. We check ~30 specific files by name — no recursive scanning, no uploads.',
     },
     {
       number: '02',

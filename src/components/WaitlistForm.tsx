@@ -21,7 +21,7 @@ export default function WaitlistForm() {
       const data = await res.json();
       if (data.ok) {
         setStatus('success');
-        setMessage("You're on the list. We'll reach out when BubBoard Pro launches.");
+        setMessage("You're on the list. We'll reach out when Driftwatch Pro launches.");
         setEmail('');
       } else {
         throw new Error(data.error || 'Something went wrong');
@@ -45,14 +45,14 @@ export default function WaitlistForm() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-sm text-amber-400 mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            Coming Soon — BubBoard Pro
+            Coming Soon — Driftwatch Pro
           </div>
 
           <h2 className="text-2xl md:text-3xl font-bold text-[#e2e8f0] mb-3">
             More is coming
           </h2>
           <p className="text-[#94a3b8] mb-8 leading-relaxed">
-            BubBoard Pro is in development. Get early access to multi-agent monitoring,
+            Driftwatch Pro is in development. Get early access to multi-agent monitoring,
             cost analytics, security alerts, and real-time agent health dashboards.
           </p>
 
