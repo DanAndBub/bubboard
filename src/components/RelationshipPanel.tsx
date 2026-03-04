@@ -101,7 +101,7 @@ function TreeNode({ node, prefix, isLast, isRoot }: { node: AgentNode; prefix: s
   const childPrefix = prefix + (isLast ? '      ' : '│     ');
   return (
     <div className="mb-3">
-      <div className="flex items-center gap-1.5 text-sm font-mono leading-relaxed py-1">
+      <div className="flex items-center gap-1.5 text-sm font-mono leading-relaxed py-1 whitespace-nowrap">
         <span className="text-[#475569] whitespace-pre select-none">{prefix}{connector} </span>
         <span className="text-[#e2e8f0]">{node.id}</span>
         <span className={`px-1.5 py-0.5 rounded text-[10px] border ${modelBadgeClass(node.model)}`}>
@@ -129,7 +129,7 @@ export default function RelationshipPanel({ map }: RelationshipPanelProps) {
   const hierarchyTree = buildHierarchyTree(map);
 
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] overflow-hidden min-h-[320px]">
+    <div className="rounded-xl border border-[#1e293b] bg-[#111827] overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-2 px-5 py-4 border-b border-[#1e293b]">
         <svg className="w-4 h-4 text-[#94a3b8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -139,7 +139,7 @@ export default function RelationshipPanel({ map }: RelationshipPanelProps) {
         <h3 className="font-semibold text-[#e2e8f0] text-sm">Agent Hierarchy</h3>
       </div>
 
-      <div className="p-8">
+      <div className="p-8 overflow-x-auto">
         {hierarchyTree ? (
           <div className="space-y-0.5">
             {hierarchyTree.map((node, i) => (
