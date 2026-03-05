@@ -21,6 +21,9 @@ Driftwatch scans your [OpenClaw](https://openclaw.ai) agent directory and genera
 Visit [bubbuilds.com/map](https://bubbuilds.com/map) and scan your workspace.
 
 ### Self-hosted
+
+> **Requires Node.js >= 20.9.0**
+
 ```bash
 git clone https://github.com/DanAndBub/bubboard.git
 cd bubboard
@@ -56,7 +59,7 @@ Driftwatch only looks at specific known locations:
 
 ## Tech stack
 
-- **Next.js 14+** with App Router
+- **Next.js 16** with App Router
 - **TypeScript** throughout
 - **Tailwind CSS** — dark mission control theme
 - **No database** — fully client-side
