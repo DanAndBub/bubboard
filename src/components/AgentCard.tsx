@@ -49,24 +49,24 @@ export default function AgentCard({ agent }: AgentCardProps) {
       />
 
       {/* Status indicator */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between mb-3 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <div
-            className="w-2 h-2 rounded-full"
+            className="w-2 h-2 rounded-full shrink-0"
             style={{
               backgroundColor: color,
               boxShadow: `0 0 8px ${color}60`,
             }}
           />
-          <span className="font-semibold text-[#e2e8f0] text-sm">{agent.name}</span>
+          <span className="font-semibold text-[#e2e8f0] text-sm truncate">{agent.name}</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {agent.hasProtocol ? (
-            <span className="text-xs px-2 py-0.5 rounded-full border border-green-500/30 bg-green-500/10 text-green-400">
+            <span className="text-xs px-2 py-0.5 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 whitespace-nowrap">
               ✓ Protocol
             </span>
           ) : (
-            <span className="text-xs px-2 py-0.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400">
+            <span className="text-xs px-2 py-0.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 whitespace-nowrap">
               ⚠ No protocol
             </span>
           )}

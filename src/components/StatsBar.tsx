@@ -68,7 +68,7 @@ export default function StatsBar({ stats }: StatsBarProps) {
 
   return (
     <div className="border border-[#1e293b] rounded-xl bg-[#111827] overflow-hidden">
-      <div className="grid grid-cols-5 divide-x divide-[#1e293b]">
+      <div className="grid grid-cols-3 sm:grid-cols-5 divide-x divide-[#1e293b]">
         {items.map(item => (
           <div
             key={item.label}

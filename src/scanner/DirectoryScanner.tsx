@@ -377,16 +377,21 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             Only known locations are checked — no full crawl.
           </p>
 
-          {supportsDirectoryPicker && (
-            <button
-              onClick={handleDirectoryPicker}
-              className="flex items-center gap-2 rounded-lg bg-blue-500 hover:bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors"
-            >
-              <IconDoc />
-              Select Workspace Folder
-              <span className="ml-auto text-xs text-blue-200 font-normal">Chrome / Edge</span>
-            </button>
-          )}
+          <button
+            onClick={supportsDirectoryPicker ? handleDirectoryPicker : undefined}
+            disabled={!supportsDirectoryPicker}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
+              supportsDirectoryPicker
+                ? 'bg-blue-500 hover:bg-blue-600 text-white cursor-pointer'
+                : 'bg-[#111827] border border-[#1e293b] text-[#475569] cursor-not-allowed opacity-60'
+            }`}
+          >
+            <IconDoc />
+            Select Workspace Folder
+            <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-blue-200' : 'text-[#475569]'}`}>
+              {supportsDirectoryPicker ? 'Chrome / Edge' : 'Requires Chrome or Edge'}
+            </span>
+          </button>
 
           <button
             onClick={() => setPasteMode(true)}
