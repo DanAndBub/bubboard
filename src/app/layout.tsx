@@ -10,14 +10,14 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Driftwatch — Monitor & Optimize Your OpenClaw Agents',
+  title: 'Driftwatch — See Inside Your OpenClaw Agent',
   description:
-    'The ops dashboard for OpenClaw AI agents. Scan your workspace, map your architecture, track health, and optimize your multi-agent stack.',
+    'Interactive architecture map for your OpenClaw agents. Scan your workspace, visualize your agent fleet, and spot config drift — all client-side, open source.',
   keywords: ['OpenClaw', 'AI agent', 'architecture map', 'agent monitoring', 'LLM', 'cost tracking', 'ops dashboard'],
   openGraph: {
-    title: 'Driftwatch — Monitor & Optimize Your OpenClaw Agents',
+    title: 'Driftwatch — See Inside Your OpenClaw Agent',
     description:
-      'The ops dashboard for OpenClaw AI agents. Scan your workspace, map your architecture, track health, and optimize your multi-agent stack.',
+      'Interactive architecture map for your OpenClaw agents. Scan your workspace, visualize your agent fleet, and spot config drift — all client-side, open source.',
     type: 'website',
   },
 };
