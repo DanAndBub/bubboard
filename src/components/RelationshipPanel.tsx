@@ -107,7 +107,7 @@ function TreeNode({ node, prefix, isLast, isRoot }: { node: AgentNode; prefix: s
         <span className={`px-1.5 py-0 rounded text-[10px] border ${modelBadgeClass(node.model)}`}>
           {modelLabel(node.model)}
         </span>
-        {node.role && <span className="text-[#475569] max-w-[100px] truncate">{node.role}</span>}
+        {node.role && <span className="text-[#475569]">{node.role}</span>}
       </div>
       {node.children.length > 0 && (
         <div className={isRoot ? 'mt-4' : undefined}>
