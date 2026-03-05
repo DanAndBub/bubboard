@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AgentMap from '@/components/AgentMap';
+import CompactDemo from '@/components/CompactDemo';
 import { getDemoAgentMap } from '@/lib/demo-data';
 import WaitlistForm from '@/components/WaitlistForm';
 import Footer from '@/components/Footer';
@@ -92,9 +93,12 @@ export default function HomePage() {
                 <span className="ml-3 font-mono text-xs text-[#475569]">bubbuilds.com/map</span>
               </div>
 
-              {/* Map content */}
-              <div className="p-4 sm:p-6 overflow-hidden">
+              {/* Map content — full on desktop, compact on mobile */}
+              <div className="hidden md:block p-6 overflow-hidden">
                 <AgentMap map={demoMap} fileContents={demoFileContents} />
+              </div>
+              <div className="md:hidden p-4 overflow-hidden">
+                <CompactDemo />
               </div>
             </div>
           </div>
