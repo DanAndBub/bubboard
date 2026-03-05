@@ -93,7 +93,7 @@ export default function HomePage() {
               </div>
 
               {/* Map content */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6 overflow-hidden">
                 <AgentMap map={demoMap} fileContents={demoFileContents} />
               </div>
             </div>
