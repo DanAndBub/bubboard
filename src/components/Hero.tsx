@@ -17,23 +17,22 @@ export default function Hero() {
       {/* Badge */}
       <div className="relative mb-6 flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-sm text-blue-400">
         <span className="w-1.5 h-1.5 rounded-full bg-blue-400 status-dot-ok" />
-        OpenClaw Agent Inspector · Phase 1
+        Your Agent Ops Dashboard
       </div>
 
       {/* Headline */}
       <h1 className="relative text-center font-bold leading-[1.2] mb-8 max-w-3xl pb-1">
         <span className="block text-5xl md:text-6xl lg:text-7xl text-[#e2e8f0] tracking-tight">
-          See Inside Your
+          Monitor, Optimize, and
         </span>
         <span className="block text-5xl md:text-6xl lg:text-7xl bg-gradient-to-r from-blue-400 via-blue-300 to-cyan-400 bg-clip-text text-transparent tracking-tight mt-1 pb-4">
-          OpenClaw Agent
+          Understand Your Agents
         </span>
       </h1>
 
       {/* Subhead */}
       <p className="relative text-center text-lg md:text-xl text-[#94a3b8] max-w-2xl mb-10 leading-relaxed">
-        Upload your agent&apos;s workspace and get an interactive architecture map in seconds.
-        Visualize files, models, agents, and health — all in one place.
+        Scan your OpenClaw workspace and get an interactive architecture map. Track agent health, spot config drift, and optimize your multi-agent stack — all from one dashboard.
       </p>
 
       {/* CTAs */}
@@ -69,9 +68,9 @@ export default function Hero() {
       {/* Stats strip */}
       <div className="relative mt-16 grid grid-cols-3 gap-8 text-center">
         {[
-          { value: '5', label: 'Agent Roles' },
-          { value: '50+', label: 'Skills Detected' },
-          { value: '<500ms', label: 'Map Generation' },
+          { value: 'Free', label: 'Open Source Core' },
+          { value: '<500ms', label: 'Instant Analysis' },
+          { value: '100%', label: 'Client-Side' },
         ].map(stat => (
           <div key={stat.label}>
             <div className="text-2xl font-bold text-blue-400 font-mono">{stat.value}</div>
