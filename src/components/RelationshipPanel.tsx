@@ -98,16 +98,16 @@ function buildHierarchyTree(map: AgentMap): AgentNode[] | null {
 
 function TreeNode({ node, prefix, isLast, isRoot }: { node: AgentNode; prefix: string; isLast: boolean; isRoot?: boolean }) {
   const connector = isLast ? '└─' : '├─';
-  const childPrefix = prefix + (isLast ? '      ' : '│     ');
+  const childPrefix = prefix + (isLast ? '   ' : '│  ');
   return (
-    <div className="mb-3">
-      <div className="flex items-center gap-1.5 text-sm font-mono leading-relaxed py-1 whitespace-nowrap">
+    <div className="mb-2">
+      <div className="flex items-center gap-1 text-xs font-mono leading-relaxed py-0.5 whitespace-nowrap">
         <span className="text-[#475569] whitespace-pre select-none">{prefix}{connector} </span>
         <span className="text-[#e2e8f0]">{node.id}</span>
-        <span className={`px-1.5 py-0.5 rounded text-[10px] border ${modelBadgeClass(node.model)}`}>
+        <span className={`px-1.5 py-0 rounded text-[10px] border ${modelBadgeClass(node.model)}`}>
           {modelLabel(node.model)}
         </span>
-        {node.role && <span className="text-[#475569]">— {node.role}</span>}
+        {node.role && <span className="text-[#475569] max-w-[100px] truncate">{node.role}</span>}
       </div>
       {node.children.length > 0 && (
         <div className={isRoot ? 'mt-4' : undefined}>
@@ -139,7 +139,7 @@ export default function RelationshipPanel({ map }: RelationshipPanelProps) {
         <h3 className="font-semibold text-[#e2e8f0] text-sm">Agent Hierarchy</h3>
       </div>
 
-      <div className="p-8 overflow-x-auto">
+      <div className="p-5 overflow-x-auto">
         {hierarchyTree ? (
           <div className="space-y-0.5">
             {hierarchyTree.map((node, i) => (
