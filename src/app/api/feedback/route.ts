@@ -1,14 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFileSync, writeFileSync } from 'fs';
-
-const FEEDBACK_FILE = '/tmp/driftwatch-feedback.json';
-
-interface FeedbackEntry {
-  type: 'bug' | 'suggestion' | 'review';
-  message: string;
-  email?: string;
-  timestamp: string;
-}
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const body: unknown = await req.json();
@@ -40,22 +30,40 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'email must be a string' }, { status: 400 });
   }
 
-  let entries: FeedbackEntry[] = [];
-  try {
-    entries = JSON.parse(readFileSync(FEEDBACK_FILE, 'utf-8')) as FeedbackEntry[];
-  } catch {
-    entries = [];
+  const baseId = process.env.AIRTABLE_BASE_ID;
+  const apiKey = process.env.AIRTABLE_API_KEY;
+
+  if (!baseId || !apiKey) {
+    console.error('[feedback] Missing AIRTABLE_BASE_ID or AIRTABLE_API_KEY');
+    return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
   }
 
-  const entry: FeedbackEntry = {
-    type,
-    message,
-    ...(email ? { email } : {}),
-    timestamp: new Date().toISOString(),
+  const fields: Record<string, string> = {
+    'Type': String(type),
+    'Message': String(message),
   };
 
-  entries.push(entry);
-  writeFileSync(FEEDBACK_FILE, JSON.stringify(entries, null, 2), 'utf-8');
+  if (email && typeof email === 'string') {
+    fields['Email'] = email.trim();
+  }
+
+  const res = await fetch(`https://api.airtable.com/v0/${baseId}/Feedback`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      records: [{ fields }],
+    }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({})) as { error?: { message?: string } };
+    const errMsg = data?.error?.message ?? `Airtable error ${res.status}`;
+    console.error('[feedback] Airtable error:', errMsg);
+    return NextResponse.json({ error: errMsg }, { status: res.status });
+  }
 
   return NextResponse.json({ ok: true });
 }
