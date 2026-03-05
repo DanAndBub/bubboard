@@ -10,7 +10,7 @@ export default function HowItWorks() {
       ),
       title: 'Scan Your Workspace',
       description:
-        'Point Driftwatch at your OpenClaw directory. We check ~30 specific files by name — no recursive scanning, no uploads.',
+        'Point Driftwatch at your OpenClaw directory. We check specific files by name — no recursive scanning, no uploads, no server access. Your data never leaves your browser.',
     },
     {
       number: '02',
@@ -20,9 +20,9 @@ export default function HowItWorks() {
             d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
       ),
-      title: 'Review & Enrich',
+      title: 'Understand Your Architecture',
       description:
-        'Toggle on file content reading to auto-populate agent roles, delegation rules, and config details. Or keep it filenames-only for a quick structural overview.',
+        'See your full agent fleet, workspace files, delegation chains, and model assignments in one interactive map. Toggle on file reading to auto-populate roles, protocols, and config details.',
     },
     {
       number: '03',
@@ -32,9 +32,9 @@ export default function HowItWorks() {
             d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
         </svg>
       ),
-      title: 'Explore Your Map',
+      title: 'Monitor & Optimize',
       description:
-        'See your agents, workspace files, skills, and relationships in one interactive dashboard. Spot missing protocols, check your health score, and understand your architecture at a glance.',
+        'Health scoring flags missing protocols, orphaned agents, and config gaps. Coming soon: cost tracking per agent, optimization alerts, and historical drift analysis.',
     },
   ];
 
@@ -51,7 +51,7 @@ export default function HowItWorks() {
             Three steps to clarity
           </h2>
           <p className="text-[#94a3b8] text-lg max-w-2xl mx-auto">
-            From directory tree to interactive map in seconds. No signup, no server access.
+            From directory scan to actionable insights in seconds. No signup, no server, fully open source.
           </p>
         </div>
 

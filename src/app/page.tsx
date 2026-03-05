@@ -1,6 +1,7 @@
 import Hero from '@/components/Hero';
 import HowItWorks from '@/components/HowItWorks';
 import DemoPreview from '@/components/DemoPreview';
+import FeaturesPreview from '@/components/FeaturesPreview';
 import WaitlistForm from '@/components/WaitlistForm';
 import Footer from '@/components/Footer';
 
@@ -20,12 +21,13 @@ export default function HomePage() {
             </div>
             <span className="font-bold text-[#e2e8f0]">Driftwatch</span>
             <span className="hidden sm:inline text-xs text-[#475569] px-2 py-0.5 rounded-full border border-[#1e293b] bg-[#111827]">
-              Phase 1
+              Open Source
             </span>
           </div>
 
           {/* Nav links */}
           <div className="flex items-center gap-4 text-sm text-[#475569]">
+            <a href="#features" className="hover:text-[#94a3b8] transition-colors hidden sm:block">Features</a>
             <a href="#how-it-works" className="hover:text-[#94a3b8] transition-colors hidden sm:block">
               How it works
             </a>
@@ -52,6 +54,10 @@ export default function HomePage() {
 
         <div id="demo" className="border-t border-[#1e293b]">
           <DemoPreview />
+        </div>
+
+        <div id="features" className="border-t border-[#1e293b]">
+          <FeaturesPreview />
         </div>
 
         <div className="border-t border-[#1e293b]">
