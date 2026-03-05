@@ -7,3 +7,6 @@ out/
 /tmp/
 CLAUDE.md
 .vercel
+tsconfig.tsbuildinfo
+PHASE1_SPEC.md
+docs/scanner-v3-spec.md
