@@ -1,20 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-
-interface UsageRecord {
-  id: string;
-  timestamp: string;
-  provider: string;
-  model: string;
-  input_tokens: number;
-  output_tokens: number;
-  cached_input_tokens: number;
-  cache_creation_tokens: number;
-  cost_usd: number;
-  task_id?: string;
-  request_id: string;
-}
+import { Fragment, useState } from 'react';
+import { UsageRecord } from '@/lib/cost-tracking/types';
+import { calculateCost } from '@/lib/cost-tracking/calculator';
 
 interface RequestLogProps {
   records: UsageRecord[];
@@ -29,14 +17,6 @@ function formatTimestamp(ts: string): string {
   const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   return `${month} ${day} ${time}`;
 }
-
-// Rough per-token pricing (USD) used for inline breakdown display only
-const PRICE = {
-  input: 3 / 1_000_000,
-  output: 15 / 1_000_000,
-  cache_read: 0.3 / 1_000_000,
-  cache_write: 3.75 / 1_000_000,
-};
 
 function exportCSV(records: UsageRecord[]) {
   const headers = [
@@ -108,15 +88,15 @@ export default function RequestLog({ records }: RequestLogProps) {
           <tbody className="divide-y divide-[#1e293b]/50">
             {pageRecords.map(r => {
               const isExpanded = expandedId === r.id;
-              const inputCost = r.input_tokens * PRICE.input;
-              const outputCost = r.output_tokens * PRICE.output;
-              const cacheReadCost = r.cached_input_tokens * PRICE.cache_read;
-              const cacheWriteCost = r.cache_creation_tokens * PRICE.cache_write;
+              const breakdown = calculateCost(r);
+              const inputCost = breakdown?.input_cost ?? 0;
+              const outputCost = breakdown?.output_cost ?? 0;
+              const cacheReadCost = breakdown?.cache_read_cost ?? 0;
+              const cacheWriteCost = breakdown?.cache_write_cost ?? 0;
 
               return (
-                <>
+                <Fragment key={r.id}>
                   <tr
-                    key={r.id}
                     onClick={() => toggleRow(r.id)}
                     className="cursor-pointer hover:bg-[#0a0e17]/60 transition-colors"
                   >
@@ -173,7 +153,7 @@ export default function RequestLog({ records }: RequestLogProps) {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               );
             })}
           </tbody>

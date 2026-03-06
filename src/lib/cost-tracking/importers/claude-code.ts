@@ -1,7 +1,7 @@
 import { UsageRecord } from '../types';
 
 function inferProvider(model: string): 'anthropic' | 'openai' {
-  if (/gpt|o1|o3|o4/.test(model)) return 'openai';
+  if (/^(gpt-|o[134]-|o[134]$)/.test(model)) return 'openai';
   return 'anthropic';
 }
 

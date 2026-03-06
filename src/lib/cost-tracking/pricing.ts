@@ -56,7 +56,13 @@ export function lookupPricing(model: string): ModelPricing | null {
   const exact = PRICING_TABLE.get(model);
   if (exact) return exact;
 
-  for (const [key, pricing] of PRICING_TABLE) {
+  // Sort candidates longest-key-first so "gpt-4o-mini" is tested before
+  // "gpt-4o", preventing a versioned "gpt-4o-mini-20240101" from
+  // incorrectly matching the shorter (and more expensive) "gpt-4o" entry.
+  const candidates = [...PRICING_TABLE.entries()].sort(
+    (a, b) => b[0].length - a[0].length,
+  );
+  for (const [key, pricing] of candidates) {
     if (model.includes(key)) {
       return pricing;
     }
