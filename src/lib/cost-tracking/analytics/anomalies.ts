@@ -31,7 +31,7 @@ export function detectSpikes(dailyCosts: DailyCost[], threshold = 2.5): AnomalyR
         cost,
         type: 'spike',
         severity: Math.abs(z),
-        detail: `Cost $${cost.toFixed(2)} is ${Math.abs(z).toFixed(1)}σ above average ($${avg.toFixed(2)}/day)`,
+        detail: `Cost $${cost.toFixed(2)} is ${Math.abs(z).toFixed(1)}σ ${z > 0 ? 'above' : 'below'} average ($${avg.toFixed(2)}/day)`,
       })
     }
   }

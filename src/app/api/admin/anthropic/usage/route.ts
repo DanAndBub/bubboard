@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifySecret } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
+  if (!verifySecret(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const adminKey = process.env.ANTHROPIC_ADMIN_KEY
   if (!adminKey) {
     return NextResponse.json({ available: false, reason: 'no_admin_key' })

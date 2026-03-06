@@ -227,8 +227,8 @@ export default function CostTrackingPage() {
     }
     const busiestDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
 
-    // Cache hit rate
-    const totalInput = records.reduce((s, r) => s + r.input_tokens + r.cached_input_tokens, 0)
+    // Cache hit rate — input_tokens already includes cached tokens, so don't double-count
+    const totalInput = records.reduce((s, r) => s + r.input_tokens, 0)
     const totalCached = records.reduce((s, r) => s + r.cached_input_tokens, 0)
     const cacheHitRate = totalInput > 0 ? totalCached / totalInput : 0
 

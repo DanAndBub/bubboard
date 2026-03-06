@@ -27,7 +27,9 @@ async function fetchAnthropicAdmin(start: Date, end: Date): Promise<AdminRespons
       start_time: start.toISOString(),
       end_time: end.toISOString(),
     });
-    const res = await fetch(`/api/admin/anthropic/usage?${params}`);
+    const res = await fetch(`/api/admin/anthropic/usage?${params}`, {
+      headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_SECRET}` },
+    });
     return await res.json();
   } catch {
     return { available: false };
@@ -40,7 +42,9 @@ async function fetchOpenAIAdmin(start: Date, end: Date): Promise<AdminResponse> 
       start_time: String(Math.floor(start.getTime() / 1000)),
       end_time: String(Math.floor(end.getTime() / 1000)),
     });
-    const res = await fetch(`/api/admin/openai/usage?${params}`);
+    const res = await fetch(`/api/admin/openai/usage?${params}`, {
+      headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_SECRET}` },
+    });
     return await res.json();
   } catch {
     return { available: false };
