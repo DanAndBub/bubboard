@@ -53,14 +53,14 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
     const val = e.target.value
     if (!val) return
     setActivePreset(null)
-    onChange(startOfDay(new Date(val + 'T00:00:00')), endDate)
+    onChange(startOfDay(new Date(val + 'T00:00:00.000Z')), endDate)
   }
 
   function handleEndChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value
     if (!val) return
     setActivePreset(null)
-    onChange(startDate, endOfDay(new Date(val + 'T00:00:00')))
+    onChange(startDate, endOfDay(new Date(val + 'T00:00:00.000Z')))
   }
 
   const baseInput =

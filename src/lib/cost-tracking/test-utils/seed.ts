@@ -8,6 +8,7 @@ const MODELS: Array<{ model: string; provider: 'anthropic' | 'openai'; weight: n
   { model: 'claude-opus-4-6',   provider: 'anthropic', weight: 25 },
   // DeepSeek is its own provider but our type union is 'anthropic' | 'openai'.
   // Using 'openai' as placeholder. Cost will be 0 (no pricing entry).
+  // TODO: Widen provider union when adding DeepSeek/Mistral/etc. support.
   { model: 'deepseek-chat',     provider: 'openai',    weight: 15 },
   { model: 'gpt-4.1',           provider: 'openai',    weight: 10 },
   { model: 'gpt-4o-mini',       provider: 'openai',    weight: 10 },

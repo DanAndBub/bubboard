@@ -11,6 +11,10 @@
  *   // All subsequent .messages.create() calls are tracked automatically.
  *
  * The original response is returned UNMODIFIED. Logging is async/non-blocking.
+ *
+ * Note: Each API call writes to IndexedDB individually (no batching). This is
+ * acceptable for the reference implementation; a future optimisation could
+ * buffer writes and flush every N records or on a timer.
  */
 
 import { addUsageRecord } from './store';
@@ -141,9 +145,10 @@ function proxyAnthropicMessages(messages: object, options: DriftwatchOptions): o
             params !== null &&
             typeof params === 'object' &&
             'stream' in params &&
-            (params as Record<string, unknown>).stream === true
+            !!(params as Record<string, unknown>).stream
           ) {
             // Pass through unchanged so streaming callers are unaffected.
+            // Matches both `stream: true` and `stream: { include_usage: true }`.
             return value.apply(target, args);
           }
 
@@ -182,8 +187,9 @@ function proxyOpenAIChat(chat: object, options: DriftwatchOptions): object {
                   params !== null &&
                   typeof params === 'object' &&
                   'stream' in params &&
-                  (params as Record<string, unknown>).stream === true
+                  !!(params as Record<string, unknown>).stream
                 ) {
+                  // Matches both `stream: true` and `stream: { include_usage: true }`.
                   return innerValue.apply(innerTarget, args);
                 }
 
@@ -230,6 +236,16 @@ function proxyOpenAIChat(chat: object, options: DriftwatchOptions): object {
  *     be captured automatically
  */
 export function withDriftwatch<T extends object>(client: T, options: DriftwatchOptions = {}): T {
+  // Warn once at creation if the client doesn't look like Anthropic or OpenAI
+  if (
+    !('messages' in client && client.messages && typeof client.messages === 'object') &&
+    !('chat' in client && client.chat && typeof client.chat === 'object')
+  ) {
+    console.warn(
+      'Driftwatch: client has no .messages or .chat property — passing through unmodified',
+    );
+  }
+
   return new Proxy(client, {
     get(target, prop, receiver) {
       const value = Reflect.get(target, prop, receiver);

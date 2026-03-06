@@ -127,6 +127,38 @@ describe('calculateCost', () => {
     expect(result2).toBeNull();
   });
 
+  it('Fuzzy matching prefers longer key (gpt-4o-mini over gpt-4o)', () => {
+    const miniResult = calculateCost(makeRecord({
+      provider: 'openai',
+      model: 'gpt-4o-mini-20240101',
+      input_tokens: 1_000_000,
+      output_tokens: 0,
+    }));
+    const fullResult = calculateCost(makeRecord({
+      provider: 'openai',
+      model: 'gpt-4o-20240101',
+      input_tokens: 1_000_000,
+      output_tokens: 0,
+    }));
+    expect(miniResult).not.toBeNull();
+    expect(fullResult).not.toBeNull();
+    // gpt-4o-mini input = $0.15/MTok, gpt-4o input = $2.50/MTok
+    expect(miniResult!.input_cost).toBeCloseTo(0.15, 4);
+    expect(fullResult!.input_cost).toBeCloseTo(2.50, 4);
+  });
+
+  it('Fuzzy matching prefers longer key (o3-mini over o3)', () => {
+    const miniResult = calculateCost(makeRecord({
+      provider: 'openai',
+      model: 'o3-mini-20260101',
+      input_tokens: 1_000_000,
+      output_tokens: 0,
+    }));
+    expect(miniResult).not.toBeNull();
+    // o3-mini input = $1.10/MTok (not o3's $2.00/MTok)
+    expect(miniResult!.input_cost).toBeCloseTo(1.10, 4);
+  });
+
   it('Alias resolution for claude-3-5-sonnet-20241022', () => {
     const result = calculateCost(makeRecord({
       model: 'claude-3-5-sonnet-20241022',

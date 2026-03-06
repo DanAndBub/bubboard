@@ -67,7 +67,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', timeZone: 'UTC' });
 }
 
 export default function CostTimeline({ data }: CostTimelineProps) {

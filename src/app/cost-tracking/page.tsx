@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { generateSeedData } from '@/lib/cost-tracking/test-utils/seed'
 import {
@@ -24,7 +24,9 @@ import ImportPanel from '@/components/cost-tracking/ImportPanel'
 import ReconciliationBadge from '@/components/cost-tracking/ReconciliationBadge'
 import { UsageRecord } from '@/lib/cost-tracking/types'
 
-// Suppress lint warnings for spec-required imports used as future extension points
+// Import db to ensure IndexedDB is initialized before store functions are called.
+// Dexie opens the database connection on module load; without this import the
+// store layer would fail because the database hasn't been initialised yet.
 void db
 
 interface TimelinePoint {
@@ -64,6 +66,7 @@ export default function CostTrackingPage() {
   const [monthCost, setMonthCost] = useState(0)
   const [projectedMonthly, setProjectedMonthly] = useState(0)
   const [recordCount, setRecordCount] = useState(0)
+  const [importToast, setImportToast] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -147,7 +150,7 @@ export default function CostTrackingPage() {
   }
 
   // Compute timeline data from records for accurate provider split
-  const timelineData: TimelinePoint[] = (() => {
+  const timelineData = useMemo<TimelinePoint[]>(() => {
     const byDate: Record<string, TimelinePoint> = {}
     for (const r of records) {
       const date = r.timestamp.slice(0, 10)
@@ -166,10 +169,10 @@ export default function CostTrackingPage() {
       }
     }
     return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date))
-  })()
+  }, [records, dailyCosts])
 
   // Compute task breakdown from records
-  const taskBreakdown: TaskRow[] = (() => {
+  const taskBreakdown = useMemo<TaskRow[]>(() => {
     const acc: Record<string, { count: number; total_cost: number; models: string[] }> = {}
     for (const r of records) {
       if (!r.task_id) continue
@@ -184,7 +187,7 @@ export default function CostTrackingPage() {
       const primary_model = Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? ''
       return { task_id, count, total_cost, avg_cost: total_cost / count, primary_model }
     })
-  })()
+  }, [records])
 
   return (
     <main className="min-h-screen bg-[#0a0e17]">
@@ -228,7 +231,12 @@ export default function CostTrackingPage() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-[#e2e8f0]">Cost Tracking</h1>
-              <p className="text-sm text-[#475569] mt-1">All data stored locally in your browser</p>
+              <p className="text-sm text-[#475569] mt-1">
+                All data stored locally in your browser
+                {importToast && (
+                  <span className="ml-3 text-green-400 animate-pulse">{importToast}</span>
+                )}
+              </p>
             </div>
             <div className="flex gap-3 items-center">
               <button
@@ -287,7 +295,11 @@ export default function CostTrackingPage() {
 
           <RequestLog records={records} />
 
-          <ImportPanel onImportComplete={() => { loadData() }} />
+          <ImportPanel onImportComplete={(count) => {
+            loadData()
+            setImportToast(`Imported ${count} record${count === 1 ? '' : 's'}`)
+            setTimeout(() => setImportToast(null), 4000)
+          }} />
         </div>
       </div>
     </main>

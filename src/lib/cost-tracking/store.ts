@@ -123,7 +123,10 @@ export async function importFromJSON(data: UsageRecord[]): Promise<number> {
     .anyOf(data.map((r) => r.request_id))
     .each((r) => existingRequestIds.add(r.request_id));
 
-  const newRecords = data.filter((r) => !existingRequestIds.has(r.request_id));
+  const newRecords = data
+    .filter((r) => !existingRequestIds.has(r.request_id))
+    // Regenerate IDs so imported records never collide with existing primary keys
+    .map((r) => ({ ...r, id: crypto.randomUUID() }));
   if (newRecords.length > 0) {
     await db.usage.bulkPut(newRecords);
   }
