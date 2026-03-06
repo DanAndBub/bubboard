@@ -62,7 +62,14 @@ export function forecastCosts(
   }
 
   const projected_weekly = predictions.slice(0, 7).reduce((sum, p) => sum + p.predicted_cost, 0);
-  const projected_monthly = predictions[0].predicted_cost * 30;
+
+  // Compute 30-day projection by summing predicted values from the regression model
+  // rather than naively multiplying a single day's prediction by 30.
+  let projected_monthly = 0;
+  for (let i = 1; i <= 30; i++) {
+    const day = dailyCosts.length + i - 1;
+    projected_monthly += Math.max(0, best.predict(day)[1]);
+  }
 
   return {
     model,
