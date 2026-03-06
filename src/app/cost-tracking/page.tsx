@@ -304,6 +304,9 @@ export default function CostTrackingPage() {
               >
                 Clear
               </button>
+              <Link href="/settings" className="border border-[#1e293b] bg-[#111827] px-4 py-2 rounded-lg text-sm text-[#94a3b8] hover:text-[#e2e8f0] transition-colors">
+                Settings
+              </Link>
               <ReconciliationBadge status="no_admin_data" />
             </div>
           </div>
