@@ -22,6 +22,9 @@ import TaskTable from '@/components/cost-tracking/TaskTable'
 import RequestLog from '@/components/cost-tracking/RequestLog'
 import ImportPanel from '@/components/cost-tracking/ImportPanel'
 import ReconciliationBadge from '@/components/cost-tracking/ReconciliationBadge'
+import InsightsPanel from '@/components/cost-tracking/InsightsPanel'
+import { detectAllAnomalies } from '@/lib/cost-tracking/analytics/anomalies'
+import { forecastCosts } from '@/lib/cost-tracking/analytics/forecast'
 import { UsageRecord } from '@/lib/cost-tracking/types'
 
 // Import db to ensure IndexedDB is initialized before store functions are called.
@@ -189,6 +192,49 @@ export default function CostTrackingPage() {
     })
   }, [records])
 
+  // Analytics: anomaly detection + forecasting
+  const anomalies = useMemo(() => {
+    if (timelineData.length === 0) return []
+    return detectAllAnomalies(timelineData.map(d => ({ date: d.date, cost: d.cost })))
+  }, [timelineData])
+
+  const forecast = useMemo(() => {
+    if (timelineData.length === 0) return null
+    return forecastCosts(timelineData.map(d => ({ date: d.date, cost: d.cost })))
+  }, [timelineData])
+
+  const quickStats = useMemo(() => {
+    if (records.length === 0) {
+      return { mostExpensiveModel: '—', avgCostPerRequest: 0, busiestDay: '—', cacheHitRate: 0 }
+    }
+    // Most expensive model
+    const modelCosts: Record<string, number> = {}
+    for (const r of records) {
+      modelCosts[r.model] = (modelCosts[r.model] ?? 0) + r.cost_usd
+    }
+    const mostExpensiveModel = Object.entries(modelCosts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
+
+    // Avg cost per request
+    const totalCost = records.reduce((s, r) => s + r.cost_usd, 0)
+    const avgCostPerRequest = totalCost / records.length
+
+    // Busiest day of week
+    const dayCounts: Record<string, number> = {}
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    for (const r of records) {
+      const day = dayNames[new Date(r.timestamp).getUTCDay()]
+      dayCounts[day] = (dayCounts[day] ?? 0) + 1
+    }
+    const busiestDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
+
+    // Cache hit rate
+    const totalInput = records.reduce((s, r) => s + r.input_tokens + r.cached_input_tokens, 0)
+    const totalCached = records.reduce((s, r) => s + r.cached_input_tokens, 0)
+    const cacheHitRate = totalInput > 0 ? totalCached / totalInput : 0
+
+    return { mostExpensiveModel, avgCostPerRequest, busiestDay, cacheHitRate }
+  }, [records])
+
   return (
     <main className="min-h-screen bg-[#0a0e17]">
       {/* NAV */}
@@ -292,6 +338,8 @@ export default function CostTrackingPage() {
           </div>
 
           <TaskTable data={taskBreakdown} />
+
+          <InsightsPanel anomalies={anomalies} forecast={forecast} quickStats={quickStats} />
 
           <RequestLog records={records} />
 
