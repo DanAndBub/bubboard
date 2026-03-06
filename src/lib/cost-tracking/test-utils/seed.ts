@@ -6,6 +6,8 @@ export const SEED_RECORD_COUNT = 900;
 const MODELS: Array<{ model: string; provider: 'anthropic' | 'openai'; weight: number }> = [
   { model: 'claude-sonnet-4-6', provider: 'anthropic', weight: 40 },
   { model: 'claude-opus-4-6',   provider: 'anthropic', weight: 25 },
+  // DeepSeek is its own provider but our type union is 'anthropic' | 'openai'.
+  // Using 'openai' as placeholder. Cost will be 0 (no pricing entry).
   { model: 'deepseek-chat',     provider: 'openai',    weight: 15 },
   { model: 'gpt-4.1',           provider: 'openai',    weight: 10 },
   { model: 'gpt-4o-mini',       provider: 'openai',    weight: 10 },

@@ -1,12 +1,12 @@
 import { db } from './db';
-import { UsageRecord, CostBreakdown } from './types';
+import { UsageRecord } from './types';
 import { calculateCost } from './calculator';
 
 export async function addUsageRecord(
   record: Omit<UsageRecord, 'id' | 'cost_usd'>
 ): Promise<UsageRecord> {
   const id = crypto.randomUUID();
-  const breakdown: CostBreakdown | null = calculateCost({ ...record, id, cost_usd: 0 });
+  const breakdown = calculateCost({ ...record, id, cost_usd: 0 });
   const cost_usd = breakdown ? breakdown.total_cost : 0;
   const fullRecord: UsageRecord = { ...record, id, cost_usd };
   await db.usage.put(fullRecord);
@@ -18,7 +18,7 @@ export async function addUsageRecords(
 ): Promise<number> {
   const fullRecords: UsageRecord[] = records.map((record) => {
     const id = crypto.randomUUID();
-    const breakdown: CostBreakdown | null = calculateCost({ ...record, id, cost_usd: 0 });
+    const breakdown = calculateCost({ ...record, id, cost_usd: 0 });
     const cost_usd = breakdown ? breakdown.total_cost : 0;
     return { ...record, id, cost_usd };
   });
@@ -29,7 +29,7 @@ export async function addUsageRecords(
 export async function getUsageByDateRange(start: Date, end: Date): Promise<UsageRecord[]> {
   return db.usage
     .where('timestamp')
-    .between(start.toISOString(), end.toISOString())
+    .between(start.toISOString(), end.toISOString(), true, true)
     .toArray();
 }
 
@@ -41,7 +41,7 @@ export async function getUsageByModel(
     const [start, end] = dateRange;
     return db.usage
       .where('timestamp')
-      .between(start.toISOString(), end.toISOString())
+      .between(start.toISOString(), end.toISOString(), true, true)
       .filter((r) => r.model === model)
       .toArray();
   }
@@ -62,7 +62,7 @@ export async function getDailyCostSummary(
   const acc: Record<string, { cost: number; count: number }> = {};
   await db.usage
     .where('timestamp')
-    .between(start.toISOString(), end.toISOString())
+    .between(start.toISOString(), end.toISOString(), true, true)
     .each((record) => {
       const date = record.timestamp.slice(0, 10);
       if (!acc[date]) acc[date] = { cost: 0, count: 0 };
@@ -82,7 +82,7 @@ export async function getModelCostBreakdown(
   const acc: Record<string, { cost: number; count: number }> = {};
   await db.usage
     .where('timestamp')
-    .between(start.toISOString(), end.toISOString())
+    .between(start.toISOString(), end.toISOString(), true, true)
     .each((record) => {
       if (!acc[record.model]) acc[record.model] = { cost: 0, count: 0 };
       acc[record.model].cost += record.cost_usd;
@@ -105,7 +105,7 @@ export async function getTotalCost(dateRange: [Date, Date]): Promise<number> {
   let total = 0;
   await db.usage
     .where('timestamp')
-    .between(start.toISOString(), end.toISOString())
+    .between(start.toISOString(), end.toISOString(), true, true)
     .each((record) => {
       total += record.cost_usd;
     });
