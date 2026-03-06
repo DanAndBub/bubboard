@@ -38,7 +38,7 @@ export const PRICING_TABLE = new Map<string, ModelPricing>([
   ['claude-haiku-4-5-20251001', haiku45],
   ['claude-haiku-3-5-20241022', haiku35],
   // Anthropic aliases
-  ['claude-3-5-sonnet-20241022', sonnet46],
+  ['claude-3-5-sonnet-20241022', sonnet4],
   ['claude-3-5-haiku-20241022', haiku35],
   // OpenAI
   ['gpt-4.1', openaiEntry('gpt-4.1', 2.00, 8.00, 0.50)],
@@ -57,7 +57,7 @@ export function lookupPricing(model: string): ModelPricing | null {
   if (exact) return exact;
 
   for (const [key, pricing] of PRICING_TABLE) {
-    if (model.includes(key) || key.includes(model)) {
+    if (model.includes(key)) {
       return pricing;
     }
   }

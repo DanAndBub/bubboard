@@ -7,6 +7,8 @@ export function calculateCostWithPricing(usage: UsageRecord, pricing: ModelPrici
   const cacheWrite = usage.cache_creation_tokens;
   const output = usage.output_tokens;
   const batchMultiplier = usage.is_batch ? pricing.batch_discount : 1.0;
+  // TODO: Verify whether Anthropic batch API discount applies to cache tokens.
+  // Currently applying batch_discount uniformly to all cost components.
 
   const input_cost = (uncachedInput / 1_000_000) * pricing.input_per_mtok * batchMultiplier;
   const output_cost = (output / 1_000_000) * pricing.output_per_mtok * batchMultiplier;

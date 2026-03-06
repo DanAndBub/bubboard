@@ -92,6 +92,64 @@ describe('calculateCost', () => {
     expect(result).toBeNull();
   });
 
+  it('Opus pricing', () => {
+    const result = calculateCost(makeRecord({
+      model: 'claude-opus-4-6',
+      input_tokens: 1000,
+      output_tokens: 500,
+    }));
+    expect(result).not.toBeNull();
+    expect(result!.input_cost).toBeCloseTo(0.005, 6);   // (1000/1M)*5.00
+    expect(result!.output_cost).toBeCloseTo(0.0125, 6);  // (500/1M)*25.00
+    expect(result!.total_cost).toBeCloseTo(0.0175, 6);
+  });
+
+  it('Fuzzy matching resolves versioned model strings', () => {
+    const result = calculateCost(makeRecord({
+      model: 'claude-sonnet-4-6-20260301',
+      input_tokens: 1000,
+      output_tokens: 500,
+    }));
+    expect(result).not.toBeNull();
+    expect(result!.total_cost).toBeCloseTo(0.0105, 6); // Same as sonnet-4-6
+  });
+
+  it('Fuzzy matching does not match shorter model to longer key', () => {
+    // Short model ID "o3" should NOT match "o3-mini" (removed key.includes(model))
+    // But "o3" alone IS an exact key in the table, so it matches correctly.
+    // The real protection is: "gpt-4" should not match "gpt-4.1" or "gpt-4o"
+    // because model.includes(key) = "gpt-4".includes("gpt-4.1") = false
+    const result = calculateCost(makeRecord({ provider: 'openai', model: 'gpt-4' }));
+    expect(result).toBeNull();
+
+    // A completely unknown model should also return null
+    const result2 = calculateCost(makeRecord({ provider: 'openai', model: 'llama-3-70b' }));
+    expect(result2).toBeNull();
+  });
+
+  it('Alias resolution for claude-3-5-sonnet-20241022', () => {
+    const result = calculateCost(makeRecord({
+      model: 'claude-3-5-sonnet-20241022',
+      input_tokens: 1000,
+      output_tokens: 500,
+    }));
+    expect(result).not.toBeNull();
+    // Should resolve to sonnet4 pricing (same rates as sonnet-4-6)
+    expect(result!.input_cost).toBeCloseTo(0.003, 6);
+    expect(result!.output_cost).toBeCloseTo(0.0075, 6);
+  });
+
+  it('cached_input_tokens > input_tokens clamps to 0 uncached', () => {
+    const result = calculateCost(makeRecord({
+      input_tokens: 500,
+      cached_input_tokens: 1000, // More cached than total — edge case
+      output_tokens: 100,
+    }));
+    expect(result).not.toBeNull();
+    expect(result!.input_cost).toBeCloseTo(0, 6); // Clamped to 0
+    expect(result!.cache_read_cost).toBeCloseTo((1000 / 1_000_000) * 0.30, 6);
+  });
+
   it('Edge case: 0 tokens', () => {
     const result = calculateCost(makeRecord({
       input_tokens: 0,
