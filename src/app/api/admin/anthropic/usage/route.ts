@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
+  // TODO Phase 4: Replace shared secret with per-user session auth when user accounts ship
+  const secret = process.env.DRIFTWATCH_ADMIN_SECRET
+  const authHeader = request.headers.get('authorization')
+  if (!secret || authHeader !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const adminKey = process.env.ANTHROPIC_ADMIN_KEY
   if (!adminKey) {
     return NextResponse.json({ available: false, reason: 'no_admin_key' })
