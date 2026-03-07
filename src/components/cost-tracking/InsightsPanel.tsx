@@ -53,7 +53,8 @@ export default function InsightsPanel({ anomalies, forecast, quickStats }: Insig
       <div className="grid md:grid-cols-3 gap-6">
         {/* Section A — Anomaly Alerts */}
         <div>
-          <p className="text-xs font-medium text-[#94a3b8] mb-3">Anomaly Alerts</p>
+          <p className="text-xs font-medium text-[#94a3b8] mb-1">Anomaly Alerts</p>
+          <p className="text-[10px] text-[#475569] mb-3">Days where spending significantly deviated from your average</p>
           {anomalies.length === 0 ? (
             <div className="flex items-center gap-2 text-xs text-[#475569]">
               <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

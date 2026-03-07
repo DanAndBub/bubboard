@@ -15,6 +15,7 @@ interface DataPoint {
   cost: number;
   anthropic_cost: number;
   openai_cost: number;
+  deepseek_cost: number;
 }
 
 interface CostTimelineProps {
@@ -40,6 +41,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
     Total: { label: 'Total', color: '#3b82f6' },
     Anthropic: { label: 'Anthropic', color: '#06b6d4' },
     OpenAI: { label: 'OpenAI', color: '#10b981' },
+    DeepSeek: { label: 'DeepSeek', color: '#f59e0b' },
   };
 
   return (
@@ -72,7 +74,7 @@ function formatDate(dateStr: string): string {
 
 export default function CostTimeline({ data }: CostTimelineProps) {
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+    <div className="flex h-full flex-col rounded-xl border border-[#1e293b] bg-[#111827] p-6">
       <div className="flex items-center justify-between mb-6">
         <span className="text-sm font-semibold text-[#e2e8f0]">Cost Over Time</span>
         <div className="inline-flex gap-4">
@@ -87,6 +89,10 @@ export default function CostTimeline({ data }: CostTimelineProps) {
           <span className="flex items-center gap-1.5 text-xs text-[#475569]">
             <span className="inline-block w-2 h-2 rounded-full bg-[#10b981]" />
             OpenAI
+          </span>
+          <span className="flex items-center gap-1.5 text-xs text-[#475569]">
+            <span className="inline-block w-2 h-2 rounded-full bg-[#f59e0b]" />
+            DeepSeek
           </span>
         </div>
       </div>
@@ -132,6 +138,14 @@ export default function CostTimeline({ data }: CostTimelineProps) {
             strokeWidth={1.5}
             strokeDasharray="4 4"
             name="OpenAI"
+          />
+          <Area
+            dataKey="deepseek_cost"
+            stroke="#f59e0b"
+            fill="none"
+            strokeWidth={1.5}
+            strokeDasharray="4 4"
+            name="DeepSeek"
           />
         </AreaChart>
       </ResponsiveContainer>

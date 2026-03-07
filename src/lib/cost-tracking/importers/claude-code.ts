@@ -1,6 +1,7 @@
 import { UsageRecord } from '../types';
 
-function inferProvider(model: string): 'anthropic' | 'openai' {
+function inferProvider(model: string): 'anthropic' | 'openai' | 'deepseek' {
+  if (/^deepseek-/.test(model)) return 'deepseek';
   if (/^(gpt-|o[134]-|o[134]$)/.test(model)) return 'openai';
   return 'anthropic';
 }

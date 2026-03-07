@@ -3,10 +3,10 @@ import { calculateCost } from '../calculator';
 
 export const SEED_RECORD_COUNT = 900;
 
-const MODELS: Array<{ model: string; provider: 'anthropic' | 'openai'; weight: number }> = [
+const MODELS: Array<{ model: string; provider: 'anthropic' | 'openai' | 'deepseek'; weight: number }> = [
   { model: 'claude-sonnet-4-6', provider: 'anthropic', weight: 40 },
   { model: 'claude-opus-4-6',   provider: 'anthropic', weight: 25 },
-  // DeepSeek is its own provider but our type union is 'anthropic' | 'openai'.
+  // DeepSeek is its own provider but our type union is 'anthropic' | 'openai' | 'deepseek'.
   // Using 'openai' as placeholder. Cost will be 0 (no pricing entry).
   // TODO: Widen provider union when adding DeepSeek/Mistral/etc. support.
   { model: 'deepseek-chat',     provider: 'openai',    weight: 15 },

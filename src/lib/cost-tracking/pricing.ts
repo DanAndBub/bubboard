@@ -25,15 +25,32 @@ const openaiEntry = (model: string, input: number, output: number, cache_read: n
 });
 
 const opus46 = anthropicEntry('claude-opus-4-6', 5.00, 25.00, 6.25, 0.50);
+const opus45 = anthropicEntry('claude-opus-4-5-20251101', 5.00, 25.00, 6.25, 0.50);
 const sonnet46 = anthropicEntry('claude-sonnet-4-6', 3.00, 15.00, 3.75, 0.30);
+const sonnet45 = anthropicEntry('claude-sonnet-4-5-20250929', 3.00, 15.00, 3.75, 0.30);
 const sonnet4 = anthropicEntry('claude-sonnet-4-20250514', 3.00, 15.00, 3.75, 0.30);
 const haiku45 = anthropicEntry('claude-haiku-4-5-20251001', 1.00, 5.00, 1.25, 0.10);
 const haiku35 = anthropicEntry('claude-haiku-3-5-20241022', 0.80, 4.00, 1.00, 0.08);
 
+const deepseekEntry = (model: string, input: number, output: number, cache_read: number): ModelPricing => ({
+  model,
+  provider: 'deepseek',
+  input_per_mtok: input,
+  output_per_mtok: output,
+  cache_write_per_mtok: 0, // DeepSeek caching is free
+  cache_read_per_mtok: cache_read,
+  batch_discount: 1.0, // No batch API
+  updated_at: MODEL_PRICING_VERSION,
+});
+
 export const PRICING_TABLE = new Map<string, ModelPricing>([
   // Anthropic
   ['claude-opus-4-6', opus46],
+  ['claude-opus-4-5-20251101', opus45],
+  ['claude-opus-4-5', opus45],
   ['claude-sonnet-4-6', sonnet46],
+  ['claude-sonnet-4-5-20250929', sonnet45],
+  ['claude-sonnet-4-5', sonnet45],
   ['claude-sonnet-4-20250514', sonnet4],
   ['claude-haiku-4-5-20251001', haiku45],
   ['claude-haiku-3-5-20241022', haiku35],
@@ -50,6 +67,9 @@ export const PRICING_TABLE = new Map<string, ModelPricing>([
   ['o3-mini', openaiEntry('o3-mini', 1.10, 4.40, 0.275)],
   ['o4-mini', openaiEntry('o4-mini', 1.10, 4.40, 0.275)],
   ['o1', openaiEntry('o1', 15.00, 60.00, 7.50)],
+  // DeepSeek
+  ['deepseek-chat', deepseekEntry('deepseek-chat', 0.28, 0.42, 0.028)],
+  ['deepseek-reasoner', deepseekEntry('deepseek-reasoner', 0.28, 0.42, 0.028)],
 ]);
 
 export function lookupPricing(model: string): ModelPricing | null {

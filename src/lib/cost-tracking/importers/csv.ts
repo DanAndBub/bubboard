@@ -41,7 +41,7 @@ export function parseCSV(content: string): Omit<UsageRecord, 'id' | 'cost_usd'>[
     const cols = parseCSVLine(line);
     const get = (name: string) => (cols[idx(name)] ?? '').trim();
 
-    const provider = get('provider') as 'anthropic' | 'openai';
+    const provider = get('provider') as 'anthropic' | 'openai' | 'deepseek';
     const model = get('model');
     const timestamp = get('timestamp');
     const input_tokens = parseInt(get('input_tokens'), 10);

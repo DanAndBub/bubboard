@@ -1,6 +1,6 @@
 export interface ModelPricing {
   model: string;
-  provider: 'anthropic' | 'openai';
+  provider: 'anthropic' | 'openai' | 'deepseek';
   input_per_mtok: number;
   output_per_mtok: number;
   cache_read_per_mtok: number;
@@ -12,7 +12,7 @@ export interface ModelPricing {
 export interface UsageRecord {
   id: string;
   timestamp: string;
-  provider: 'anthropic' | 'openai';
+  provider: 'anthropic' | 'openai' | 'deepseek';
   model: string;
   input_tokens: number;
   output_tokens: number;

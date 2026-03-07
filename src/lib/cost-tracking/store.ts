@@ -53,11 +53,9 @@ export async function getUsageByTask(taskId: string): Promise<UsageRecord[]> {
 }
 
 export async function getDailyCostSummary(
-  days: number
+  dateRange: [Date, Date]
 ): Promise<Array<{ date: string; cost: number; count: number }>> {
-  const end = new Date();
-  const start = new Date();
-  start.setDate(start.getDate() - days);
+  const [start, end] = dateRange;
 
   const acc: Record<string, { cost: number; count: number }> = {};
   await db.usage
@@ -79,14 +77,27 @@ export async function getModelCostBreakdown(
   dateRange: [Date, Date]
 ): Promise<Array<{ model: string; cost: number; count: number; percentage: number }>> {
   const [start, end] = dateRange;
+  // Normalize versioned model names to display names
+  const normalizeModel = (model: string): string => {
+    if (model.startsWith('claude-opus-4-6')) return 'claude-opus-4-6';
+    if (model.startsWith('claude-opus-4-5')) return 'claude-opus-4-5';
+    if (model.startsWith('claude-sonnet-4-6')) return 'claude-sonnet-4-6';
+    if (model.startsWith('claude-sonnet-4-5') || model === 'claude-sonnet-4-20250514') return 'claude-sonnet-4-5';
+    if (model.startsWith('claude-haiku-4-5')) return 'claude-haiku-4-5';
+    if (model.startsWith('claude-haiku-3-5')) return 'claude-haiku-3-5';
+    return model;
+  };
+
   const acc: Record<string, { cost: number; count: number }> = {};
   await db.usage
     .where('timestamp')
     .between(start.toISOString(), end.toISOString(), true, true)
     .each((record) => {
-      if (!acc[record.model]) acc[record.model] = { cost: 0, count: 0 };
-      acc[record.model].cost += record.cost_usd;
-      acc[record.model].count += 1;
+      const displayModel = normalizeModel(record.model);
+      if (displayModel === 'delivery-mirror') return; // internal routing, not real usage
+      if (!acc[displayModel]) acc[displayModel] = { cost: 0, count: 0 };
+      acc[displayModel].cost += record.cost_usd;
+      acc[displayModel].count += 1;
     });
 
   const total = Object.values(acc).reduce((sum, { cost }) => sum + cost, 0);

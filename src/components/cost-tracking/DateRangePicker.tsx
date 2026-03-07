@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface DateRangePickerProps {
   startDate: Date
@@ -9,6 +9,12 @@ interface DateRangePickerProps {
 }
 
 type Preset = '7d' | '30d' | '90d' | 'All' | null
+
+const MIN_DATE = '2026-01-01'
+
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10)
+}
 
 function toInputValue(date: Date): string {
   return date.toISOString().slice(0, 10)
@@ -26,6 +32,13 @@ function endOfDay(date: Date): Date {
   return d
 }
 
+function isValidDateStr(val: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return false
+  const [y, m, d] = val.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d
+}
+
 function presetRange(preset: '7d' | '30d' | '90d' | 'All'): [Date, Date] {
   const end = endOfDay(new Date())
   if (preset === 'All') {
@@ -40,6 +53,28 @@ function presetRange(preset: '7d' | '30d' | '90d' | 'All'): [Date, Date] {
 
 export default function DateRangePicker({ startDate, endDate, onChange }: DateRangePickerProps) {
   const [activePreset, setActivePreset] = useState<Preset>(null)
+  const startRef = useRef<HTMLInputElement>(null)
+  const endRef = useRef<HTMLInputElement>(null)
+
+  const lastStartStr = useRef(toInputValue(startDate))
+  const lastEndStr = useRef(toInputValue(endDate))
+
+  // Sync inputs when props change from outside (presets, parent state)
+  useEffect(() => {
+    const val = toInputValue(startDate)
+    if (val !== lastStartStr.current && startRef.current) {
+      startRef.current.value = val
+      lastStartStr.current = val
+    }
+  }, [startDate])
+
+  useEffect(() => {
+    const val = toInputValue(endDate)
+    if (val !== lastEndStr.current && endRef.current) {
+      endRef.current.value = val
+      lastEndStr.current = val
+    }
+  }, [endDate])
 
   const presets: ('7d' | '30d' | '90d' | 'All')[] = ['7d', '30d', '90d', 'All']
 
@@ -49,19 +84,41 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
     onChange(start, end)
   }
 
-  function handleStartChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value
-    if (!val) return
+  const commitStart = useCallback(() => {
+    const val = startRef.current?.value ?? ''
+    if (!val || !isValidDateStr(val)) {
+      if (startRef.current) startRef.current.value = lastStartStr.current
+      return
+    }
+    const today = todayStr()
+    const endVal = toInputValue(endDate)
+    let clamped = val
+    if (clamped < MIN_DATE) clamped = MIN_DATE
+    if (clamped > endVal) clamped = endVal
+    if (clamped > today) clamped = today
+    if (clamped !== val && startRef.current) startRef.current.value = clamped
+    lastStartStr.current = clamped
     setActivePreset(null)
-    onChange(startOfDay(new Date(val + 'T00:00:00.000Z')), endDate)
-  }
+    onChange(startOfDay(new Date(clamped + 'T00:00:00')), endDate)
+  }, [endDate, onChange])
 
-  function handleEndChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value
-    if (!val) return
+  const commitEnd = useCallback(() => {
+    const val = endRef.current?.value ?? ''
+    if (!val || !isValidDateStr(val)) {
+      if (endRef.current) endRef.current.value = lastEndStr.current
+      return
+    }
+    const today = todayStr()
+    const startVal = toInputValue(startDate)
+    let clamped = val
+    if (clamped < MIN_DATE) clamped = MIN_DATE
+    if (clamped > today) clamped = today
+    if (clamped < startVal) clamped = startVal
+    if (clamped !== val && endRef.current) endRef.current.value = clamped
+    lastEndStr.current = clamped
     setActivePreset(null)
-    onChange(startDate, endOfDay(new Date(val + 'T00:00:00.000Z')))
-  }
+    onChange(startDate, endOfDay(new Date(clamped + 'T00:00:00')))
+  }, [startDate, onChange])
 
   const baseInput =
     'bg-[#0a0e17] border border-[#1e293b] rounded-lg px-3 py-1 text-xs font-mono text-[#e2e8f0] [color-scheme:dark] outline-none focus:border-blue-500/50'
@@ -89,14 +146,20 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
 
       <input
         type="date"
-        value={toInputValue(startDate)}
-        onChange={handleStartChange}
+        ref={startRef}
+        defaultValue={toInputValue(startDate)}
+        onBlur={commitStart}
+        onChange={commitStart}
+        onKeyDown={(e) => { if (e.key === 'Enter') { commitStart(); e.currentTarget.blur() } }}
         className={baseInput}
       />
       <input
         type="date"
-        value={toInputValue(endDate)}
-        onChange={handleEndChange}
+        ref={endRef}
+        defaultValue={toInputValue(endDate)}
+        onBlur={commitEnd}
+        onChange={commitEnd}
+        onKeyDown={(e) => { if (e.key === 'Enter') { commitEnd(); e.currentTarget.blur() } }}
         className={baseInput}
       />
     </div>

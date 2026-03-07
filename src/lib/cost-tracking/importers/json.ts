@@ -9,7 +9,7 @@ function mapRecord(item: unknown): Omit<UsageRecord, 'id' | 'cost_usd'> | null {
 
   return {
     timestamp: timestamp as string,
-    provider: provider as 'anthropic' | 'openai',
+    provider: provider as 'anthropic' | 'openai' | 'deepseek',
     model: model as string,
     input_tokens: Number(input_tokens),
     output_tokens: Number(output_tokens),
