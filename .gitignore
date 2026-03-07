@@ -10,3 +10,4 @@ CLAUDE.md
 tsconfig.tsbuildinfo
 PHASE1_SPEC.md
 docs/scanner-v3-spec.md
+.env.local.save*
