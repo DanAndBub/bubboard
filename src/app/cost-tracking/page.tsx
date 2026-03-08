@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { generateSeedData } from '@/lib/cost-tracking/test-utils/seed'
 import {
@@ -25,6 +25,7 @@ import RequestLog from '@/components/cost-tracking/RequestLog'
 // import ReconciliationBadge from '@/components/cost-tracking/ReconciliationBadge' // moved to settings
 import InsightsPanel from '@/components/cost-tracking/InsightsPanel'
 import EmptyState from '@/components/cost-tracking/EmptyState'
+import ImportStaging from '@/components/cost-tracking/ImportStaging'
 import Footer from '@/components/Footer'
 import { detectAllAnomalies } from '@/lib/cost-tracking/analytics/anomalies'
 import { forecastCosts } from '@/lib/cost-tracking/analytics/forecast'
@@ -73,21 +74,8 @@ export default function CostTrackingPage() {
   const [monthCost, setMonthCost] = useState(0)
   const [recordCount, setRecordCount] = useState(0)
   const [importToast, setImportToast] = useState<string | null>(null)
-  const [importOpen, setImportOpen] = useState(false)
   const [clearModalOpen, setClearModalOpen] = useState(false)
   const [selectedModels, setSelectedModels] = useState<Set<string>>(new Set())
-  const importRef = useRef<HTMLDivElement>(null)
-
-  // Close import dropdown on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (importRef.current && !importRef.current.contains(e.target as Node)) {
-        setImportOpen(false)
-      }
-    }
-    if (importOpen) document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [importOpen])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -143,6 +131,49 @@ export default function CostTrackingPage() {
       const seedRecords = generateSeedData()
       await addUsageRecords(seedRecords)
       await loadData()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleImportFiles(files: File[]) {
+    setLoading(true)
+    try {
+      let totalImported = 0
+      let totalSkipped = 0
+      for (const file of files) {
+        const content = await file.text()
+        const name = file.name.toLowerCase()
+        let parsed: Omit<UsageRecord, 'id' | 'cost_usd'>[] = []
+        if (name.endsWith('.jsonl')) {
+          // Try Claude Code format first, then OpenClaw
+          const claudeParsed = parseClaudeCodeJSONL(content)
+          if (claudeParsed.length > 0) {
+            parsed = claudeParsed
+          } else {
+            const { parseOpenClawSessions } = await import('@/lib/cost-tracking/importers/openclaw')
+            parsed = parseOpenClawSessions(content)
+          }
+        } else if (name.endsWith('.json')) {
+          const { parseJSON } = await import('@/lib/cost-tracking/importers/json')
+          parsed = parseJSON(content)
+        } else if (name.endsWith('.csv')) {
+          const { parseCSV } = await import('@/lib/cost-tracking/importers/csv')
+          parsed = parseCSV(content)
+        }
+        if (parsed.length > 0) {
+          const result = await addUsageRecords(parsed)
+          totalImported += result.added
+          totalSkipped += result.skipped
+        }
+      }
+      await loadData()
+      const skipMsg = totalSkipped > 0 ? ` (${totalSkipped} duplicates skipped)` : ''
+      setImportToast(`Imported ${totalImported} new records from ${files.length} file${files.length === 1 ? '' : 's'}${skipMsg}`)
+      setTimeout(() => setImportToast(null), 5000)
+    } catch (err) {
+      setImportToast(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      setTimeout(() => setImportToast(null), 5000)
     } finally {
       setLoading(false)
     }
@@ -330,44 +361,7 @@ export default function CostTrackingPage() {
               </p>
             </div>
             <div className="flex gap-2 items-center">
-              {/* Import dropdown */}
-              <div className="relative" ref={importRef}>
-                <button
-                  onClick={() => setImportOpen(!importOpen)}
-                  disabled={loading}
-                  className="border border-blue-500/30 bg-blue-500/10 px-4 py-2 rounded-lg text-sm text-blue-400 hover:bg-blue-500/20 disabled:opacity-50 transition-colors flex items-center gap-1.5"
-                >
-                  {loading ? (
-                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                  ) : (
-                    <>
-                      <span>Import</span>
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                    </>
-                  )}
-                </button>
-                {importOpen && (
-                  <div className="absolute right-0 mt-1 w-64 rounded-lg border border-[#1e293b] bg-[#111827] shadow-xl z-50">
-                    <button onClick={() => { document.getElementById('file-upload-input')?.click(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50 rounded-t-lg">
-                      📄 Claude Code Logs (.jsonl)
-                    </button>
-                    <button onClick={() => { document.getElementById('file-upload-input')?.click(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50">
-                      📄 OpenClaw Sessions (.jsonl)
-                    </button>
-                    <button onClick={() => { document.getElementById('file-upload-input')?.click(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50 rounded-b-lg">
-                      📄 CSV / JSON
-                    </button>
-                    {process.env.NODE_ENV === 'development' && (
-                      <>
-                        <div className="border-t border-[#1e293b]" />
-                        <button onClick={() => { handleLoadDemoData(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#475569] hover:bg-[#1e293b]/50 rounded-b-lg">
-                          Demo Data
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+              <ImportStaging onImport={handleImportFiles} loading={loading} />
               {/* Export */}
               <button onClick={handleExportJSON} title="Export JSON" className="border border-[#1e293b] bg-[#111827] p-2 rounded-lg text-[#94a3b8] hover:text-[#e2e8f0] transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -454,52 +448,7 @@ export default function CostTrackingPage() {
             </>
           )}
 
-          {/* Hidden file input for Upload Files option in Import dropdown */}
-          <input
-            id="file-upload-input"
-            type="file"
-            multiple
-            accept=".csv,.json,.jsonl"
-            className="hidden"
-            onChange={async (e) => {
-              const files = e.target.files
-              if (!files?.length) return
-              setLoading(true)
-              try {
-                let totalImported = 0
-                let totalSkipped = 0
-                for (const file of Array.from(files)) {
-                  const content = await file.text()
-                  const name = file.name.toLowerCase()
-                  let parsed: Omit<UsageRecord, 'id' | 'cost_usd'>[] = []
-                  if (name.endsWith('.jsonl')) {
-                    parsed = parseClaudeCodeJSONL(content)
-                  } else if (name.endsWith('.json')) {
-                    const { parseJSON } = await import('@/lib/cost-tracking/importers/json')
-                    parsed = parseJSON(content)
-                  } else if (name.endsWith('.csv')) {
-                    const { parseCSV } = await import('@/lib/cost-tracking/importers/csv')
-                    parsed = parseCSV(content)
-                  }
-                  if (parsed.length > 0) {
-                    const result = await addUsageRecords(parsed)
-                    totalImported += result.added
-                    totalSkipped += result.skipped
-                  }
-                }
-                await loadData()
-                const skipMsg = totalSkipped > 0 ? ` (${totalSkipped} duplicates skipped)` : ''
-                setImportToast(`Imported ${totalImported} new records from ${files.length} file${files.length === 1 ? '' : 's'}${skipMsg}`)
-                setTimeout(() => setImportToast(null), 5000)
-              } catch (err) {
-                setImportToast(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
-                setTimeout(() => setImportToast(null), 5000)
-              } finally {
-                setLoading(false)
-                e.target.value = ''
-              }
-            }}
-          />
+
         </div>
       </div>
       <Footer />

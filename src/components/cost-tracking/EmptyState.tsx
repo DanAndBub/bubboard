@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 interface EmptyStateProps {
   onImportClick: () => void;
+  onFolderClick?: () => void;
 }
 
 export default function EmptyState({ onImportClick }: EmptyStateProps) {

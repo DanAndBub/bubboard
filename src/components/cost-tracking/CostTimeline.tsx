@@ -75,9 +75,9 @@ function formatDate(dateStr: string): string {
 export default function CostTimeline({ data }: CostTimelineProps) {
   return (
     <div className="flex h-full flex-col rounded-xl border border-[#1e293b] bg-[#111827] p-6">
-      <div className="flex items-center justify-between mb-6">
-        <span className="text-sm font-semibold text-[#e2e8f0]">Cost Over Time</span>
-        <div className="inline-flex gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
+        <span className="text-sm font-semibold text-[#e2e8f0] shrink-0">Cost Over Time</span>
+        <div className="flex flex-wrap gap-3">
           <span className="flex items-center gap-1.5 text-xs text-[#475569]">
             <span className="inline-block w-2 h-2 rounded-full bg-[#3b82f6]" />
             Total
