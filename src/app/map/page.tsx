@@ -17,10 +17,38 @@ function MapPageContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get('demo') === 'true';
 
-  const [agentMap, setAgentMap] = useState<AgentMap | null>(null);
-  const [fileContents, setFileContents] = useState<Record<string, string>>({});
-  const [inputCollapsed, setInputCollapsed] = useState(false);
+  const [agentMap, setAgentMap] = useState<AgentMap | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const saved = sessionStorage.getItem('driftwatch-agentmap');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+  const [fileContents, setFileContents] = useState<Record<string, string>>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const saved = sessionStorage.getItem('driftwatch-filecontents');
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  });
+  const [inputCollapsed, setInputCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('driftwatch-agentmap') !== null;
+  });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Persist map state to sessionStorage for navigation
+  useEffect(() => {
+    if (agentMap) {
+      try {
+        sessionStorage.setItem('driftwatch-agentmap', JSON.stringify(agentMap));
+        sessionStorage.setItem('driftwatch-filecontents', JSON.stringify(fileContents));
+      } catch { /* quota exceeded — ignore */ }
+    } else {
+      sessionStorage.removeItem('driftwatch-agentmap');
+      sessionStorage.removeItem('driftwatch-filecontents');
+    }
+  }, [agentMap, fileContents]);
 
   // Whether webkitdirectory is unsupported in this browser
   const [browserUnsupported, setBrowserUnsupported] = useState(false);
