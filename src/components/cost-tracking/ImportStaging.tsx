@@ -100,7 +100,7 @@ export default function ImportStaging({ onImport, loading }: ImportStagingProps)
         </button>
 
         {open && (
-          <div className="absolute right-0 mt-1 w-80 rounded-lg border border-[#1e293b] bg-[#111827] shadow-xl z-50">
+          <div className="fixed sm:absolute inset-x-3 sm:inset-x-auto sm:right-0 sm:left-auto mt-1 sm:w-80 rounded-lg border border-[#1e293b] bg-[#111827] shadow-xl z-50">
             {/* Add files options */}
             <div className="p-3 space-y-2">
               <p className="text-xs text-[#475569] font-medium mb-2">Add files to import</p>
@@ -109,15 +109,16 @@ export default function ImportStaging({ onImport, loading }: ImportStagingProps)
                 className="w-full text-left px-3 py-2 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50 rounded-lg border border-[#1e293b] transition-colors"
               >
                 📂 Select Folder
-                <span className="block text-[10px] text-[#475569] mt-0.5">Imports all .jsonl/.json/.csv files from a folder</span>
+                <span className="block text-[10px] text-[#475569] mt-0.5">Scans folder for .jsonl, .json, and .csv files (other files ignored)</span>
               </button>
               <button
                 onClick={() => fileRef.current?.click()}
                 className="w-full text-left px-3 py-2 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50 rounded-lg border border-[#1e293b] transition-colors"
               >
                 📄 Select Files
-                <span className="block text-[10px] text-[#475569] mt-0.5">Pick individual files</span>
+                <span className="block text-[10px] text-[#475569] mt-0.5">Pick individual .jsonl, .json, or .csv files</span>
               </button>
+              <p className="text-[10px] text-[#475569] px-1">Selecting more files adds to the list below. Duplicates are skipped automatically.</p>
             </div>
 
             {/* Staged files list */}
@@ -140,7 +141,8 @@ export default function ImportStaging({ onImport, loading }: ImportStagingProps)
                         <span className="text-[#475569] shrink-0">{s.size}</span>
                         <button
                           onClick={() => removeFile(i)}
-                          className="text-[#475569] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                          className="text-[#475569] hover:text-red-400 transition-colors shrink-0"
+                          title="Remove file"
                         >
                           ✕
                         </button>

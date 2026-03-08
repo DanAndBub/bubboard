@@ -76,9 +76,10 @@ export default function CostTrackingPage() {
   const [importToast, setImportToast] = useState<string | null>(null)
   const [clearModalOpen, setClearModalOpen] = useState(false)
   const [selectedModels, setSelectedModels] = useState<Set<string>>(new Set())
+  const [showDashboard, setShowDashboard] = useState(false) // once true, never goes back to false
 
-  const loadData = useCallback(async () => {
-    setLoading(true)
+  const loadData = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true)
     try {
       const [start, end] = dateRange
       const [recs, mb, count, daily] = await Promise.all([
@@ -91,6 +92,7 @@ export default function CostTrackingPage() {
       setModelBreakdown(mb)
       setRecordCount(count)
       setDailyCosts(daily)
+      if (count > 0) setShowDashboard(true)
 
       const now = new Date()
       const todayStart = new Date(now)
@@ -117,7 +119,7 @@ export default function CostTrackingPage() {
 
 
     } finally {
-      setLoading(false)
+      if (showLoading) setLoading(false)
     }
   }, [dateRange])
 
@@ -197,6 +199,7 @@ export default function CostTrackingPage() {
   async function confirmClear() {
     setClearModalOpen(false)
     await clearAllData()
+    setShowDashboard(false)
     await loadData()
   }
 
@@ -327,16 +330,16 @@ export default function CostTrackingPage() {
             <span className="font-bold text-[#e2e8f0]">Driftwatch</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-sm text-[#475569] hover:text-[#94a3b8] transition-colors">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/" className="text-sm text-[#475569] hover:text-[#94a3b8] transition-colors hidden sm:block">
               Home
             </Link>
-            <Link href="/map" className="text-sm text-[#475569] hover:text-[#94a3b8] transition-colors">
+            <Link href="/map" className="text-sm text-[#475569] hover:text-[#94a3b8] transition-colors hidden sm:block">
               Map
             </Link>
             <Link
               href="/map"
-              className="px-4 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 transition-all font-medium text-sm"
+              className="px-3 sm:px-4 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 transition-all font-medium text-xs sm:text-sm"
             >
               Scan Yours →
             </Link>
@@ -346,10 +349,10 @@ export default function CostTrackingPage() {
 
       <div className="pt-14">
         {/* Page header */}
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-[#e2e8f0]">Cost Tracking</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-[#e2e8f0]">Cost Tracking</h1>
               <p className="text-sm text-[#475569] mt-1">
                 All data stored locally in your browser
                 {importToast && (
@@ -376,7 +379,7 @@ export default function CostTrackingPage() {
         </div>
 
         {/* DateRangePicker + Model Filter */}
-        <div className="max-w-7xl mx-auto px-6 mb-6 space-y-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6 space-y-3">
           <DateRangePicker
             startDate={dateRange[0]}
             endDate={dateRange[1]}
@@ -419,9 +422,9 @@ export default function CostTrackingPage() {
         </div>
 
         {/* Content */}
-        <div className="max-w-7xl mx-auto px-6 space-y-6 pb-12">
-          {recordCount === 0 && !loading ? (
-            <EmptyState onImportClick={() => document.getElementById('file-upload-input')?.click()} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6 pb-12">
+          {!showDashboard ? (
+            <EmptyState onLoadDemo={handleLoadDemoData} demoLoading={loading} />
           ) : (
             <>
               <CostOverview

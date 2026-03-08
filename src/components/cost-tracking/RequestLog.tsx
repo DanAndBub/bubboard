@@ -75,14 +75,14 @@ export default function RequestLog({ records }: RequestLogProps) {
         <table className="w-full text-xs">
           <thead className="bg-[#0a0e17]">
             <tr>
-              <th className="text-left px-6 py-2 font-medium text-[#475569]">Time</th>
-              <th className="text-left px-3 py-2 font-medium text-[#475569]">Provider</th>
+              <th className="text-left px-4 sm:px-6 py-2 font-medium text-[#475569]">Time</th>
+              <th className="text-left px-3 py-2 font-medium text-[#475569] hidden sm:table-cell">Provider</th>
               <th className="text-left px-3 py-2 font-medium text-[#475569]">Model</th>
-              <th className="text-right px-3 py-2 font-medium text-[#475569]">Input</th>
-              <th className="text-right px-3 py-2 font-medium text-[#475569]">Output</th>
-              <th className="text-right px-3 py-2 font-medium text-[#475569]">Cache</th>
+              <th className="text-right px-3 py-2 font-medium text-[#475569] hidden md:table-cell">Input</th>
+              <th className="text-right px-3 py-2 font-medium text-[#475569] hidden md:table-cell">Output</th>
+              <th className="text-right px-3 py-2 font-medium text-[#475569] hidden lg:table-cell">Cache</th>
               <th className="text-right px-3 py-2 font-medium text-[#475569]">Cost</th>
-              <th className="text-left px-3 py-2 pr-6 font-medium text-[#475569]">Task</th>
+              <th className="text-left px-3 py-2 pr-6 font-medium text-[#475569] hidden lg:table-cell">Task</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#1e293b]/50">
@@ -100,18 +100,18 @@ export default function RequestLog({ records }: RequestLogProps) {
                     onClick={() => toggleRow(r.id)}
                     className="cursor-pointer hover:bg-[#0a0e17]/60 transition-colors"
                   >
-                    <td className="px-6 py-2 font-mono text-[#94a3b8] whitespace-nowrap">
+                    <td className="px-4 sm:px-6 py-2 font-mono text-[#94a3b8] whitespace-nowrap">
                       {formatTimestamp(r.timestamp)}
                     </td>
-                    <td className="px-3 py-2 text-[#475569] uppercase">{r.provider}</td>
+                    <td className="px-3 py-2 text-[#475569] uppercase hidden sm:table-cell">{r.provider}</td>
                     <td className="px-3 py-2 font-mono text-[#94a3b8] max-w-[140px] truncate">{r.model}</td>
-                    <td className="px-3 py-2 font-mono text-[#94a3b8] text-right">{r.input_tokens.toLocaleString()}</td>
-                    <td className="px-3 py-2 font-mono text-[#94a3b8] text-right">{r.output_tokens.toLocaleString()}</td>
-                    <td className="px-3 py-2 font-mono text-[#475569] text-right">
+                    <td className="px-3 py-2 font-mono text-[#94a3b8] text-right hidden md:table-cell">{r.input_tokens.toLocaleString()}</td>
+                    <td className="px-3 py-2 font-mono text-[#94a3b8] text-right hidden md:table-cell">{r.output_tokens.toLocaleString()}</td>
+                    <td className="px-3 py-2 font-mono text-[#475569] text-right hidden lg:table-cell">
                       {r.cached_input_tokens > 0 ? r.cached_input_tokens.toLocaleString() : '-'}
                     </td>
                     <td className="px-3 py-2 font-mono text-blue-400 text-right">${r.cost_usd.toFixed(6)}</td>
-                    <td className="px-3 py-2 pr-6 text-[#475569]">{r.task_id ?? '-'}</td>
+                    <td className="px-3 py-2 pr-6 text-[#475569] hidden lg:table-cell">{r.task_id ?? '-'}</td>
                   </tr>
                   {isExpanded && (
                     <tr key={`${r.id}-expanded`}>

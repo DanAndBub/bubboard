@@ -50,7 +50,7 @@ export default function InsightsPanel({ anomalies, forecast, quickStats }: Insig
         <span className="text-sm font-semibold text-[#e2e8f0]">Insights</span>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Section A — Anomaly Alerts */}
         <div>
           <p className="text-xs font-medium text-[#94a3b8] mb-1">Anomaly Alerts</p>

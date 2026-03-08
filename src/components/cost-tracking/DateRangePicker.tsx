@@ -124,7 +124,7 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
     'bg-[#0a0e17] border border-[#1e293b] rounded-lg px-3 py-1 text-xs font-mono text-[#e2e8f0] [color-scheme:dark] outline-none focus:border-blue-500/50'
 
   return (
-    <div className="flex items-center gap-3 flex-wrap">
+    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
       {presets.map((preset) => {
         const isActive = activePreset === preset
         return (
