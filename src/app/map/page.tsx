@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Nav from '@/components/Nav';
 import { parseAgentTree } from '@/lib/parser';
 import { pathsToTree } from '@/lib/pathsToTree';
 import { analyzeAgentsMd, analyzeOpenClawConfig, analyzeHeartbeat } from '@/lib/analyzer';
@@ -135,45 +136,34 @@ Primary channel: Telegram
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Top nav */}
-      <nav className="sticky top-0 z-20 border-b border-[#1e293b] bg-[#0a0e17]/95 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-6 h-6 rounded border border-blue-500/30 bg-blue-500/10 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-            </div>
-            <span className="font-bold text-[#e2e8f0] text-sm">Driftwatch</span>
-          </Link>
-
-          <div className="text-[#1e293b]">/</div>
-          <span className="text-sm text-[#94a3b8]">Agent Map</span>
-
-          {isDemo && (
-            <span className="text-xs px-2 py-0.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400">
-              Demo: Bub&apos;s workspace
-            </span>
-          )}
-
-          {agentMap && (
-            <div className="ml-auto flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setAgentMap(null);
-                  setFileContents({});
-                  setInputCollapsed(false);
-                  window.history.pushState({}, '', '/map');
-                }}
-                className="text-xs text-[#475569] hover:text-[#94a3b8] transition-colors border border-[#1e293b] rounded-lg px-3 py-1.5 hover:border-[#2d3f5a]"
-              >
-                New map
-              </button>
-            </div>
-          )}
+      <Nav />
+      {/* Page-specific bar */}
+      {(isDemo || agentMap) && (
+        <div className="sticky top-14 z-10 border-b border-[#1e293b] bg-[#0a0e17]/95 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-4 h-10 flex items-center gap-3">
+            {isDemo && (
+              <span className="text-xs px-2 py-0.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400">
+                Demo: Bub&apos;s workspace
+              </span>
+            )}
+            {agentMap && (
+              <div className="ml-auto">
+                <button
+                  onClick={() => {
+                    setAgentMap(null);
+                    setFileContents({});
+                    setInputCollapsed(false);
+                    window.history.pushState({}, '', '/map');
+                  }}
+                  className="text-xs text-[#475569] hover:text-[#94a3b8] transition-colors border border-[#1e293b] rounded-lg px-3 py-1.5 hover:border-[#2d3f5a]"
+                >
+                  New map
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </nav>
+      )}
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-6 space-y-6">
 
