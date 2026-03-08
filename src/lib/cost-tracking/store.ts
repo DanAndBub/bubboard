@@ -15,15 +15,32 @@ export async function addUsageRecord(
 
 export async function addUsageRecords(
   records: Omit<UsageRecord, 'id' | 'cost_usd'>[]
-): Promise<number> {
-  const fullRecords: UsageRecord[] = records.map((record) => {
+): Promise<{ added: number; skipped: number }> {
+  // Check for existing request_ids to avoid duplicates
+  const requestIds = records.map(r => r.request_id).filter(Boolean);
+  const existing = new Set<string>();
+  if (requestIds.length > 0) {
+    const found = await db.usage.where('request_id').anyOf(requestIds).toArray();
+    for (const r of found) existing.add(r.request_id);
+  }
+
+  const newRecords: UsageRecord[] = [];
+  let skipped = 0;
+  for (const record of records) {
+    if (record.request_id && existing.has(record.request_id)) {
+      skipped++;
+      continue;
+    }
     const id = crypto.randomUUID();
     const breakdown = calculateCost({ ...record, id, cost_usd: 0 });
     const cost_usd = breakdown ? breakdown.total_cost : 0;
-    return { ...record, id, cost_usd };
-  });
-  await db.usage.bulkPut(fullRecords);
-  return fullRecords.length;
+    newRecords.push({ ...record, id, cost_usd });
+  }
+
+  if (newRecords.length > 0) {
+    await db.usage.bulkPut(newRecords);
+  }
+  return { added: newRecords.length, skipped };
 }
 
 export async function getUsageByDateRange(start: Date, end: Date): Promise<UsageRecord[]> {
@@ -108,6 +125,7 @@ export async function getModelCostBreakdown(
       count,
       percentage: total > 0 ? (cost / total) * 100 : 0,
     }))
+    .filter(m => m.cost >= 0.01) // Hide models with negligible cost
     .sort((a, b) => b.cost - a.cost);
 }
 

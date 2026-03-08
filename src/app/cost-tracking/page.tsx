@@ -15,8 +15,6 @@ import {
 } from '@/lib/cost-tracking/store'
 import { db } from '@/lib/cost-tracking/db'
 import { parseClaudeCodeJSONL } from '@/lib/cost-tracking/importers/claude-code'
-import { parseOpenClawSessions } from '@/lib/cost-tracking/importers/openclaw'
-import { lookupPricing } from '@/lib/cost-tracking/pricing'
 import DateRangePicker from '@/components/cost-tracking/DateRangePicker'
 import CostOverview from '@/components/cost-tracking/CostOverview'
 import CostTimeline from '@/components/cost-tracking/CostTimeline'
@@ -26,6 +24,8 @@ import RequestLog from '@/components/cost-tracking/RequestLog'
 // import ImportPanel from '@/components/cost-tracking/ImportPanel' // moved to Import dropdown
 // import ReconciliationBadge from '@/components/cost-tracking/ReconciliationBadge' // moved to settings
 import InsightsPanel from '@/components/cost-tracking/InsightsPanel'
+import EmptyState from '@/components/cost-tracking/EmptyState'
+import Footer from '@/components/Footer'
 import { detectAllAnomalies } from '@/lib/cost-tracking/analytics/anomalies'
 import { forecastCosts } from '@/lib/cost-tracking/analytics/forecast'
 import { UsageRecord } from '@/lib/cost-tracking/types'
@@ -71,10 +71,10 @@ export default function CostTrackingPage() {
   const [todayCost, setTodayCost] = useState(0)
   const [weekCost, setWeekCost] = useState(0)
   const [monthCost, setMonthCost] = useState(0)
-  const [projectedMonthly, setProjectedMonthly] = useState(0)
   const [recordCount, setRecordCount] = useState(0)
   const [importToast, setImportToast] = useState<string | null>(null)
   const [importOpen, setImportOpen] = useState(false)
+  const [clearModalOpen, setClearModalOpen] = useState(false)
   const [selectedModels, setSelectedModels] = useState<Set<string>>(new Set())
   const importRef = useRef<HTMLDivElement>(null)
 
@@ -127,9 +127,7 @@ export default function CostTrackingPage() {
       setWeekCost(week)
       setMonthCost(month)
 
-      const dayOfMonth = now.getDate()
-      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-      setProjectedMonthly(dayOfMonth > 0 ? (month / dayOfMonth) * daysInMonth : 0)
+
     } finally {
       setLoading(false)
     }
@@ -150,113 +148,6 @@ export default function CostTrackingPage() {
     }
   }
 
-  async function handleLoadAdminAPI() {
-    setLoading(true)
-    try {
-      const secret = process.env.NEXT_PUBLIC_ADMIN_SECRET
-      const res = await fetch('/api/admin/anthropic/history?start=2026-02-01&end=2026-03-07', {
-        headers: { 'Authorization': `Bearer ${secret}` },
-      })
-      const data = await res.json()
-      if (data.error) {
-        setImportToast(`Admin API error: ${data.error}`)
-        return
-      }
-
-      const records: Array<Omit<typeof import('@/lib/cost-tracking/types').UsageRecord, never>> = []
-
-      // Pricing per million tokens (matching Anthropic's published rates)
-      const PRICING: Record<string, { input: number; output: number; cacheRead: number; cacheWrite: number }> = {
-        'claude-opus-4-6': { input: 5, output: 25, cacheRead: 0.50, cacheWrite: 6.25 },
-        'claude-opus-4-5-20251101': { input: 5, output: 25, cacheRead: 0.50, cacheWrite: 6.25 },
-        'claude-sonnet-4-6': { input: 3, output: 15, cacheRead: 0.30, cacheWrite: 3.75 },
-        'claude-sonnet-4-5-20250929': { input: 3, output: 15, cacheRead: 0.30, cacheWrite: 3.75 },
-        'claude-sonnet-4-20250514': { input: 3, output: 15, cacheRead: 0.30, cacheWrite: 3.75 },
-        'claude-haiku-4-5-20251001': { input: 0.80, output: 4, cacheRead: 0.08, cacheWrite: 1.00 },
-      }
-
-      for (const day of data.days) {
-        for (const r of day.results) {
-          const model = r.model as string
-          const pricing = PRICING[model] || { input: 3, output: 15, cacheRead: 0.30, cacheWrite: 3.75 }
-
-          const uncachedInput = (r.uncached_input_tokens as number) || 0
-          const cacheRead = (r.cache_read_input_tokens as number) || 0
-          const cacheWrite5m = (r.cache_creation?.ephemeral_5m_input_tokens as number) || 0
-          const cacheWrite1h = (r.cache_creation?.ephemeral_1h_input_tokens as number) || 0
-          const cacheWriteTotal = cacheWrite5m + cacheWrite1h
-          const outputTokens = (r.output_tokens as number) || 0
-
-          const cost_usd =
-            (uncachedInput / 1_000_000) * pricing.input +
-            (outputTokens / 1_000_000) * pricing.output +
-            (cacheRead / 1_000_000) * pricing.cacheRead +
-            (cacheWriteTotal / 1_000_000) * pricing.cacheWrite
-
-          records.push({
-            timestamp: day.date + 'T12:00:00.000Z',
-            provider: 'anthropic' as const,
-            model,
-            input_tokens: uncachedInput + cacheRead,
-            output_tokens: outputTokens,
-            cached_input_tokens: cacheRead,
-            cache_creation_tokens: cacheWriteTotal,
-            is_batch: false,
-            request_id: `admin-${day.date}-${model}`,
-            cost_usd,
-          })
-        }
-      }
-
-      await addUsageRecords(records)
-      await loadData()
-      setImportToast(`Imported ${records.length} daily records from Anthropic Admin API (${data.total_days} days)`)
-    } catch (err) {
-      setImportToast(`Admin API failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function handleLoadLocalLogs() {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/import-local')
-      const data = await res.json()
-      if (data.error) {
-        setImportToast(`Error: ${data.error}`)
-        return
-      }
-      // Parse Claude Code logs (calculate cost from tokens)
-      const claudeParsed = parseClaudeCodeJSONL(data.claude.content)
-      const claudeRecords = claudeParsed
-        .filter(r => r.model)
-        .map(r => {
-          const pricing = lookupPricing(r.model)
-          if (!pricing) return { ...r, cost_usd: 0 }
-          const uncachedInput = Math.max(0, r.input_tokens - r.cached_input_tokens)
-          const cost_usd =
-            (uncachedInput / 1_000_000) * pricing.input_per_mtok +
-            (r.output_tokens / 1_000_000) * pricing.output_per_mtok +
-            (r.cached_input_tokens / 1_000_000) * pricing.cache_read_per_mtok +
-            (r.cache_creation_tokens / 1_000_000) * pricing.cache_write_per_mtok
-          return { ...r, cost_usd }
-        })
-
-      // Parse OpenClaw sessions (cost already calculated)
-      const oclawRecords = parseOpenClawSessions(data.openclaw.content)
-
-      const allRecords = [...claudeRecords, ...oclawRecords]
-      await addUsageRecords(allRecords)
-      await loadData()
-      setImportToast(`Imported ${claudeRecords.length} Claude Code + ${oclawRecords.length} OpenClaw records (${data.claude.fileCount + data.openclaw.fileCount} files)`)
-    } catch (err) {
-      setImportToast(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   async function handleExportJSON() {
     const data = await exportAsJSON()
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -269,7 +160,11 @@ export default function CostTrackingPage() {
   }
 
   async function handleClearAll() {
-    if (!window.confirm('Clear all usage data? This cannot be undone.')) return
+    setClearModalOpen(true)
+  }
+
+  async function confirmClear() {
+    setClearModalOpen(false)
     await clearAllData()
     await loadData()
   }
@@ -427,7 +322,10 @@ export default function CostTrackingPage() {
               <p className="text-sm text-[#475569] mt-1">
                 All data stored locally in your browser
                 {importToast && (
-                  <span className="ml-3 text-green-400 animate-pulse">{importToast}</span>
+                  <span className="ml-3 text-green-400 animate-pulse">
+                    {importToast}
+                    <button onClick={() => setImportToast(null)} className="ml-2 text-[#475569] hover:text-[#94a3b8]">✕</button>
+                  </span>
                 )}
               </p>
             </div>
@@ -439,29 +337,34 @@ export default function CostTrackingPage() {
                   disabled={loading}
                   className="border border-blue-500/30 bg-blue-500/10 px-4 py-2 rounded-lg text-sm text-blue-400 hover:bg-blue-500/20 disabled:opacity-50 transition-colors flex items-center gap-1.5"
                 >
-                  <span>Import</span>
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  {loading ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                  ) : (
+                    <>
+                      <span>Import</span>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </>
+                  )}
                 </button>
                 {importOpen && (
-                  <div className="absolute right-0 mt-1 w-56 rounded-lg border border-[#1e293b] bg-[#111827] shadow-xl z-50">
-                    <button onClick={() => { handleLoadAdminAPI(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50 rounded-t-lg">
-                      🔑 Anthropic Admin API
+                  <div className="absolute right-0 mt-1 w-64 rounded-lg border border-[#1e293b] bg-[#111827] shadow-xl z-50">
+                    <button onClick={() => { document.getElementById('file-upload-input')?.click(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50 rounded-t-lg">
+                      📄 Claude Code Logs (.jsonl)
                     </button>
-                    <button onClick={() => { setImportOpen(false); /* TODO: OpenAI Admin */ setImportToast('OpenAI Admin API coming soon'); setTimeout(() => setImportToast(null), 3000); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50">
-                      🔑 OpenAI Admin API
-                    </button>
-                    <div className="border-t border-[#1e293b]" />
-                    <button onClick={() => { handleLoadLocalLogs(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50">
-                      📂 Local Agent Logs
-                    </button>
-                    <div className="border-t border-[#1e293b]" />
                     <button onClick={() => { document.getElementById('file-upload-input')?.click(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50">
-                      📄 Upload Files (CSV, JSON, JSONL)
+                      📄 OpenClaw Sessions (.jsonl)
                     </button>
-                    <div className="border-t border-[#1e293b]" />
-                    <button onClick={() => { handleLoadDemoData(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#475569] hover:bg-[#1e293b]/50 rounded-b-lg">
-                      Demo Data
+                    <button onClick={() => { document.getElementById('file-upload-input')?.click(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#e2e8f0] hover:bg-[#1e293b]/50 rounded-b-lg">
+                      📄 CSV / JSON
                     </button>
+                    {process.env.NODE_ENV === 'development' && (
+                      <>
+                        <div className="border-t border-[#1e293b]" />
+                        <button onClick={() => { handleLoadDemoData(); setImportOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#475569] hover:bg-[#1e293b]/50 rounded-b-lg">
+                          Demo Data
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -473,10 +376,7 @@ export default function CostTrackingPage() {
               <button onClick={handleClearAll} title="Clear all data" className="border border-[#1e293b] bg-[#111827] p-2 rounded-lg text-red-400/60 hover:text-red-400 transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               </button>
-              {/* Settings */}
-              <Link href="/settings" title="Settings" className="border border-[#1e293b] bg-[#111827] p-2 rounded-lg text-[#94a3b8] hover:text-[#e2e8f0] transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-              </Link>
+              {/* Settings — hidden until paid tier ships */}
             </div>
           </div>
         </div>
@@ -526,27 +426,33 @@ export default function CostTrackingPage() {
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-6 space-y-6 pb-12">
-          <CostOverview
-            todayCost={todayCost}
-            weekCost={weekCost}
-            monthCost={monthCost}
-            recordCount={recordCount}
-          />
+          {recordCount === 0 && !loading ? (
+            <EmptyState onImportClick={() => document.getElementById('file-upload-input')?.click()} />
+          ) : (
+            <>
+              <CostOverview
+                todayCost={todayCost}
+                weekCost={weekCost}
+                monthCost={monthCost}
+                recordCount={recordCount}
+              />
 
-          <div className="grid lg:grid-cols-2 gap-6">
-            <div>
-              <CostTimeline data={timelineData} />
-            </div>
-            <div>
-              <ModelBreakdown data={filteredModelBreakdown} />
-            </div>
-          </div>
+              <div className="grid lg:grid-cols-2 gap-6">
+                <div>
+                  <CostTimeline data={timelineData} />
+                </div>
+                <div>
+                  <ModelBreakdown data={filteredModelBreakdown} />
+                </div>
+              </div>
 
-          {/* TaskTable hidden — will return as tagged tasks feature */}
+              {/* TaskTable hidden — will return as tagged tasks feature */}
 
-          <InsightsPanel anomalies={anomalies} forecast={forecast} quickStats={quickStats} />
+              <InsightsPanel anomalies={anomalies} forecast={forecast} quickStats={quickStats} />
 
-          <RequestLog records={filteredRecords} />
+              <RequestLog records={filteredRecords} />
+            </>
+          )}
 
           {/* Hidden file input for Upload Files option in Import dropdown */}
           <input
@@ -561,6 +467,7 @@ export default function CostTrackingPage() {
               setLoading(true)
               try {
                 let totalImported = 0
+                let totalSkipped = 0
                 for (const file of Array.from(files)) {
                   const content = await file.text()
                   const name = file.name.toLowerCase()
@@ -575,16 +482,18 @@ export default function CostTrackingPage() {
                     parsed = parseCSV(content)
                   }
                   if (parsed.length > 0) {
-                    await addUsageRecords(parsed)
-                    totalImported += parsed.length
+                    const result = await addUsageRecords(parsed)
+                    totalImported += result.added
+                    totalSkipped += result.skipped
                   }
                 }
                 await loadData()
-                setImportToast(`Imported ${totalImported} records from ${files.length} file${files.length === 1 ? '' : 's'}`)
-                setTimeout(() => setImportToast(null), 4000)
+                const skipMsg = totalSkipped > 0 ? ` (${totalSkipped} duplicates skipped)` : ''
+                setImportToast(`Imported ${totalImported} new records from ${files.length} file${files.length === 1 ? '' : 's'}${skipMsg}`)
+                setTimeout(() => setImportToast(null), 5000)
               } catch (err) {
                 setImportToast(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
-                setTimeout(() => setImportToast(null), 4000)
+                setTimeout(() => setImportToast(null), 5000)
               } finally {
                 setLoading(false)
                 e.target.value = ''
@@ -593,6 +502,27 @@ export default function CostTrackingPage() {
           />
         </div>
       </div>
+      <Footer />
+
+      {/* Clear data confirmation modal */}
+      {clearModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6 max-w-sm mx-4 shadow-2xl">
+            <p className="text-sm font-medium text-[#e2e8f0]">Clear all data?</p>
+            <p className="text-xs text-[#475569] mt-2">
+              This will delete all {recordCount.toLocaleString()} records from your browser. This cannot be undone.
+            </p>
+            <div className="flex gap-3 mt-5 justify-end">
+              <button onClick={() => setClearModalOpen(false)} className="px-4 py-1.5 rounded-lg text-sm text-[#94a3b8] border border-[#1e293b] hover:text-[#e2e8f0] transition-colors">
+                Cancel
+              </button>
+              <button onClick={confirmClear} className="px-4 py-1.5 rounded-lg text-sm text-red-400 border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 transition-colors">
+                Delete All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
