@@ -77,7 +77,10 @@ export default function CostTrackingPage() {
   const [importToast, setImportToast] = useState<string | null>(null)
   const [clearModalOpen, setClearModalOpen] = useState(false)
   const [selectedModels, setSelectedModels] = useState<Set<string>>(new Set())
-  const [showDashboard, setShowDashboard] = useState(false) // once true, never goes back to false
+  const [showDashboard, setShowDashboard] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('driftwatch-has-cost-data') === '1';
+  })
 
   const loadData = useCallback(async (showLoading = false) => {
     if (showLoading) setLoading(true)
@@ -93,7 +96,13 @@ export default function CostTrackingPage() {
       setModelBreakdown(mb)
       setRecordCount(count)
       setDailyCosts(daily)
-      if (count > 0) setShowDashboard(true)
+      if (count > 0) {
+        setShowDashboard(true)
+        sessionStorage.setItem('driftwatch-has-cost-data', '1')
+      } else {
+        setShowDashboard(false)
+        sessionStorage.removeItem('driftwatch-has-cost-data')
+      }
 
       const now = new Date()
       const todayStart = new Date(now)
@@ -201,6 +210,7 @@ export default function CostTrackingPage() {
     setClearModalOpen(false)
     await clearAllData()
     setShowDashboard(false)
+    sessionStorage.removeItem('driftwatch-has-cost-data')
     await loadData()
   }
 
