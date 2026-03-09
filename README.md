@@ -34,6 +34,22 @@ npm start
 
 Open [localhost:3000/map](http://localhost:3000/map) and scan your `~/.openclaw` directory.
 
+#### Optional: enable server-side local scan
+
+By default, Driftwatch is browser-only.
+
+For trusted self-hosted deployments, you can optionally enable a server-side scan endpoint that reads a local OpenClaw directory directly from the host.
+
+```env
+NEXT_PUBLIC_ENABLE_LOCAL_SCAN=true
+OPENCLAW_LOCAL_SCAN_ENABLED=true
+OPENCLAW_ROOT=/absolute/path/to/.openclaw
+```
+
+Then make that path available to the app process (for example with a Docker bind mount or local filesystem access).
+
+**Recommended only for private/self-hosted deployments.** Do not enable this on a public multi-tenant deployment unless you intentionally want the server to read a local OpenClaw directory.
+
 ### Demo
 See an example map without scanning: [bubbuilds.com/map?demo=true](https://bubbuilds.com/map?demo=true)
 
@@ -65,14 +81,25 @@ Driftwatch only looks at specific known locations:
 - **No database** — fully client-side
 - **Vercel** for hosting
 
-## Environment variables (optional, for hosted features)
+## Environment variables
 
 ```env
+# Hosted feedback/waitlist features
 AIRTABLE_BASE_ID=your_base_id
 AIRTABLE_API_KEY=your_api_key
+
+# Optional self-hosted server-side scan
+NEXT_PUBLIC_ENABLE_LOCAL_SCAN=false
+OPENCLAW_LOCAL_SCAN_ENABLED=false
+OPENCLAW_ROOT=/absolute/path/to/.openclaw
 ```
 
-These power the waitlist and feedback forms. Not needed for self-hosted use.
+- `AIRTABLE_*` powers the waitlist and feedback forms.
+- `NEXT_PUBLIC_ENABLE_LOCAL_SCAN` shows the local server scan button in the UI.
+- `OPENCLAW_LOCAL_SCAN_ENABLED` enables the `/api/local-scan` endpoint.
+- `OPENCLAW_ROOT` points at the local OpenClaw root directory to scan.
+
+For production/public hosting, leave local scan disabled.
 
 ## Contributing
 
