@@ -8,6 +8,8 @@ import { pathsToTree } from '@/lib/pathsToTree';
 import { analyzeAgentsMd, analyzeOpenClawConfig, analyzeHeartbeat } from '@/lib/analyzer';
 import { getDemoAgentMap } from '@/lib/demo-data';
 import type { AgentMap } from '@/lib/types';
+import { analyzeFiles } from '@/lib/config-review/analyze-file';
+import { runReview, type ReviewResult } from '@/lib/config-review/runner';
 import DirectoryScanner from '@/scanner/DirectoryScanner';
 import TreeInput from '@/components/TreeInput';
 import AgentMapDisplay from '@/components/AgentMap';
@@ -20,6 +22,7 @@ function MapPageContent() {
   const [fileContents, setFileContents] = useState<Record<string, string>>({});
   const [inputCollapsed, setInputCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
 
   // Whether webkitdirectory is unsupported in this browser
   const [browserUnsupported, setBrowserUnsupported] = useState(false);
@@ -76,6 +79,13 @@ Primary channel: Telegram
       setFileContents(demoContents);
       setAgentMap(demoMap);
       setInputCollapsed(true);
+
+      // Run config review on demo data
+      const mdFiles = Object.entries(demoContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
+      if (mdFiles.length > 0) {
+        const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+        setReviewResult(runReview(analyzed));
+      }
     }
   }, [isDemo]);
 
@@ -98,6 +108,14 @@ Primary channel: Telegram
       }
       setAgentMap(enriched);
       setInputCollapsed(true);
+
+      // Run config review on file contents
+      const mdFiles = Object.entries(allContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
+      if (mdFiles.length > 0) {
+        const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+        setReviewResult(runReview(analyzed));
+      }
+
       setIsLoading(false);
     }, 150);
   }
@@ -163,6 +181,7 @@ Primary channel: Telegram
                 onClick={() => {
                   setAgentMap(null);
                   setFileContents({});
+                  setReviewResult(null);
                   setInputCollapsed(false);
                   window.history.pushState({}, '', '/map');
                 }}
@@ -225,7 +244,7 @@ Primary channel: Telegram
           /* Collapsed input */
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { setInputCollapsed(false); setAgentMap(null); setFileContents({}); }}
+              onClick={() => { setInputCollapsed(false); setAgentMap(null); setFileContents({}); setReviewResult(null); }}
               className="flex items-center gap-2 text-xs text-[#475569] hover:text-[#94a3b8] transition-colors border border-[#1e293b] rounded-lg px-3 py-2 hover:border-[#2d3f5a] hover:bg-[#111827]"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
