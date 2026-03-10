@@ -21,6 +21,7 @@ import { generateSessionNotes } from '@/lib/drift/session-notes';
 import { downloadSessionNotes } from '@/lib/drift/session-notes-export';
 import type { Snapshot, DriftReport } from '@/lib/drift/types';
 import DriftReportPanel from '@/components/drift/DriftReport';
+import EditorPanel from '@/components/editor/EditorPanel';
 import DirectoryScanner from '@/scanner/DirectoryScanner';
 import TreeInput from '@/components/TreeInput';
 import AgentMapDisplay from '@/components/AgentMap';
@@ -39,6 +40,7 @@ function MapPageContent() {
   const [currentSnapshot, setCurrentSnapshot] = useState<Snapshot | null>(null);
   const [previousSnapshot, setPreviousSnapshot] = useState<Snapshot | null>(null);
   const [driftReport, setDriftReport] = useState<DriftReport | null>(null);
+  const [editorFile, setEditorFile] = useState<string | null>(null);
 
   // Whether webkitdirectory is unsupported in this browser
   const [browserUnsupported, setBrowserUnsupported] = useState(false);
@@ -112,6 +114,35 @@ Primary channel: Telegram
     if (name === 'OPENCLAW.JSON') return analyzeOpenClawConfig(content, map);
     if (name === 'HEARTBEAT.MD') return analyzeHeartbeat(content, map);
     return map;
+  }
+
+  function openFileEditor(path: string) {
+    setEditorFile(path);
+  }
+
+  function handleContentChange(path: string, newContent: string) {
+    setFileContents(prev => ({ ...prev, [path]: newContent }));
+  }
+
+  function handleRescan() {
+    setEditorFile(null);
+    // Re-run review with updated file contents
+    const allContents = fileContents;
+    const mdFiles = Object.entries(allContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
+    if (mdFiles.length > 0) {
+      const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+      setAnalyzedFiles(analyzed);
+      const review = runReview(analyzed);
+      setReviewResult(review);
+      const fileBudget = calculateBudget(analyzed);
+      setBudget(fileBudget);
+      if (agentMap) {
+        serializeSnapshot(analyzed, review, fileBudget, agentMap).then(snap => {
+          setCurrentSnapshot(snap);
+          if (previousSnapshot) setDriftReport(computeDrift(previousSnapshot, snap));
+        });
+      }
+    }
   }
 
   function buildMapFromTree(tree: string, extraContents: Record<string, string> = {}) {
@@ -313,7 +344,7 @@ Primary channel: Telegram
             {/* Config Review */}
             {reviewResult && (
               <div className="mt-6">
-                <ReviewPanel result={reviewResult} files={analyzedFiles} />
+                <ReviewPanel result={reviewResult} files={analyzedFiles} onOpenFile={openFileEditor} />
               </div>
             )}
 
@@ -427,6 +458,24 @@ Primary channel: Telegram
           </div>
         )}
       </div>
+
+      {/* Editor Slide-in Panel */}
+      {editorFile && fileContents[editorFile] !== undefined && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-30 bg-black/40"
+            onClick={() => setEditorFile(null)}
+          />
+          <EditorPanel
+            path={editorFile}
+            content={fileContents[editorFile]}
+            onClose={() => setEditorFile(null)}
+            onContentChange={handleContentChange}
+            onRescan={handleRescan}
+          />
+        </>
+      )}
     </div>
   );
 }

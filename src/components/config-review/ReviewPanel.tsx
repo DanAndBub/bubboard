@@ -11,6 +11,7 @@ import TruncationDiagram from './TruncationDiagram';
 interface ReviewPanelProps {
   result: ReviewResult;
   files: FileAnalysis[];
+  onOpenFile?: (path: string) => void;
 }
 
 const SEVERITY_ICON: Record<string, string> = {
@@ -37,7 +38,7 @@ function scoreBarColor(score: number): string {
   return 'bg-red-500';
 }
 
-export default function ReviewPanel({ result, files }: ReviewPanelProps) {
+export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelProps) {
   const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
   const [expandedFindings, setExpandedFindings] = useState<Set<string>>(new Set());
 
@@ -207,6 +208,14 @@ export default function ReviewPanel({ result, files }: ReviewPanelProps) {
                               <p className="text-xs text-[#e2e8f0]">{finding.recommendation}</p>
                               {truncation && truncation.hiddenRange && (
                                 <TruncationDiagram analysis={truncation} />
+                              )}
+                              {onOpenFile && !finding.file.includes('↔') && !finding.file.startsWith('(') && (
+                                <button
+                                  onClick={() => onOpenFile(finding.file)}
+                                  className="mt-2 text-[10px] px-2 py-0.5 rounded border border-blue-500/20 bg-blue-500/5 text-blue-400 hover:bg-blue-500/10 transition-all"
+                                >
+                                  Fix →
+                                </button>
                               )}
                             </div>
                           )}
