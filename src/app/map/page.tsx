@@ -8,8 +8,9 @@ import { pathsToTree } from '@/lib/pathsToTree';
 import { analyzeAgentsMd, analyzeOpenClawConfig, analyzeHeartbeat } from '@/lib/analyzer';
 import { getDemoAgentMap } from '@/lib/demo-data';
 import type { AgentMap } from '@/lib/types';
-import { analyzeFiles } from '@/lib/config-review/analyze-file';
+import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
 import { runReview, type ReviewResult } from '@/lib/config-review/runner';
+import ReviewPanel from '@/components/config-review/ReviewPanel';
 import DirectoryScanner from '@/scanner/DirectoryScanner';
 import TreeInput from '@/components/TreeInput';
 import AgentMapDisplay from '@/components/AgentMap';
@@ -23,6 +24,7 @@ function MapPageContent() {
   const [inputCollapsed, setInputCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
+  const [analyzedFiles, setAnalyzedFiles] = useState<ReturnType<typeof analyzeFile>[]>([]);
 
   // Whether webkitdirectory is unsupported in this browser
   const [browserUnsupported, setBrowserUnsupported] = useState(false);
@@ -84,6 +86,7 @@ Primary channel: Telegram
       const mdFiles = Object.entries(demoContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
       if (mdFiles.length > 0) {
         const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+        setAnalyzedFiles(analyzed);
         setReviewResult(runReview(analyzed));
       }
     }
@@ -113,6 +116,7 @@ Primary channel: Telegram
       const mdFiles = Object.entries(allContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
       if (mdFiles.length > 0) {
         const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+        setAnalyzedFiles(analyzed);
         setReviewResult(runReview(analyzed));
       }
 
@@ -274,6 +278,13 @@ Primary channel: Telegram
             </div>
 
             <AgentMapDisplay map={agentMap} fileContents={fileContents} />
+
+            {/* Config Review */}
+            {reviewResult && (
+              <div className="mt-6">
+                <ReviewPanel result={reviewResult} files={analyzedFiles} />
+              </div>
+            )}
           </div>
         )}
 
