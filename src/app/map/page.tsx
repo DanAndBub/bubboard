@@ -11,6 +11,16 @@ import type { AgentMap } from '@/lib/types';
 import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
 import { runReview, type ReviewResult } from '@/lib/config-review/runner';
 import ReviewPanel from '@/components/config-review/ReviewPanel';
+import { calculateBudget } from '@/lib/config-review/budget';
+import type { BootstrapBudget } from '@/lib/config-review/types';
+import { serializeSnapshot } from '@/lib/drift/snapshot-serialize';
+import { downloadSnapshot } from '@/lib/drift/snapshot-export';
+import { importSnapshot } from '@/lib/drift/snapshot-import';
+import { computeDrift } from '@/lib/drift/diff-engine';
+import { generateSessionNotes } from '@/lib/drift/session-notes';
+import { downloadSessionNotes } from '@/lib/drift/session-notes-export';
+import type { Snapshot, DriftReport } from '@/lib/drift/types';
+import DriftReportPanel from '@/components/drift/DriftReport';
 import DirectoryScanner from '@/scanner/DirectoryScanner';
 import TreeInput from '@/components/TreeInput';
 import AgentMapDisplay from '@/components/AgentMap';
@@ -25,6 +35,10 @@ function MapPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
   const [analyzedFiles, setAnalyzedFiles] = useState<ReturnType<typeof analyzeFile>[]>([]);
+  const [budget, setBudget] = useState<BootstrapBudget | null>(null);
+  const [currentSnapshot, setCurrentSnapshot] = useState<Snapshot | null>(null);
+  const [previousSnapshot, setPreviousSnapshot] = useState<Snapshot | null>(null);
+  const [driftReport, setDriftReport] = useState<DriftReport | null>(null);
 
   // Whether webkitdirectory is unsupported in this browser
   const [browserUnsupported, setBrowserUnsupported] = useState(false);
@@ -117,7 +131,20 @@ Primary channel: Telegram
       if (mdFiles.length > 0) {
         const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
         setAnalyzedFiles(analyzed);
-        setReviewResult(runReview(analyzed));
+        const review = runReview(analyzed);
+        setReviewResult(review);
+        const fileBudget = calculateBudget(analyzed);
+        setBudget(fileBudget);
+
+        // Build snapshot + drift (async for content hashing)
+        serializeSnapshot(analyzed, review, fileBudget, enriched).then(snap => {
+          setCurrentSnapshot(snap);
+          // If previous snapshot loaded, compute drift
+          setPreviousSnapshot(prev => {
+            if (prev) setDriftReport(computeDrift(prev, snap));
+            return prev;
+          });
+        });
       }
 
       setIsLoading(false);
@@ -186,6 +213,10 @@ Primary channel: Telegram
                   setAgentMap(null);
                   setFileContents({});
                   setReviewResult(null);
+                  setCurrentSnapshot(null);
+                  setPreviousSnapshot(null);
+                  setDriftReport(null);
+                  setBudget(null);
                   setInputCollapsed(false);
                   window.history.pushState({}, '', '/map');
                 }}
@@ -248,7 +279,7 @@ Primary channel: Telegram
           /* Collapsed input */
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { setInputCollapsed(false); setAgentMap(null); setFileContents({}); setReviewResult(null); }}
+              onClick={() => { setInputCollapsed(false); setAgentMap(null); setFileContents({}); setReviewResult(null); setCurrentSnapshot(null); setPreviousSnapshot(null); setDriftReport(null); setBudget(null); }}
               className="flex items-center gap-2 text-xs text-[#475569] hover:text-[#94a3b8] transition-colors border border-[#1e293b] rounded-lg px-3 py-2 hover:border-[#2d3f5a] hover:bg-[#111827]"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -283,6 +314,57 @@ Primary channel: Telegram
             {reviewResult && (
               <div className="mt-6">
                 <ReviewPanel result={reviewResult} files={analyzedFiles} />
+              </div>
+            )}
+
+            {/* Drift Report */}
+            {driftReport && (
+              <div className="mt-6">
+                <DriftReportPanel report={driftReport} />
+              </div>
+            )}
+
+            {/* Snapshot & Notes Controls */}
+            {currentSnapshot && (
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => downloadSnapshot(currentSnapshot)}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all"
+                >
+                  📥 Download Snapshot
+                </button>
+                <label className="text-xs px-3 py-1.5 rounded-lg border border-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all cursor-pointer">
+                  📤 Upload Previous Snapshot
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const text = await file.text();
+                      const result = importSnapshot(text);
+                      if (result.ok) {
+                        setPreviousSnapshot(result.snapshot);
+                        setDriftReport(computeDrift(result.snapshot, currentSnapshot));
+                      } else {
+                        alert(result.error);
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+                {reviewResult && budget && (
+                  <button
+                    onClick={() => {
+                      const notes = generateSessionNotes(reviewResult, budget, currentSnapshot, driftReport);
+                      downloadSessionNotes(notes);
+                    }}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all"
+                  >
+                    📝 Download Session Notes
+                  </button>
+                )}
               </div>
             )}
           </div>
