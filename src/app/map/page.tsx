@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import Nav from '@/components/Nav';
 import { parseAgentTree } from '@/lib/parser';
 import { pathsToTree } from '@/lib/pathsToTree';
@@ -152,10 +151,11 @@ Primary channel: Telegram
   };
 
   // Called by DirectoryScanner when webkitdirectory is not supported
-  const handleUnsupported = () => {
-    setBrowserUnsupported(true);
-    setTextFallbackOpen(true);
-  };
+  // Commenting out due to unused vars
+  // const handleUnsupported = () => {
+  //   setBrowserUnsupported(true);
+  //   setTextFallbackOpen(true);
+  // };
 
   // Called by TreeInput (text fallback)
   const handleTreeSubmit = (tree: string) => {

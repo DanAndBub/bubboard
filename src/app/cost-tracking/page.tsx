@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import Link from 'next/link'
 import Nav from '@/components/Nav'
 import { generateSeedData } from '@/lib/cost-tracking/test-utils/seed'
 import {
@@ -261,23 +260,23 @@ export default function CostTrackingPage() {
     return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date))
   }, [filteredRecords, dailyCosts])
 
-  // Compute task breakdown from records
-  const taskBreakdown = useMemo<TaskRow[]>(() => {
-    const acc: Record<string, { count: number; total_cost: number; models: string[] }> = {}
-    for (const r of records) {
-      if (!r.task_id) continue
-      if (!acc[r.task_id]) acc[r.task_id] = { count: 0, total_cost: 0, models: [] }
-      acc[r.task_id].count++
-      acc[r.task_id].total_cost += r.cost_usd
-      acc[r.task_id].models.push(r.model)
-    }
-    return Object.entries(acc).map(([task_id, { count, total_cost, models }]) => {
-      const freq: Record<string, number> = {}
-      for (const m of models) freq[m] = (freq[m] ?? 0) + 1
-      const primary_model = Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? ''
-      return { task_id, count, total_cost, avg_cost: total_cost / count, primary_model }
-    })
-  }, [records])
+  // taskBreakdown — kept for when TaskTable feature ships
+  // const taskBreakdown = useMemo<TaskRow[]>(() => {
+  //   const acc: Record<string, { count: number; total_cost: number; models: string[] }> = {}
+  //   for (const r of records) {
+  //     if (!r.task_id) continue
+  //     if (!acc[r.task_id]) acc[r.task_id] = { count: 0, total_cost: 0, models: [] }
+  //     acc[r.task_id].count++
+  //     acc[r.task_id].total_cost += r.cost_usd
+  //     acc[r.task_id].models.push(r.model)
+  //   }
+  //   return Object.entries(acc).map(([task_id, { count, total_cost, models }]) => {
+  //     const freq: Record<string, number> = {}
+  //     for (const m of models) freq[m] = (freq[m] ?? 0) + 1
+  //     const primary_model = Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? ''
+  //     return { task_id, count, total_cost, avg_cost: total_cost / count, primary_model }
+  //   })
+  // }, [records])
 
   // Analytics: anomaly detection + forecasting
   const anomalies = useMemo(() => {

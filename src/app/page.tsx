@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AgentMap from '@/components/AgentMap';
 import Nav from '@/components/Nav';
