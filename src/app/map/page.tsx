@@ -50,7 +50,7 @@ function MapPageContent() {
   }, [agentMap, fileContents]);
 
   // Whether webkitdirectory is unsupported in this browser
-  const [browserUnsupported, setBrowserUnsupported] = useState(false);
+  const [browserUnsupported, _setBrowserUnsupported] = useState(false);
   // Whether the text-input fallback section is expanded
   const [textFallbackOpen, setTextFallbackOpen] = useState(false);
 

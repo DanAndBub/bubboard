@@ -44,13 +44,13 @@ interface TimelinePoint {
   deepseek_cost: number
 }
 
-interface TaskRow {
-  task_id: string
-  count: number
-  total_cost: number
-  avg_cost: number
-  primary_model: string
-}
+// interface TaskRow {
+//   task_id: string
+//   count: number
+//   total_cost: number
+//   avg_cost: number
+//   primary_model: string
+// }
 
 function defaultDateRange(): [Date, Date] {
   const end = new Date()
