@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import Nav from '@/components/Nav';
 import { parseAgentTree } from '@/lib/parser';
 import { pathsToTree } from '@/lib/pathsToTree';
@@ -54,7 +53,7 @@ function MapPageContent() {
   }, [agentMap, fileContents]);
 
   // Whether webkitdirectory is unsupported in this browser
-  const [browserUnsupported, setBrowserUnsupported] = useState(false);
+  const [browserUnsupported, _setBrowserUnsupported] = useState(false);
   // Whether the text-input fallback section is expanded
   const [textFallbackOpen, setTextFallbackOpen] = useState(false);
 
@@ -104,10 +103,11 @@ function MapPageContent() {
   };
 
   // Called by DirectoryScanner when webkitdirectory is not supported
-  const handleUnsupported = () => {
-    setBrowserUnsupported(true);
-    setTextFallbackOpen(true);
-  };
+  // Commenting out due to unused vars
+  // const handleUnsupported = () => {
+  //   setBrowserUnsupported(true);
+  //   setTextFallbackOpen(true);
+  // };
 
   // Called by TreeInput (text fallback)
   const handleTreeSubmit = (tree: string) => {

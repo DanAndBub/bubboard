@@ -333,7 +333,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   function handleConfirm() {
     const selected = items.filter(i => i.selected);
     const paths = selected.map(i => i.path);
-    let filteredContents: Record<string, string> = {};
+    const filteredContents: Record<string, string> = {};
     if (includeContents) {
       for (const path of paths) {
         if (fileContents[path] !== undefined) filteredContents[path] = fileContents[path];
@@ -477,7 +477,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             <>
               <p className="text-xs text-slate-400">
                 Found <span className="text-blue-400 font-medium">{items.length}</span> items.
-                Deselect anything you'd rather exclude.
+                Deselect anything you&apos;d rather exclude.
               </p>
 
               {/* Contents toggle */}
