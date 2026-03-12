@@ -25,19 +25,19 @@ export default function DriftReportPanel({ report }: DriftReportProps) {
   const totalChanges = report.filesAdded.length + report.filesRemoved.length + report.filesChanged.length;
 
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] overflow-hidden">
+    <div className="rounded-xl border border-[#506880] bg-[#111827] overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-[#1e293b]">
+      <div className="px-5 py-4 border-b border-[#506880]">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-sm font-semibold text-[#e2e8f0]">Drift Report</span>
-            <p className="text-xs text-[#475569] mt-0.5">
+            <span className="text-sm font-semibold text-[#f1f5f9]">Drift Report</span>
+            <p className="text-xs text-[#7a8a9b] mt-0.5">
               Changes since {prevDate} ({report.daysBetween} day{report.daysBetween !== 1 ? 's' : ''})
             </p>
           </div>
           {/* Health delta */}
           {report.healthScoreDelta !== 0 && (
-            <span className={`text-sm font-mono font-bold ${report.healthScoreDelta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <span className={`text-sm font-mono font-bold ${report.healthScoreDelta > 0 ? 'text-[#34d399]' : 'text-[#f87171]'}`}>
               {report.healthScoreDelta > 0 ? '+' : ''}{report.healthScoreDelta} pts
             </span>
           )}
@@ -45,61 +45,61 @@ export default function DriftReportPanel({ report }: DriftReportProps) {
       </div>
 
       {/* Stats bar */}
-      <div className="px-5 py-3 border-b border-[#1e293b] flex flex-wrap gap-3 text-xs">
-        <span className="text-[#94a3b8]">
+      <div className="px-5 py-3 border-b border-[#506880] flex flex-wrap gap-3 text-xs">
+        <span className="text-[#b0bec9]">
           📁 <span className="font-mono">{report.filesChanged.length}</span> changed
         </span>
         {report.filesAdded.length > 0 && (
-          <span className="text-green-400">
+          <span className="text-[#34d399]">
             + <span className="font-mono">{report.filesAdded.length}</span> added
           </span>
         )}
         {report.filesRemoved.length > 0 && (
-          <span className="text-red-400">
+          <span className="text-[#f87171]">
             − <span className="font-mono">{report.filesRemoved.length}</span> removed
           </span>
         )}
         {report.budgetDelta !== 0 && (
-          <span className={report.budgetDelta > 0 ? 'text-amber-400' : 'text-green-400'}>
+          <span className={report.budgetDelta > 0 ? 'text-[#fbbf24]' : 'text-[#34d399]'}>
             Budget: {report.budgetDelta > 0 ? '+' : ''}{report.budgetDelta.toLocaleString()} chars
           </span>
         )}
         {report.agentTopologyChanges.added.length > 0 && (
-          <span className="text-green-400">
+          <span className="text-[#34d399]">
             🤖 +{report.agentTopologyChanges.added.join(', ')}
           </span>
         )}
         {report.agentTopologyChanges.removed.length > 0 && (
-          <span className="text-red-400">
+          <span className="text-[#f87171]">
             🤖 −{report.agentTopologyChanges.removed.join(', ')}
           </span>
         )}
       </div>
 
       {/* File changes */}
-      <div className="divide-y divide-[#1e293b]/50">
+      <div className="divide-y divide-[#506880]/50">
         {totalChanges === 0 && (
           <div className="px-5 py-6 text-center">
-            <span className="text-sm text-green-400">✓ No changes detected</span>
-            <p className="text-[10px] text-[#475569] mt-1">Your configuration is identical to the previous snapshot.</p>
+            <span className="text-sm text-[#34d399]">✓ No changes detected</span>
+            <p className="text-[10px] text-[#7a8a9b] mt-1">Your configuration is identical to the previous snapshot.</p>
           </div>
         )}
 
         {/* Added files */}
         {report.filesAdded.map(path => (
           <div key={`add-${path}`} className="px-5 py-2 flex items-center gap-2">
-            <span className="text-xs text-green-400 font-mono shrink-0">+</span>
-            <span className="text-xs font-mono text-[#e2e8f0]">{path}</span>
-            <span className="text-[10px] text-green-400">new file</span>
+            <span className="text-xs text-[#34d399] font-mono shrink-0">+</span>
+            <span className="text-xs font-mono text-[#f1f5f9]">{path}</span>
+            <span className="text-[10px] text-[#34d399]">new file</span>
           </div>
         ))}
 
         {/* Removed files */}
         {report.filesRemoved.map(path => (
           <div key={`rm-${path}`} className="px-5 py-2 flex items-center gap-2">
-            <span className="text-xs text-red-400 font-mono shrink-0">−</span>
-            <span className="text-xs font-mono text-[#94a3b8] line-through">{path}</span>
-            <span className="text-[10px] text-red-400">deleted</span>
+            <span className="text-xs text-[#f87171] font-mono shrink-0">−</span>
+            <span className="text-xs font-mono text-[#b0bec9] line-through">{path}</span>
+            <span className="text-[10px] text-[#f87171]">deleted</span>
           </div>
         ))}
 
@@ -114,13 +114,13 @@ export default function DriftReportPanel({ report }: DriftReportProps) {
                 onClick={() => toggleFile(fc.path)}
                 className="w-full px-5 py-2 flex items-center gap-2 hover:bg-[#0a0e17]/40 transition-colors text-left"
               >
-                <span className="text-[10px] text-[#475569]">{isExpanded ? '▾' : '▸'}</span>
-                <span className="text-xs font-mono text-[#e2e8f0] flex-1 truncate">{fc.path}</span>
-                <span className={`text-xs font-mono ${fc.charCountDelta >= 0 ? 'text-amber-400' : 'text-green-400'}`}>
+                <span className="text-[10px] text-[#7a8a9b]">{isExpanded ? '▾' : '▸'}</span>
+                <span className="text-xs font-mono text-[#f1f5f9] flex-1 truncate">{fc.path}</span>
+                <span className={`text-xs font-mono ${fc.charCountDelta >= 0 ? 'text-[#fbbf24]' : 'text-[#34d399]'}`}>
                   {fc.charCountDelta >= 0 ? '+' : ''}{fc.charCountDelta.toLocaleString()}
                 </span>
                 <span className={`text-[10px] font-mono ${
-                  isBloat ? 'text-red-400' : isSignificant ? 'text-amber-400' : 'text-[#475569]'
+                  isBloat ? 'text-[#f87171]' : isSignificant ? 'text-[#fbbf24]' : 'text-[#7a8a9b]'
                 }`}>
                   {fc.percentGrowth >= 0 ? '+' : ''}{fc.percentGrowth.toFixed(1)}%
                 </span>
@@ -129,13 +129,13 @@ export default function DriftReportPanel({ report }: DriftReportProps) {
               {isExpanded && (
                 <div className="px-9 pb-2 space-y-1 text-[11px]">
                   {fc.headingsAdded.length > 0 && (
-                    <p className="text-green-400">+ Sections added: {fc.headingsAdded.join(', ')}</p>
+                    <p className="text-[#34d399]">+ Sections added: {fc.headingsAdded.join(', ')}</p>
                   )}
                   {fc.headingsRemoved.length > 0 && (
-                    <p className="text-red-400">− Sections removed: {fc.headingsRemoved.join(', ')}</p>
+                    <p className="text-[#f87171]">− Sections removed: {fc.headingsRemoved.join(', ')}</p>
                   )}
                   {fc.headingsAdded.length === 0 && fc.headingsRemoved.length === 0 && (
-                    <p className="text-[#475569]">Content changed but section structure unchanged.</p>
+                    <p className="text-[#7a8a9b]">Content changed but section structure unchanged.</p>
                   )}
                 </div>
               )}
@@ -146,15 +146,15 @@ export default function DriftReportPanel({ report }: DriftReportProps) {
 
       {/* Finding changes */}
       {(report.newFindings.length > 0 || report.resolvedFindings.length > 0) && (
-        <div className="px-5 py-3 border-t border-[#1e293b]">
-          <p className="text-[10px] uppercase tracking-wider text-[#475569] font-medium mb-2">Finding Changes</p>
+        <div className="px-5 py-3 border-t border-[#506880]">
+          <p className="text-[10px] uppercase tracking-wider text-[#7a8a9b] font-medium mb-2">Finding Changes</p>
           {report.resolvedFindings.length > 0 && (
-            <p className="text-xs text-green-400 mb-1">
+            <p className="text-xs text-[#34d399] mb-1">
               ✓ {report.resolvedFindings.length} resolved
             </p>
           )}
           {report.newFindings.length > 0 && (
-            <p className="text-xs text-amber-400">
+            <p className="text-xs text-[#fbbf24]">
               + {report.newFindings.length} new finding{report.newFindings.length !== 1 ? 's' : ''}
             </p>
           )}
@@ -162,7 +162,7 @@ export default function DriftReportPanel({ report }: DriftReportProps) {
       )}
 
       {/* Footer */}
-      <div className="px-5 py-2.5 border-t border-[#1e293b] text-[10px] text-[#475569]">
+      <div className="px-5 py-2.5 border-t border-[#506880] text-[10px] text-[#7a8a9b]">
         {report.filesUnchanged.length} file{report.filesUnchanged.length !== 1 ? 's' : ''} unchanged
       </div>
     </div>

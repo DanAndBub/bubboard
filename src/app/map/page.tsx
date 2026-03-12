@@ -216,23 +216,23 @@ Primary channel: Telegram
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top nav */}
-      <nav className="sticky top-0 z-20 border-b border-[#1e293b] bg-[#0a0e17]/95 backdrop-blur-xl">
+      <nav className="sticky top-0 z-20 border-b border-[#506880] bg-[#0a0e17]/95 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-6 h-6 rounded border border-blue-500/30 bg-blue-500/10 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-6 h-6 rounded border border-[#7db8fc]/30 bg-[#7db8fc]/10 flex items-center justify-center">
+              <svg className="w-3.5 h-3.5 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                   d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
               </svg>
             </div>
-            <span className="font-bold text-[#e2e8f0] text-sm">Driftwatch</span>
+            <span className="font-bold text-[#f1f5f9] text-sm">Driftwatch</span>
           </Link>
 
-          <div className="text-[#1e293b]">/</div>
-          <span className="text-sm text-[#94a3b8]">Agent Map</span>
+          <div className="text-[#506880]">/</div>
+          <span className="text-sm text-[#b0bec9]">Agent Map</span>
 
           {isDemo && (
-            <span className="text-xs px-2 py-0.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400">
+            <span className="text-xs px-2 py-0.5 rounded-full border border-[#7db8fc]/30 bg-[#7db8fc]/10 text-[#7db8fc]">
               Demo: Bub&apos;s workspace
             </span>
           )}
@@ -251,7 +251,7 @@ Primary channel: Telegram
                   setInputCollapsed(false);
                   window.history.pushState({}, '', '/map');
                 }}
-                className="text-xs text-[#475569] hover:text-[#94a3b8] transition-colors border border-[#1e293b] rounded-lg px-3 py-1.5 hover:border-[#2d3f5a]"
+                className="text-xs text-[#7a8a9b] hover:text-[#b0bec9] transition-colors border border-[#506880] rounded-lg px-3 py-1.5 hover:border-[#2d3f5a]"
               >
                 New map
               </button>
@@ -267,8 +267,8 @@ Primary channel: Telegram
           <div className="max-w-2xl mx-auto space-y-4">
             {/* Header */}
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-[#e2e8f0] mb-2">Map Your Agent</h1>
-              <p className="text-sm text-[#94a3b8]">
+              <h1 className="text-2xl font-bold text-[#f1f5f9] mb-2">Map Your Agent</h1>
+              <p className="text-sm text-[#b0bec9]">
                 Select your OpenClaw directory to generate an interactive architecture map
               </p>
             </div>
@@ -281,17 +281,17 @@ Primary channel: Telegram
             )}
 
             {/* Secondary: text input fallback (collapsible) */}
-            <div className="rounded-xl border border-[#1e293b] bg-[#111827] overflow-hidden">
+            <div className="rounded-xl border border-[#506880] bg-[#111827] overflow-hidden">
               <button
                 type="button"
                 onClick={() => setTextFallbackOpen(v => !v)}
                 className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#0d1520] transition-colors"
               >
-                <span className="text-xs text-[#94a3b8]">
+                <span className="text-xs text-[#b0bec9]">
                   Using SSH or headless server? Paste output instead
                 </span>
                 <svg
-                  className={`w-4 h-4 text-[#475569] transition-transform ${textFallbackOpen ? 'rotate-180' : ''}`}
+                  className={`w-4 h-4 text-[#7a8a9b] transition-transform ${textFallbackOpen ? 'rotate-180' : ''}`}
                   fill="none" viewBox="0 0 24 24" stroke="currentColor"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -299,7 +299,7 @@ Primary channel: Telegram
               </button>
 
               {textFallbackOpen && (
-                <div className="border-t border-[#1e293b]">
+                <div className="border-t border-[#506880]">
                   <TreeInput onSubmit={handleTreeSubmit} isLoading={isLoading} />
                 </div>
               )}
@@ -311,7 +311,7 @@ Primary channel: Telegram
           <div className="flex items-center gap-3">
             <button
               onClick={() => { setInputCollapsed(false); setAgentMap(null); setFileContents({}); setReviewResult(null); setCurrentSnapshot(null); setPreviousSnapshot(null); setDriftReport(null); setBudget(null); }}
-              className="flex items-center gap-2 text-xs text-[#475569] hover:text-[#94a3b8] transition-colors border border-[#1e293b] rounded-lg px-3 py-2 hover:border-[#2d3f5a] hover:bg-[#111827]"
+              className="flex items-center gap-2 text-xs text-[#7a8a9b] hover:text-[#b0bec9] transition-colors border border-[#506880] rounded-lg px-3 py-2 hover:border-[#2d3f5a] hover:bg-[#111827]"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -324,17 +324,17 @@ Primary channel: Telegram
         {/* ── MAP OUTPUT ───────────────────────────────────────────────────── */}
         {agentMap && (
           <div>
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#1e293b]">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#506880]">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-400 status-dot-ok" />
-                <span className="text-sm font-medium text-[#e2e8f0]">
+                <span className="w-2 h-2 rounded-full bg-[#34d399] status-dot-ok" />
+                <span className="text-sm font-medium text-[#f1f5f9]">
                   {isDemo ? "Bub's Agent Architecture" : 'Your Agent Architecture'}
                 </span>
               </div>
-              <span className="text-xs text-[#475569]">
+              <span className="text-xs text-[#7a8a9b]">
                 {agentMap.agents.length} agent{agentMap.agents.length !== 1 ? 's' : ''} detected
               </span>
-              <div className="ml-auto text-xs text-[#475569] font-mono">
+              <div className="ml-auto text-xs text-[#7a8a9b] font-mono">
                 Generated in &lt;500ms
               </div>
             </div>
@@ -360,11 +360,11 @@ Primary channel: Telegram
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button
                   onClick={() => downloadSnapshot(currentSnapshot)}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all"
+                  className="text-xs px-3 py-1.5 rounded-lg border border-[#506880] text-[#b0bec9] hover:text-[#f1f5f9] hover:border-[#7db8fc]/30 hover:bg-[#7db8fc]/5 transition-all"
                 >
                   📥 Download Snapshot
                 </button>
-                <label className="text-xs px-3 py-1.5 rounded-lg border border-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all cursor-pointer">
+                <label className="text-xs px-3 py-1.5 rounded-lg border border-[#506880] text-[#b0bec9] hover:text-[#f1f5f9] hover:border-[#7db8fc]/30 hover:bg-[#7db8fc]/5 transition-all cursor-pointer">
                   📤 Upload Previous Snapshot
                   <input
                     type="file"
@@ -391,7 +391,7 @@ Primary channel: Telegram
                       const notes = generateSessionNotes(reviewResult, budget, currentSnapshot, driftReport);
                       downloadSessionNotes(notes);
                     }}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all"
+                    className="text-xs px-3 py-1.5 rounded-lg border border-[#506880] text-[#b0bec9] hover:text-[#f1f5f9] hover:border-[#7db8fc]/30 hover:bg-[#7db8fc]/5 transition-all"
                   >
                     📝 Download Session Notes
                   </button>
@@ -404,55 +404,55 @@ Primary channel: Telegram
         {/* Quick-start guide — shown when no map has been generated yet */}
         {!agentMap && (
           <div className="max-w-2xl mx-auto space-y-4 pt-2">
-            <h2 className="text-sm font-semibold text-[#94a3b8] tracking-wide uppercase">
+            <h2 className="text-sm font-semibold text-[#b0bec9] tracking-wide uppercase">
               How to scan your workspace
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Step 1 */}
-              <div className="bg-[#111827] border border-[#1e293b] rounded-lg p-4 space-y-2">
+              <div className="bg-[#111827] border border-[#506880] rounded-lg p-4 space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#475569]">01</span>
-                  <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span className="text-xs font-mono text-[#7a8a9b]">01</span>
+                  <svg className="w-4 h-4 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
                   </svg>
                 </div>
-                <p className="text-xs text-[#94a3b8] leading-relaxed">
-                  Choose your <span className="text-[#e2e8f0] font-mono">~/.openclaw</span> directory using the folder picker above (Chrome/Edge) or paste the <span className="font-mono">ls</span> output (Firefox/Safari).
+                <p className="text-xs text-[#b0bec9] leading-relaxed">
+                  Choose your <span className="text-[#f1f5f9] font-mono">~/.openclaw</span> directory using the folder picker above (Chrome/Edge) or paste the <span className="font-mono">ls</span> output (Firefox/Safari).
                 </p>
               </div>
 
               {/* Step 2 */}
-              <div className="bg-[#111827] border border-[#1e293b] rounded-lg p-4 space-y-2">
+              <div className="bg-[#111827] border border-[#506880] rounded-lg p-4 space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#475569]">02</span>
-                  <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span className="text-xs font-mono text-[#7a8a9b]">02</span>
+                  <svg className="w-4 h-4 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                 </div>
-                <p className="text-xs text-[#94a3b8] leading-relaxed">
-                  Review detected files. Toggle on <span className="text-[#e2e8f0]">Read File Contents</span> to auto-populate agent roles, config, and relationships.
+                <p className="text-xs text-[#b0bec9] leading-relaxed">
+                  Review detected files. Toggle on <span className="text-[#f1f5f9]">Read File Contents</span> to auto-populate agent roles, config, and relationships.
                 </p>
               </div>
 
               {/* Step 3 */}
-              <div className="bg-[#111827] border border-[#1e293b] rounded-lg p-4 space-y-2">
+              <div className="bg-[#111827] border border-[#506880] rounded-lg p-4 space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#475569]">03</span>
-                  <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span className="text-xs font-mono text-[#7a8a9b]">03</span>
+                  <svg className="w-4 h-4 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                   </svg>
                 </div>
-                <p className="text-xs text-[#94a3b8] leading-relaxed">
-                  Hit <span className="text-[#e2e8f0]">Build Map</span> to generate your interactive architecture dashboard.
+                <p className="text-xs text-[#b0bec9] leading-relaxed">
+                  Hit <span className="text-[#f1f5f9]">Build Map</span> to generate your interactive architecture dashboard.
                 </p>
               </div>
             </div>
 
-            <p className="text-xs text-[#475569] border-l-2 border-blue-500/30 pl-3">
+            <p className="text-xs text-[#7a8a9b] border-l-2 border-[#7db8fc]/30 pl-3">
               Tip: For the richest map, toggle on file content reading. Your files never leave your browser.
             </p>
           </div>
@@ -484,7 +484,7 @@ export default function MapPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-[#475569] text-sm">Loading...</div>
+        <div className="text-[#7a8a9b] text-sm">Loading...</div>
       </div>
     }>
       <MapPageContent />

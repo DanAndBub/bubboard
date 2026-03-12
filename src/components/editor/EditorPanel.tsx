@@ -17,7 +17,7 @@ export default function EditorPanel({ path, content, fileHandle, onClose, onCont
   const [editing, setEditing] = useState(false);
 
   return (
-    <div className="fixed inset-y-0 right-0 z-40 w-full sm:w-[560px] lg:w-[640px] bg-[#111827] border-l border-[#1e293b] shadow-2xl flex flex-col transition-transform duration-200">
+    <div className="fixed inset-y-0 right-0 z-40 w-full sm:w-[560px] lg:w-[640px] bg-[#111827] border-l border-[#506880] shadow-2xl flex flex-col transition-transform duration-200">
       {editing ? (
         <MDEditor
           path={path}

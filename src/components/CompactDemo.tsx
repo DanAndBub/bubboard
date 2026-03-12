@@ -5,8 +5,8 @@ import { calculateHealthScore } from '@/lib/scoring';
 
 const MODEL_COLORS: Record<string, string> = {
   opus: '#3b82f6',
-  sonnet: '#8b5cf6',
-  deepseek: '#10b981',
+  sonnet: '#a78bfa',
+  deepseek: '#34d399',
 };
 
 function getModelInfo(model: string): { label: string; color: string } {
@@ -37,28 +37,28 @@ export default function CompactDemo() {
     map.workspace.subagentProtocols.length;
 
   const stats = [
-    { label: 'Files', value: totalFiles, color: 'text-blue-400' },
-    { label: 'Agents', value: map.agents.length, color: 'text-purple-400' },
-    { label: 'Memory', value: map.workspace.memoryFiles.length, color: 'text-green-400' },
-    { label: 'Skills', value: map.skillCount, color: 'text-amber-400' },
+    { label: 'Files', value: totalFiles, color: 'text-[#7db8fc]' },
+    { label: 'Agents', value: map.agents.length, color: 'text-[#a78bfa]' },
+    { label: 'Memory', value: map.workspace.memoryFiles.length, color: 'text-[#34d399]' },
+    { label: 'Skills', value: map.skillCount, color: 'text-[#fbbf24]' },
     {
       label: 'Score',
       value: health.score,
-      color: health.score >= 8 ? 'text-green-400' : 'text-amber-400',
+      color: health.score >= 8 ? 'text-[#34d399]' : 'text-[#fbbf24]',
     },
   ];
 
   return (
-    <div className="w-full" style={{ color: '#e2e8f0' }}>
+    <div className="w-full" style={{ color: '#f1f5f9' }}>
       {/* Stats Row */}
       <div
         className="grid grid-cols-5 gap-1 rounded-lg border py-2"
-        style={{ background: '#111827', borderColor: '#1e293b' }}
+        style={{ background: '#111827', borderColor: '#506880' }}
       >
         {stats.map((stat) => (
           <div key={stat.label} className="text-center">
             <div className={`font-mono text-sm font-bold ${stat.color}`}>{stat.value}</div>
-            <div className="text-[10px]" style={{ color: '#475569' }}>
+            <div className="text-[10px]" style={{ color: '#7a8a9b' }}>
               {stat.label}
             </div>
           </div>
@@ -69,7 +69,7 @@ export default function CompactDemo() {
       <div className="mt-3">
         <div
           className="mb-1.5 text-[10px] font-medium uppercase tracking-widest"
-          style={{ color: '#475569' }}
+          style={{ color: '#7a8a9b' }}
         >
           Agent Fleet
         </div>
@@ -80,13 +80,13 @@ export default function CompactDemo() {
               <div
                 key={agent.id}
                 className="flex items-center gap-2 rounded-lg border px-3 py-1.5"
-                style={{ background: '#0a0e17', borderColor: '#1e293b' }}
+                style={{ background: '#0a0e17', borderColor: '#506880' }}
               >
                 <div
                   className="h-1.5 w-1.5 shrink-0 rounded-full"
                   style={{ background: color }}
                 />
-                <span className="text-xs font-medium" style={{ color: '#e2e8f0' }}>
+                <span className="text-xs font-medium" style={{ color: '#f1f5f9' }}>
                   {agent.name}
                 </span>
                 <span
@@ -101,9 +101,9 @@ export default function CompactDemo() {
                 </span>
                 <span className="shrink-0 text-[10px]">
                   {agent.hasProtocol ? (
-                    <span className="text-green-400">✓</span>
+                    <span className="text-[#34d399]">✓</span>
                   ) : (
-                    <span className="text-amber-400">⚠</span>
+                    <span className="text-[#fbbf24]">⚠</span>
                   )}
                 </span>
               </div>
@@ -116,7 +116,7 @@ export default function CompactDemo() {
       <div className="mt-3">
         <div
           className="mb-1.5 text-[10px] font-medium uppercase tracking-widest"
-          style={{ color: '#475569' }}
+          style={{ color: '#7a8a9b' }}
         >
           Workspace Files
         </div>
@@ -125,17 +125,17 @@ export default function CompactDemo() {
             <span
               key={file.name}
               className="inline-flex items-center gap-1 rounded border px-2 py-1 font-mono text-[10px]"
-              style={{ background: '#0a0e17', borderColor: '#1e293b', color: '#94a3b8' }}
+              style={{ background: '#0a0e17', borderColor: '#506880', color: '#b0bec9' }}
             >
               <span
                 className="h-1 w-1 rounded-full"
-                style={{ background: file.present ? '#22c55e' : '#ef4444' }}
+                style={{ background: file.present ? '#22c55e' : '#f87171' }}
               />
               {file.name}
             </span>
           ))}
           <span
-            className="inline-flex items-center gap-1 rounded border px-2 py-1 font-mono text-[10px] text-green-400"
+            className="inline-flex items-center gap-1 rounded border px-2 py-1 font-mono text-[10px] text-[#34d399]"
             style={{
               background: 'rgba(34,197,94,0.1)',
               borderColor: 'rgba(34,197,94,0.2)',
@@ -154,10 +154,10 @@ export default function CompactDemo() {
           borderColor: 'rgba(34,197,94,0.2)',
         }}
       >
-        <span className="text-xs" style={{ color: '#94a3b8' }}>
+        <span className="text-xs" style={{ color: '#b0bec9' }}>
           Health Score
         </span>
-        <span className="font-mono text-sm font-bold text-green-400">
+        <span className="font-mono text-sm font-bold text-[#34d399]">
           {health.score}/{health.maxScore}
         </span>
       </div>

@@ -102,7 +102,7 @@ function IconClipboard() {
 
 function BucketIcon({ bucket }: { bucket: Bucket }) {
   return (
-    <span className="text-blue-400 flex items-center">
+    <span className="text-[#7db8fc] flex items-center">
       {bucket === 'config'    && <IconGear />}
       {bucket === 'workspace' && <IconDoc />}
       {bucket === 'agents'    && <IconRobot />}
@@ -353,7 +353,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6 flex flex-col gap-4">
+    <div className="rounded-xl border border-[#506880] bg-[#111827] p-6 flex flex-col gap-4">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
@@ -365,7 +365,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
 
       {/* Error banner */}
       {error && (
-        <div className="rounded-lg border border-red-800/40 bg-red-950/40 px-4 py-2 text-xs text-red-400">
+        <div className="rounded-lg border border-red-800/40 bg-red-950/40 px-4 py-2 text-xs text-[#f87171]">
           {error}
         </div>
       )}
@@ -382,13 +382,13 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             disabled={!supportsDirectoryPicker}
             className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
               supportsDirectoryPicker
-                ? 'bg-blue-500 hover:bg-blue-600 text-white cursor-pointer'
-                : 'bg-[#111827] border border-[#1e293b] text-[#475569] cursor-not-allowed opacity-60'
+                ? 'bg-[#7db8fc] hover:bg-blue-600 text-white cursor-pointer'
+                : 'bg-[#111827] border border-[#506880] text-[#7a8a9b] cursor-not-allowed opacity-60'
             }`}
           >
             <IconDoc />
             Select Workspace Folder
-            <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-blue-200' : 'text-[#475569]'}`}>
+            <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-blue-200' : 'text-[#7a8a9b]'}`}>
               {supportsDirectoryPicker ? 'Chrome / Edge' : 'Requires Chrome or Edge'}
             </span>
           </button>
@@ -397,8 +397,8 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             onClick={() => setPasteMode(true)}
             className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm transition-colors ${
               supportsDirectoryPicker
-                ? 'border border-[#1e293b] bg-[#0a0e17] hover:border-blue-500/40 text-slate-400'
-                : 'bg-blue-500 hover:bg-blue-600 font-medium text-white'
+                ? 'border border-[#506880] bg-[#0a0e17] hover:border-[#7db8fc]/40 text-slate-400'
+                : 'bg-[#7db8fc] hover:bg-blue-600 font-medium text-white'
             }`}
           >
             <span className="text-base leading-none">📋</span>
@@ -406,7 +406,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-slate-600' : 'text-blue-200'}`}>Any browser</span>
           </button>
 
-          <p className="text-xs text-[#475569] text-center pl-1 mt-1">
+          <p className="text-xs text-[#7a8a9b] text-center pl-1 mt-1">
             🔒 Your files stay in your browser. No API keys, tokens, or sensitive data are uploaded to any server.
           </p>
         </div>
@@ -415,7 +415,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
       {/* ── IDLE: paste mode ── */}
       {scanState === 'idle' && pasteMode && (
         <div className="flex flex-col gap-3">
-          <div className="relative rounded-lg border border-[#1e293b] bg-[#0a0e17] p-3">
+          <div className="relative rounded-lg border border-[#506880] bg-[#0a0e17] p-3">
             <p className="text-xs text-slate-400 mb-2 font-medium">
               Run these commands from your workspace root and paste the combined output:
             </p>
@@ -438,19 +438,19 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             onChange={e => setPasteText(e.target.value)}
             placeholder="Paste output here…"
             rows={6}
-            className="rounded-lg border border-[#1e293b] bg-[#0a0e17] px-3 py-2 text-xs text-slate-300 placeholder-slate-600 font-mono resize-none focus:outline-none focus:border-blue-500/60"
+            className="rounded-lg border border-[#506880] bg-[#0a0e17] px-3 py-2 text-xs text-slate-300 placeholder-slate-600 font-mono resize-none focus:outline-none focus:border-[#7db8fc]/60"
           />
           <div className="flex gap-2">
             <button
               onClick={handlePasteSubmit}
               disabled={!pasteText.trim()}
-              className="flex-1 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:opacity-40 px-4 py-2 text-sm font-medium text-white transition-colors"
+              className="flex-1 rounded-lg bg-[#7db8fc] hover:bg-blue-600 disabled:opacity-40 px-4 py-2 text-sm font-medium text-white transition-colors"
             >
               Parse Output
             </button>
             <button
               onClick={() => { setPasteMode(false); setPasteText(''); }}
-              className="rounded-lg border border-[#1e293b] px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+              className="rounded-lg border border-[#506880] px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition-colors"
             >
               Back
             </button>
@@ -476,12 +476,12 @@ export default function DirectoryScanner({ onConfirm }: Props) {
           ) : (
             <>
               <p className="text-xs text-slate-400">
-                Found <span className="text-blue-400 font-medium">{items.length}</span> items.
+                Found <span className="text-[#7db8fc] font-medium">{items.length}</span> items.
                 Deselect anything you'd rather exclude.
               </p>
 
               {/* Contents toggle */}
-              <div className="flex items-center justify-between gap-4 rounded-lg border border-[#1e293b] bg-[#0a0e17] px-3 py-2.5">
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-[#506880] bg-[#0a0e17] px-3 py-2.5">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-xs font-medium text-slate-200">Read file contents</span>
                   <span className="text-xs text-slate-500">
@@ -495,7 +495,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
                   role="switch"
                   aria-checked={includeContents}
                   onClick={() => setIncludeContents(v => !v)}
-                  className={`relative flex-shrink-0 w-9 h-5 rounded-full transition-colors ${includeContents ? 'bg-blue-500' : 'bg-slate-600'}`}
+                  className={`relative flex-shrink-0 w-9 h-5 rounded-full transition-colors ${includeContents ? 'bg-[#7db8fc]' : 'bg-slate-600'}`}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${includeContents ? 'translate-x-4' : 'translate-x-0'}`}
@@ -508,9 +508,9 @@ export default function DirectoryScanner({ onConfirm }: Props) {
                   const allSelected = bucketItems.every(i => i.selected);
                   const noneSelected = bucketItems.every(i => !i.selected);
                   return (
-                    <div key={bucket} className="rounded-lg border border-[#1e293b] bg-[#0a0e17] overflow-hidden">
+                    <div key={bucket} className="rounded-lg border border-[#506880] bg-[#0a0e17] overflow-hidden">
                       {/* Bucket header */}
-                      <div className="flex items-center gap-2 px-3 py-2 border-b border-[#1e293b] bg-[#111827]/50">
+                      <div className="flex items-center gap-2 px-3 py-2 border-b border-[#506880] bg-[#111827]/50">
                         <BucketIcon bucket={bucket} />
                         <span className="text-xs font-semibold text-slate-300">
                           {BUCKET_LABELS[bucket]}
@@ -522,7 +522,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
                           {!allSelected && (
                             <button
                               onClick={() => toggleBucket(bucket, true)}
-                              className="text-xs text-blue-400 hover:text-blue-300"
+                              className="text-xs text-[#7db8fc] hover:text-blue-300"
                             >
                               all
                             </button>
@@ -538,7 +538,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
                         </div>
                       </div>
                       {/* Items */}
-                      <div className="divide-y divide-[#1e293b]">
+                      <div className="divide-y divide-[#506880]">
                         {bucketItems.map(item => (
                           <label
                             key={item.path}
@@ -572,18 +572,18 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             <button
               onClick={handleConfirm}
               disabled={selectedCount === 0}
-              className="flex-1 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:opacity-40 px-4 py-2.5 text-sm font-medium text-white transition-colors"
+              className="flex-1 rounded-lg bg-[#7db8fc] hover:bg-blue-600 disabled:opacity-40 px-4 py-2.5 text-sm font-medium text-white transition-colors"
             >
               Confirm {selectedCount} item{selectedCount !== 1 ? 's' : ''}
             </button>
             <button
               onClick={handleReset}
-              className="rounded-lg border border-[#1e293b] px-4 py-2.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+              className="rounded-lg border border-[#506880] px-4 py-2.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
             >
               Rescan
             </button>
           </div>
-          <p className="text-xs text-[#475569] text-center">
+          <p className="text-xs text-[#7a8a9b] text-center">
             🔒 Nothing leaves your browser.
           </p>
         </div>

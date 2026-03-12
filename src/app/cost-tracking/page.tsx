@@ -314,11 +314,11 @@ export default function CostTrackingPage() {
   return (
     <main className="min-h-screen bg-[#0a0e17]">
       {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-30 border-b border-[#1e293b]/80 bg-[#0a0e17]/90 backdrop-blur-xl">
+      <nav className="fixed top-0 left-0 right-0 z-30 border-b border-[#506880]/80 bg-[#0a0e17]/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg border border-blue-500/30 bg-blue-500/10 flex items-center justify-center">
-              <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-7 h-7 rounded-lg border border-[#7db8fc]/30 bg-[#7db8fc]/10 flex items-center justify-center">
+              <svg className="w-4 h-4 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -327,19 +327,19 @@ export default function CostTrackingPage() {
                 />
               </svg>
             </div>
-            <span className="font-bold text-[#e2e8f0]">Driftwatch</span>
+            <span className="font-bold text-[#f1f5f9]">Driftwatch</span>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link href="/" className="text-sm text-[#475569] hover:text-[#94a3b8] transition-colors hidden sm:block">
+            <Link href="/" className="text-sm text-[#7a8a9b] hover:text-[#b0bec9] transition-colors hidden sm:block">
               Home
             </Link>
-            <Link href="/map" className="text-sm text-[#475569] hover:text-[#94a3b8] transition-colors hidden sm:block">
+            <Link href="/map" className="text-sm text-[#7a8a9b] hover:text-[#b0bec9] transition-colors hidden sm:block">
               Map
             </Link>
             <Link
               href="/map"
-              className="px-3 sm:px-4 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 transition-all font-medium text-xs sm:text-sm"
+              className="px-3 sm:px-4 py-1.5 rounded-lg border border-[#7db8fc]/30 bg-[#7db8fc]/10 text-[#7db8fc] hover:bg-[#7db8fc]/20 hover:border-blue-400 transition-all font-medium text-xs sm:text-sm"
             >
               Scan Yours →
             </Link>
@@ -352,13 +352,13 @@ export default function CostTrackingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-[#e2e8f0]">Cost Tracking</h1>
-              <p className="text-sm text-[#475569] mt-1">
+              <h1 className="text-xl sm:text-2xl font-bold text-[#f1f5f9]">Cost Tracking</h1>
+              <p className="text-sm text-[#7a8a9b] mt-1">
                 All data stored locally in your browser
                 {importToast && (
-                  <span className="ml-3 text-green-400 animate-pulse">
+                  <span className="ml-3 text-[#34d399] animate-pulse">
                     {importToast}
-                    <button onClick={() => setImportToast(null)} className="ml-2 text-[#475569] hover:text-[#94a3b8]">✕</button>
+                    <button onClick={() => setImportToast(null)} className="ml-2 text-[#7a8a9b] hover:text-[#b0bec9]">✕</button>
                   </span>
                 )}
               </p>
@@ -366,11 +366,11 @@ export default function CostTrackingPage() {
             <div className="flex gap-2 items-center">
               <ImportStaging onImport={handleImportFiles} loading={loading} />
               {/* Export */}
-              <button onClick={handleExportJSON} title="Export JSON" className="border border-[#1e293b] bg-[#111827] p-2 rounded-lg text-[#94a3b8] hover:text-[#e2e8f0] transition-colors">
+              <button onClick={handleExportJSON} title="Export JSON" className="border border-[#506880] bg-[#111827] p-2 rounded-lg text-[#b0bec9] hover:text-[#f1f5f9] transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
               </button>
               {/* Clear */}
-              <button onClick={handleClearAll} title="Clear all data" className="border border-[#1e293b] bg-[#111827] p-2 rounded-lg text-red-400/60 hover:text-red-400 transition-colors">
+              <button onClick={handleClearAll} title="Clear all data" className="border border-[#506880] bg-[#111827] p-2 rounded-lg text-[#f87171]/60 hover:text-[#f87171] transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               </button>
               {/* Settings — hidden until paid tier ships */}
@@ -388,13 +388,13 @@ export default function CostTrackingPage() {
           {/* Model filter chips */}
           {modelBreakdown.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-[#475569] mr-1">Models:</span>
+              <span className="text-xs text-[#7a8a9b] mr-1">Models:</span>
               <button
                 onClick={() => setSelectedModels(new Set())}
                 className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
                   selectedModels.size === 0
-                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                    : 'text-[#475569] border border-[#1e293b] hover:text-[#94a3b8]'
+                    ? 'bg-[#7db8fc]/20 text-[#7db8fc] border border-[#7db8fc]/30'
+                    : 'text-[#7a8a9b] border border-[#506880] hover:text-[#b0bec9]'
                 }`}
               >
                 All
@@ -410,8 +410,8 @@ export default function CostTrackingPage() {
                   }}
                   className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
                     selectedModels.has(m.model)
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'text-[#475569] border border-[#1e293b] hover:text-[#94a3b8]'
+                      ? 'bg-[#7db8fc]/20 text-[#7db8fc] border border-[#7db8fc]/30'
+                      : 'text-[#7a8a9b] border border-[#506880] hover:text-[#b0bec9]'
                   }`}
                 >
                   {m.model}
@@ -459,16 +459,16 @@ export default function CostTrackingPage() {
       {/* Clear data confirmation modal */}
       {clearModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6 max-w-sm mx-4 shadow-2xl">
-            <p className="text-sm font-medium text-[#e2e8f0]">Clear all data?</p>
-            <p className="text-xs text-[#475569] mt-2">
+          <div className="rounded-xl border border-[#506880] bg-[#111827] p-6 max-w-sm mx-4 shadow-2xl">
+            <p className="text-sm font-medium text-[#f1f5f9]">Clear all data?</p>
+            <p className="text-xs text-[#7a8a9b] mt-2">
               This will delete all {recordCount.toLocaleString()} records from your browser. This cannot be undone.
             </p>
             <div className="flex gap-3 mt-5 justify-end">
-              <button onClick={() => setClearModalOpen(false)} className="px-4 py-1.5 rounded-lg text-sm text-[#94a3b8] border border-[#1e293b] hover:text-[#e2e8f0] transition-colors">
+              <button onClick={() => setClearModalOpen(false)} className="px-4 py-1.5 rounded-lg text-sm text-[#b0bec9] border border-[#506880] hover:text-[#f1f5f9] transition-colors">
                 Cancel
               </button>
-              <button onClick={confirmClear} className="px-4 py-1.5 rounded-lg text-sm text-red-400 border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 transition-colors">
+              <button onClick={confirmClear} className="px-4 py-1.5 rounded-lg text-sm text-[#f87171] border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 transition-colors">
                 Delete All
               </button>
             </div>

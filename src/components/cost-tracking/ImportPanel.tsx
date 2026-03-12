@@ -88,9 +88,9 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
   const currentFormat = formats.find((f) => f.id === activeFormat)!
 
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
-      <p className="text-sm font-semibold text-[#e2e8f0] mb-1">Import Usage Data</p>
-      <p className="text-xs text-[#475569] mb-4">
+    <div className="rounded-xl border border-[#506880] bg-[#111827] p-6">
+      <p className="text-sm font-semibold text-[#f1f5f9] mb-1">Import Usage Data</p>
+      <p className="text-xs text-[#7a8a9b] mb-4">
         🔒 Your data stays in this browser. Nothing is uploaded to any server.
       </p>
 
@@ -107,8 +107,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
               }}
               className={
                 isActive
-                  ? 'px-3 py-1 rounded-lg text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                  : 'px-3 py-1 rounded-lg text-xs font-medium text-[#475569] border border-[#1e293b] hover:text-[#94a3b8]'
+                  ? 'px-3 py-1 rounded-lg text-xs font-medium bg-[#7db8fc]/20 text-[#7db8fc] border border-[#7db8fc]/30'
+                  : 'px-3 py-1 rounded-lg text-xs font-medium text-[#7a8a9b] border border-[#506880] hover:text-[#b0bec9]'
               }
             >
               {fmt.label}
@@ -122,8 +122,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
         className={[
           'block border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors',
           isDragOver
-            ? 'border-blue-500/40 bg-blue-500/5'
-            : 'border-[#1e293b] hover:border-blue-500/40 hover:bg-blue-500/5',
+            ? 'border-[#7db8fc]/40 bg-[#7db8fc]/5'
+            : 'border-[#506880] hover:border-[#7db8fc]/40 hover:bg-[#7db8fc]/5',
         ].join(' ')}
         onDragOver={(e) => {
           e.preventDefault()
@@ -133,7 +133,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
         onDrop={handleDrop}
       >
         <svg
-          className="mx-auto mb-2 text-[#475569]"
+          className="mx-auto mb-2 text-[#7a8a9b]"
           width="24"
           height="24"
           viewBox="0 0 24 24"
@@ -146,7 +146,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
           <path d="M12 19V5" />
           <path d="M5 12l7-7 7 7" />
         </svg>
-        <p className="text-sm text-[#475569]">Drop a file here or click to browse</p>
+        <p className="text-sm text-[#7a8a9b]">Drop a file here or click to browse</p>
         <input
           type="file"
           accept={currentFormat.accept}
@@ -157,7 +157,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
 
       {/* Status */}
       {status.kind === 'processing' && (
-        <div className="mt-4 flex items-center gap-2 text-xs text-[#94a3b8]">
+        <div className="mt-4 flex items-center gap-2 text-xs text-[#b0bec9]">
           <svg
             className="animate-spin"
             width="14"
@@ -174,13 +174,13 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
       )}
 
       {status.kind === 'success' && (
-        <p className={['mt-4 text-xs', status.count > 0 ? 'text-green-400' : 'text-amber-400'].join(' ')}>
+        <p className={['mt-4 text-xs', status.count > 0 ? 'text-[#34d399]' : 'text-[#fbbf24]'].join(' ')}>
           {status.count > 0 ? `Imported ${status.count} records` : 'No valid records found'}
         </p>
       )}
 
       {status.kind === 'error' && (
-        <p className="mt-4 text-xs text-red-400">{status.message}</p>
+        <p className="mt-4 text-xs text-[#f87171]">{status.message}</p>
       )}
     </div>
   )

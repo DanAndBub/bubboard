@@ -23,13 +23,13 @@ const SEVERITY_ICON: Record<string, string> = {
 const SEVERITY_COLORS: Record<string, string> = {
   critical: 'border-red-500/20 bg-red-500/5',
   warning: 'border-amber-500/20 bg-amber-500/5',
-  info: 'border-blue-500/20 bg-blue-500/5',
+  info: 'border-[#7db8fc]/20 bg-[#7db8fc]/5',
 };
 
 function scoreColor(score: number): string {
-  if (score >= 90) return 'text-green-400';
-  if (score >= 70) return 'text-amber-400';
-  return 'text-red-400';
+  if (score >= 90) return 'text-[#34d399]';
+  if (score >= 70) return 'text-[#fbbf24]';
+  return 'text-[#f87171]';
 }
 
 function scoreBarColor(score: number): string {
@@ -75,24 +75,24 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
   }
 
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] overflow-hidden">
+    <div className="rounded-xl border border-[#506880] bg-[#111827] overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-[#1e293b] flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-[#506880] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-[#e2e8f0]">Configuration Review</span>
+          <span className="text-sm font-semibold text-[#f1f5f9]">Configuration Review</span>
           <div className="flex items-center gap-1.5 text-xs">
             {result.criticalCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">
+              <span className="px-1.5 py-0.5 rounded bg-red-500/10 text-[#f87171] border border-red-500/20">
                 {result.criticalCount} critical
               </span>
             )}
             {result.warningCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-[#fbbf24] border border-amber-500/20">
                 {result.warningCount} warning
               </span>
             )}
             {result.infoCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="px-1.5 py-0.5 rounded bg-[#7db8fc]/10 text-[#7db8fc] border border-[#7db8fc]/20">
                 {result.infoCount} info
               </span>
             )}
@@ -102,14 +102,14 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
           <span className={`font-mono text-lg font-bold ${scoreColor(result.healthScore)}`}>
             {result.healthScore}
           </span>
-          <span className="text-[10px] text-[#475569]">/ 100</span>
+          <span className="text-[10px] text-[#7a8a9b]">/ 100</span>
         </div>
       </div>
 
       {/* Health Score Bar */}
-      <div className="px-5 py-3 border-b border-[#1e293b]">
+      <div className="px-5 py-3 border-b border-[#506880]">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase tracking-wider text-[#475569] font-medium">Config Health</span>
+          <span className="text-[10px] uppercase tracking-wider text-[#7a8a9b] font-medium">Config Health</span>
           <span className={`text-xs font-mono ${scoreColor(result.healthScore)}`}>
             {result.healthScore >= 90 ? 'Excellent' : result.healthScore >= 70 ? 'Needs attention' : 'Critical issues'}
           </span>
@@ -123,35 +123,35 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
       </div>
 
       {/* Bootstrap Budget Bar */}
-      <div className="px-5 py-3 border-b border-[#1e293b]">
+      <div className="px-5 py-3 border-b border-[#506880]">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase tracking-wider text-[#475569] font-medium">Bootstrap Budget</span>
-          <span className="text-xs font-mono text-[#94a3b8]">
+          <span className="text-[10px] uppercase tracking-wider text-[#7a8a9b] font-medium">Bootstrap Budget</span>
+          <span className="text-xs font-mono text-[#b0bec9]">
             {budget.totalChars.toLocaleString()} / {budget.budgetLimit.toLocaleString()} chars
-            <span className="text-[#475569] ml-1.5">~{budgetTokens.toLocaleString()} tokens/msg</span>
+            <span className="text-[#7a8a9b] ml-1.5">~{budgetTokens.toLocaleString()} tokens/msg</span>
           </span>
         </div>
         <div className="h-1.5 rounded-full bg-[#0a0e17] overflow-hidden">
           <div
             className={`h-full rounded-full transition-all ${
-              budgetPct > 100 ? 'bg-red-500' : budgetPct > 80 ? 'bg-amber-500' : 'bg-blue-500'
+              budgetPct > 100 ? 'bg-red-500' : budgetPct > 80 ? 'bg-amber-500' : 'bg-[#7db8fc]'
             }`}
             style={{ width: `${Math.min(100, budgetPct)}%` }}
           />
         </div>
         {budget.overBudgetBy > 0 && (
-          <p className="text-[10px] text-red-400 mt-1">
+          <p className="text-[10px] text-[#f87171] mt-1">
             {budget.overBudgetBy.toLocaleString()} characters over budget
           </p>
         )}
       </div>
 
       {/* Findings grouped by file */}
-      <div className="divide-y divide-[#1e293b]/50">
+      <div className="divide-y divide-[#506880]/50">
         {result.findings.length === 0 ? (
           <div className="px-5 py-6 text-center">
-            <span className="text-sm text-green-400">✓ No issues found</span>
-            <p className="text-[10px] text-[#475569] mt-1">{result.rulesExecuted} rules checked across {result.filesAnalyzed} files</p>
+            <span className="text-sm text-[#34d399]">✓ No issues found</span>
+            <p className="text-[10px] text-[#7a8a9b] mt-1">{result.rulesExecuted} rules checked across {result.filesAnalyzed} files</p>
           </div>
         ) : (
           [...grouped.entries()].map(([file, findings]) => {
@@ -167,14 +167,14 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
                   onClick={() => toggleFile(file)}
                   className="w-full px-5 py-2.5 flex items-center gap-2 hover:bg-[#0a0e17]/40 transition-colors text-left"
                 >
-                  <span className="text-[10px] text-[#475569]">{isExpanded ? '▾' : '▸'}</span>
-                  <span className="text-xs font-mono text-[#e2e8f0] flex-1 truncate">{file}</span>
+                  <span className="text-[10px] text-[#7a8a9b]">{isExpanded ? '▾' : '▸'}</span>
+                  <span className="text-xs font-mono text-[#f1f5f9] flex-1 truncate">{file}</span>
                   {fileAnalysis && (
-                    <span className="text-[10px] font-mono text-[#475569]">
+                    <span className="text-[10px] font-mono text-[#7a8a9b]">
                       {fileAnalysis.charCount.toLocaleString()} chars
                     </span>
                   )}
-                  <span className="text-[10px] text-[#475569]">
+                  <span className="text-[10px] text-[#7a8a9b]">
                     {findings.length} finding{findings.length !== 1 ? 's' : ''}
                   </span>
                   {critCount > 0 && <span className="text-[10px]">🔴 {critCount}</span>}
@@ -200,19 +200,19 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
                           >
                             <div className="flex items-start gap-2">
                               <span className="text-xs shrink-0">{SEVERITY_ICON[finding.severity]}</span>
-                              <span className="text-xs text-[#94a3b8] leading-relaxed">{finding.message}</span>
+                              <span className="text-xs text-[#b0bec9] leading-relaxed">{finding.message}</span>
                             </div>
                           </button>
                           {isOpen && (
-                            <div className="ml-7 mt-1.5 mb-1 px-3 py-2 rounded-lg bg-[#0a0e17] border border-[#1e293b]/50">
-                              <p className="text-xs text-[#e2e8f0]">{finding.recommendation}</p>
+                            <div className="ml-7 mt-1.5 mb-1 px-3 py-2 rounded-lg bg-[#0a0e17] border border-[#506880]/50">
+                              <p className="text-xs text-[#f1f5f9]">{finding.recommendation}</p>
                               {truncation && truncation.hiddenRange && (
                                 <TruncationDiagram analysis={truncation} />
                               )}
                               {onOpenFile && !finding.file.includes('↔') && !finding.file.startsWith('(') && (
                                 <button
                                   onClick={() => onOpenFile(finding.file)}
-                                  className="mt-2 text-[10px] px-2 py-0.5 rounded border border-blue-500/20 bg-blue-500/5 text-blue-400 hover:bg-blue-500/10 transition-all"
+                                  className="mt-2 text-[10px] px-2 py-0.5 rounded border border-[#7db8fc]/20 bg-[#7db8fc]/5 text-[#7db8fc] hover:bg-[#7db8fc]/10 transition-all"
                                 >
                                   Fix →
                                 </button>
@@ -231,7 +231,7 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
       </div>
 
       {/* Footer */}
-      <div className="px-5 py-2.5 border-t border-[#1e293b] text-[10px] text-[#475569]">
+      <div className="px-5 py-2.5 border-t border-[#506880] text-[10px] text-[#7a8a9b]">
         {result.rulesExecuted} rules · {result.filesAnalyzed} files analyzed
       </div>
     </div>

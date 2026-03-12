@@ -20,9 +20,9 @@ type SortDirection = 'asc' | 'desc';
 function getModelColor(model: string): string {
   const m = model.toLowerCase();
   if (m.includes('opus')) return '#a78bfa';
-  if (m.includes('sonnet')) return '#60a5fa';
+  if (m.includes('sonnet')) return '#7db8fc';
   if (m.includes('haiku')) return '#34d399';
-  return '#94a3b8';
+  return '#b0bec9';
 }
 
 export default function TaskTable({ data }: TaskTableProps) {
@@ -69,15 +69,15 @@ export default function TaskTable({ data }: TaskTableProps) {
   ];
 
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e293b]">
-        <span className="text-sm font-semibold text-[#e2e8f0]">Top Tasks by Cost</span>
+    <div className="rounded-xl border border-[#506880] bg-[#111827] overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[#506880]">
+        <span className="text-sm font-semibold text-[#f1f5f9]">Top Tasks by Cost</span>
       </div>
 
       {data.length === 0 ? (
         <div className="py-12 text-center">
           <svg
-            className="mx-auto mb-3 w-5 h-5 text-[#475569]"
+            className="mx-auto mb-3 w-5 h-5 text-[#7a8a9b]"
             fill="none"
             stroke="currentColor"
             strokeWidth={1.5}
@@ -89,7 +89,7 @@ export default function TaskTable({ data }: TaskTableProps) {
               d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"
             />
           </svg>
-          <p className="text-sm text-[#475569]">
+          <p className="text-sm text-[#7a8a9b]">
             Tag your API calls with <code className="font-mono">task_id</code> to see per-task costs
           </p>
         </div>
@@ -102,7 +102,7 @@ export default function TaskTable({ data }: TaskTableProps) {
                   <th
                     key={key}
                     onClick={() => handleSort(key)}
-                    className={`px-4 py-3 text-left text-xs font-medium text-[#475569] uppercase tracking-wider cursor-pointer hover:text-[#94a3b8] ${align}`}
+                    className={`px-4 py-3 text-left text-xs font-medium text-[#7a8a9b] uppercase tracking-wider cursor-pointer hover:text-[#b0bec9] ${align}`}
                   >
                     {label}
                     {arrow(key)}
@@ -110,17 +110,17 @@ export default function TaskTable({ data }: TaskTableProps) {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1e293b]">
+            <tbody className="divide-y divide-[#506880]">
               {displayed.map(row => {
                 const color = getModelColor(row.primary_model);
                 return (
                   <tr key={row.task_id} className="hover:bg-[#0a0e17]/50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-sm text-[#e2e8f0]">{row.task_id}</td>
-                    <td className="px-4 py-3 font-mono text-sm text-[#94a3b8] text-right">{row.count}</td>
-                    <td className="px-4 py-3 font-mono text-sm text-blue-400 text-right">
+                    <td className="px-4 py-3 font-mono text-sm text-[#f1f5f9]">{row.task_id}</td>
+                    <td className="px-4 py-3 font-mono text-sm text-[#b0bec9] text-right">{row.count}</td>
+                    <td className="px-4 py-3 font-mono text-sm text-[#7db8fc] text-right">
                       ${row.total_cost.toFixed(4)}
                     </td>
-                    <td className="px-4 py-3 font-mono text-sm text-[#475569] text-right">
+                    <td className="px-4 py-3 font-mono text-sm text-[#7a8a9b] text-right">
                       ${row.avg_cost.toFixed(4)}
                     </td>
                     <td className="px-4 py-3">
@@ -141,7 +141,7 @@ export default function TaskTable({ data }: TaskTableProps) {
           </table>
 
           {overflow > 0 && (
-            <div className="px-4 py-2 text-xs text-[#475569]">
+            <div className="px-4 py-2 text-xs text-[#7a8a9b]">
               and {overflow} more task{overflow !== 1 ? 's' : ''}
             </div>
           )}

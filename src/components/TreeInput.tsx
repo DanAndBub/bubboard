@@ -42,21 +42,21 @@ export default function TreeInput({ onSubmit, isLoading }: TreeInputProps) {
   };
 
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] overflow-hidden">
+    <div className="rounded-xl border border-[#506880] bg-[#111827] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#0d1520]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#506880] bg-[#0d1520]">
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#ef4444]/40" />
-            <div className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]/40" />
-            <div className="w-2.5 h-2.5 rounded-full bg-[#10b981]/40" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#f87171]/40" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]/40" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#34d399]/40" />
           </div>
-          <span className="font-mono text-xs text-[#475569]">tree ~/.openclaw/</span>
+          <span className="font-mono text-xs text-[#7a8a9b]">tree ~/.openclaw/</span>
         </div>
         <button
           type="button"
           onClick={loadDemo}
-          className="text-xs text-blue-400 hover:text-blue-300 transition-colors px-2 py-1 rounded border border-blue-500/20 hover:border-blue-500/40 hover:bg-blue-500/10"
+          className="text-xs text-[#7db8fc] hover:text-blue-300 transition-colors px-2 py-1 rounded border border-[#7db8fc]/20 hover:border-[#7db8fc]/40 hover:bg-[#7db8fc]/10"
         >
           Load example
         </button>
@@ -69,13 +69,13 @@ export default function TreeInput({ onSubmit, isLoading }: TreeInputProps) {
           onChange={e => setValue(e.target.value)}
           placeholder={PLACEHOLDER}
           rows={16}
-          className="w-full px-4 py-4 bg-transparent text-[#e2e8f0] placeholder-[#2d3f5a] font-mono text-xs leading-relaxed resize-none"
+          className="w-full px-4 py-4 bg-transparent text-[#f1f5f9] placeholder-[#2d3f5a] font-mono text-xs leading-relaxed resize-none"
           spellCheck={false}
         />
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#1e293b] bg-[#0d1520]">
-          <div className="text-xs text-[#475569]">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-[#506880] bg-[#0d1520]">
+          <div className="text-xs text-[#7a8a9b]">
             {value.trim()
               ? `${value.split('\n').filter(l => l.trim()).length} lines`
               : 'Paste your directory tree above'}
@@ -85,7 +85,7 @@ export default function TreeInput({ onSubmit, isLoading }: TreeInputProps) {
               <button
                 type="button"
                 onClick={() => setValue('')}
-                className="px-3 py-1.5 text-xs text-[#475569] hover:text-[#94a3b8] border border-[#1e293b] rounded-lg hover:border-[#2d3f5a] transition-all"
+                className="px-3 py-1.5 text-xs text-[#7a8a9b] hover:text-[#b0bec9] border border-[#506880] rounded-lg hover:border-[#2d3f5a] transition-all"
               >
                 Clear
               </button>

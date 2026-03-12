@@ -8,13 +8,13 @@ interface ModelBreakdownProps {
 
 const MODEL_COLORS: Record<string, { main: string; glow: string }> = {
   'claude-opus':    { main: '#3b82f6', glow: 'rgba(59,130,246,0.35)' },
-  'claude-sonnet':  { main: '#8b5cf6', glow: 'rgba(139,92,246,0.35)' },
+  'claude-sonnet':  { main: '#a78bfa', glow: 'rgba(139,92,246,0.35)' },
   'claude-haiku':   { main: '#06b6d4', glow: 'rgba(6,182,212,0.35)' },
-  'deepseek-chat':  { main: '#10b981', glow: 'rgba(16,185,129,0.35)' },
+  'deepseek-chat':  { main: '#34d399', glow: 'rgba(16,185,129,0.35)' },
   'deepseek-reasoner': { main: '#34d399', glow: 'rgba(52,211,153,0.35)' },
-  'deepseek':       { main: '#10b981', glow: 'rgba(16,185,129,0.35)' },
-  'gpt-4.1':        { main: '#f59e0b', glow: 'rgba(245,158,11,0.35)' },
-  'gpt-4o':         { main: '#ef4444', glow: 'rgba(239,68,68,0.35)' },
+  'deepseek':       { main: '#34d399', glow: 'rgba(16,185,129,0.35)' },
+  'gpt-4.1':        { main: '#fbbf24', glow: 'rgba(245,158,11,0.35)' },
+  'gpt-4o':         { main: '#f87171', glow: 'rgba(239,68,68,0.35)' },
   'o3':             { main: '#ec4899', glow: 'rgba(236,72,153,0.35)' },
   'o1':             { main: '#f97316', glow: 'rgba(249,115,22,0.35)' },
 };
@@ -78,8 +78,8 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
   }
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-[#1e293b] bg-[#111827] p-6">
-      <p className="mb-4 text-sm font-semibold text-[#e2e8f0]">Cost by Model</p>
+    <div className="flex h-full flex-col rounded-xl border border-[#506880] bg-[#111827] p-6">
+      <p className="mb-4 text-sm font-semibold text-[#f1f5f9]">Cost by Model</p>
       <div className="flex flex-1 flex-col items-center gap-6 lg:flex-row">
         {/* Donut */}
         <div className="relative flex-1 flex items-center justify-center min-h-[300px]">
@@ -104,7 +104,7 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
             </defs>
 
             {/* Background track */}
-            <circle cx={cx} cy={cy} r={(outerR + innerR) / 2} fill="none" stroke="#1e293b" strokeWidth={outerR - innerR} opacity={0.4} />
+            <circle cx={cx} cy={cy} r={(outerR + innerR) / 2} fill="none" stroke="#3a4e63" strokeWidth={outerR - innerR} opacity={0.4} />
 
             {/* Segments */}
             {segments.map((seg) => {
@@ -132,26 +132,26 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
 
             {/* Inner circle overlay for depth effect */}
             <circle cx={cx} cy={cy} r={innerR} fill="#111827" />
-            <circle cx={cx} cy={cy} r={innerR - 1} fill="none" stroke="#1e293b" strokeWidth={0.5} opacity={0.5} />
+            <circle cx={cx} cy={cy} r={innerR - 1} fill="none" stroke="#3a4e63" strokeWidth={0.5} opacity={0.5} />
           </svg>
 
           {/* Center label */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             {hoveredEntry ? (
               <>
-                <span className="max-w-[130px] truncate text-xs text-[#94a3b8] font-medium">{hoveredEntry.model}</span>
+                <span className="max-w-[130px] truncate text-xs text-[#b0bec9] font-medium">{hoveredEntry.model}</span>
                 <span className="font-mono text-2xl font-bold text-white mt-0.5">
                   ${hoveredEntry.cost.toFixed(2)}
                 </span>
-                <span className="text-xs text-[#475569] mt-0.5">{hoveredEntry.percentage.toFixed(1)}% of total</span>
+                <span className="text-xs text-[#7a8a9b] mt-0.5">{hoveredEntry.percentage.toFixed(1)}% of total</span>
               </>
             ) : (
               <>
-                <span className="text-[10px] uppercase tracking-wider text-[#475569] font-medium">Total Spend</span>
+                <span className="text-[10px] uppercase tracking-wider text-[#7a8a9b] font-medium">Total Spend</span>
                 <span className="font-mono text-2xl font-bold text-white mt-0.5">
                   ${total.toFixed(2)}
                 </span>
-                <span className="text-[10px] text-[#475569] mt-0.5">{filtered.length} models</span>
+                <span className="text-[10px] text-[#7a8a9b] mt-0.5">{filtered.length} models</span>
               </>
             )}
           </div>
@@ -180,15 +180,15 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
                   }}
                 />
                 <div className="flex-1 min-w-0">
-                  <span className={`block truncate text-xs ${isActive ? 'text-[#e2e8f0]' : 'text-[#94a3b8]'} transition-colors`}>
+                  <span className={`block truncate text-xs ${isActive ? 'text-[#f1f5f9]' : 'text-[#b0bec9]'} transition-colors`}>
                     {entry.model}
                   </span>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className={`block font-mono text-xs ${isActive ? 'text-white' : 'text-[#e2e8f0]'} transition-colors`}>
+                  <span className={`block font-mono text-xs ${isActive ? 'text-white' : 'text-[#f1f5f9]'} transition-colors`}>
                     ${entry.cost.toFixed(2)}
                   </span>
-                  <span className="block text-[10px] text-[#475569]">{entry.percentage.toFixed(1)}%</span>
+                  <span className="block text-[10px] text-[#7a8a9b]">{entry.percentage.toFixed(1)}%</span>
                 </div>
               </div>
             );

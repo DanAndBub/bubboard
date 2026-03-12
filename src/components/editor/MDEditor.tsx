@@ -39,7 +39,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
   const canSaveToFS = !!fileHandle;
 
   const barColor = charCount > threshold.critical ? 'bg-red-500'
-    : charCount > threshold.warning ? 'bg-amber-500' : 'bg-blue-500';
+    : charCount > threshold.warning ? 'bg-amber-500' : 'bg-[#7db8fc]';
 
   // Auto-resize textarea
   useEffect(() => {
@@ -81,10 +81,10 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#506880] shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs font-mono text-[#e2e8f0] truncate">{path}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          <span className="text-xs font-mono text-[#f1f5f9] truncate">{path}</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#7db8fc]/10 text-[#7db8fc] border border-[#7db8fc]/20">
             editing
           </span>
         </div>
@@ -92,13 +92,13 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
           <button
             onClick={handleRevert}
             disabled={value === backup}
-            className="text-xs px-2.5 py-1 rounded border border-[#1e293b] text-[#475569] hover:text-[#94a3b8] disabled:opacity-30 transition-all"
+            className="text-xs px-2.5 py-1 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] disabled:opacity-30 transition-all"
           >
             Revert
           </button>
           <button
             onClick={handleCopyToClipboard}
-            className="text-xs px-2.5 py-1 rounded border border-[#1e293b] text-[#475569] hover:text-[#94a3b8] transition-all"
+            className="text-xs px-2.5 py-1 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] transition-all"
           >
             Copy
           </button>
@@ -106,7 +106,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
             <button
               onClick={handleSave}
               disabled={saving || value === content}
-              className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-green-400 hover:bg-green-500/20 disabled:opacity-30 transition-all"
+              className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 disabled:opacity-30 transition-all"
             >
               {saving ? 'Saving…' : 'Save to File'}
             </button>
@@ -114,31 +114,31 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
             <button
               onClick={() => { onSave(value); setSaved(true); }}
               disabled={value === content}
-              className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-green-400 hover:bg-green-500/20 disabled:opacity-30 transition-all"
+              className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 disabled:opacity-30 transition-all"
               title="File System Access not available — saves to session only"
             >
               Apply Changes
             </button>
           )}
-          <button onClick={onCancel} className="text-xs px-2 py-1 text-[#475569] hover:text-[#94a3b8] transition-colors">
+          <button onClick={onCancel} className="text-xs px-2 py-1 text-[#7a8a9b] hover:text-[#b0bec9] transition-colors">
             ✕
           </button>
         </div>
       </div>
 
       {/* Status bar */}
-      <div className="px-4 py-2 border-b border-[#1e293b] shrink-0 space-y-1.5">
+      <div className="px-4 py-2 border-b border-[#506880] shrink-0 space-y-1.5">
         {/* Char count + delta */}
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono text-[#94a3b8]">
+          <span className="text-[10px] font-mono text-[#b0bec9]">
             {charCount.toLocaleString()} chars
             {delta !== 0 && (
-              <span className={delta > 0 ? 'text-amber-400 ml-1.5' : 'text-green-400 ml-1.5'}>
+              <span className={delta > 0 ? 'text-[#fbbf24] ml-1.5' : 'text-[#34d399] ml-1.5'}>
                 ({delta > 0 ? '+' : ''}{delta.toLocaleString()})
               </span>
             )}
           </span>
-          <span className="text-[9px] text-[#475569]">
+          <span className="text-[9px] text-[#7a8a9b]">
             Limit: {threshold.hardLimit.toLocaleString()} · Recommended: &lt;{threshold.recommended.toLocaleString()}
           </span>
         </div>
@@ -149,29 +149,29 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
 
         {/* Warnings */}
         {hasApiKey && (
-          <p className="text-[10px] text-red-400 flex items-center gap-1">
+          <p className="text-[10px] text-[#f87171] flex items-center gap-1">
             ⚠️ API key pattern detected — be careful not to expose secrets in snapshots or exports.
           </p>
         )}
         {!canSaveToFS && (
-          <p className="text-[10px] text-[#475569]">
+          <p className="text-[10px] text-[#7a8a9b]">
             💡 File System Access not available in this browser. Changes apply to this session only. Use "Copy" to save content manually.
           </p>
         )}
         {error && (
-          <p className="text-[10px] text-red-400">{error}</p>
+          <p className="text-[10px] text-[#f87171]">{error}</p>
         )}
       </div>
 
       {/* Post-save re-scan prompt */}
       {saved && onRescan && (
-        <div className="px-4 py-2 border-b border-[#1e293b] bg-green-500/5 flex items-center justify-between shrink-0">
-          <span className="text-xs text-green-400">✓ Saved. Re-scan to update findings?</span>
+        <div className="px-4 py-2 border-b border-[#506880] bg-green-500/5 flex items-center justify-between shrink-0">
+          <span className="text-xs text-[#34d399]">✓ Saved. Re-scan to update findings?</span>
           <div className="flex items-center gap-2">
-            <button onClick={onRescan} className="text-xs px-2.5 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-all">
+            <button onClick={onRescan} className="text-xs px-2.5 py-1 rounded bg-green-500/10 text-[#34d399] border border-green-500/20 hover:bg-green-500/20 transition-all">
               Re-scan
             </button>
-            <button onClick={() => setSaved(false)} className="text-xs text-[#475569] hover:text-[#94a3b8]">
+            <button onClick={() => setSaved(false)} className="text-xs text-[#7a8a9b] hover:text-[#b0bec9]">
               Later
             </button>
           </div>
@@ -185,7 +185,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
           value={value}
           onChange={(e) => { setValue(e.target.value); setSaved(false); setError(null); }}
           spellCheck={false}
-          className="w-full min-h-full bg-transparent text-xs font-mono text-[#94a3b8] leading-relaxed px-4 py-3 resize-none outline-none"
+          className="w-full min-h-full bg-transparent text-xs font-mono text-[#b0bec9] leading-relaxed px-4 py-3 resize-none outline-none"
           style={{ tabSize: 2 }}
         />
       </div>
