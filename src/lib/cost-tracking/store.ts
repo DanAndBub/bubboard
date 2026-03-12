@@ -26,6 +26,8 @@ export async function addUsageRecords(
 
   const newRecords: UsageRecord[] = [];
   let skipped = 0;
+  let failedCostCalculations = 0;
+  
   for (const record of records) {
     if (record.request_id && existing.has(record.request_id)) {
       skipped++;
@@ -34,12 +36,27 @@ export async function addUsageRecords(
     const id = crypto.randomUUID();
     const breakdown = calculateCost({ ...record, id, cost_usd: 0 });
     const cost_usd = breakdown ? breakdown.total_cost : 0;
+    
+    // Track records with failed cost calculations (missing pricing data)
+    if (!breakdown) {
+      failedCostCalculations++;
+    }
+    
     newRecords.push({ ...record, id, cost_usd });
   }
 
   if (newRecords.length > 0) {
     await db.usage.bulkPut(newRecords);
   }
+  
+  // Log summary if there were cost calculation failures
+  if (failedCostCalculations > 0) {
+    console.warn(
+      `Import summary: ${failedCostCalculations}/${newRecords.length} records could not be priced. ` +
+      `Missing pricing data for these models. Check browser console for details.`
+    );
+  }
+  
   return { added: newRecords.length, skipped };
 }
 

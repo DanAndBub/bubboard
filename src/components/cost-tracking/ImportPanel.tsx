@@ -33,34 +33,56 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
     (file: File) => {
       setStatus({ kind: 'processing' })
       const reader = new FileReader()
+      
       reader.onload = async (e) => {
-        const content = e.target?.result
-        if (typeof content !== 'string') {
-          setStatus({ kind: 'error', message: 'Failed to read file.' })
-          return
-        }
         try {
-          let parsed: Awaited<ReturnType<typeof parseClaudeCodeJSONL>>
-          if (activeFormat === 'jsonl') {
-            parsed = parseClaudeCodeJSONL(content)
-          } else if (activeFormat === 'csv') {
-            parsed = parseCSV(content)
-          } else {
-            parsed = parseJSON(content)
+          const content = e.target?.result
+          if (typeof content !== 'string') {
+            throw new Error('Failed to read file content as text.')
           }
+          
+          if (!content.trim()) {
+            throw new Error('File is empty.')
+          }
+          
+          let parsed: Awaited<ReturnType<typeof parseClaudeCodeJSONL>>
+          try {
+            if (activeFormat === 'jsonl') {
+              parsed = parseClaudeCodeJSONL(content)
+            } else if (activeFormat === 'csv') {
+              parsed = parseCSV(content)
+            } else {
+              parsed = parseJSON(content)
+            }
+          } catch (parseErr) {
+            const parseMessage = parseErr instanceof Error ? parseErr.message : 'Unknown parsing error'
+            throw new Error(`Failed to parse ${activeFormat.toUpperCase()} format: ${parseMessage}`)
+          }
+          
+          if (!parsed || parsed.length === 0) {
+            throw new Error('No valid records found in file.')
+          }
+          
           await addUsageRecords(parsed)
           setStatus({ kind: 'success', count: parsed.length })
           onImportComplete(parsed.length)
         } catch (err) {
-          setStatus({
-            kind: 'error',
-            message: err instanceof Error ? err.message : 'Unknown error during import.',
-          })
+          const message = err instanceof Error ? err.message : 'Unknown error during import.'
+          console.error('Import failed:', err)
+          setStatus({ kind: 'error', message })
         }
       }
+      
       reader.onerror = () => {
-        setStatus({ kind: 'error', message: 'Failed to read file.' })
+        const message = 'Failed to read file. Please ensure the file is accessible and try again.'
+        console.error('FileReader error:', reader.error)
+        setStatus({ kind: 'error', message })
       }
+      
+      reader.onabort = () => {
+        setStatus({ kind: 'error', message: 'File reading was cancelled.' })
+      }
+      
       reader.readAsText(file)
     },
     [activeFormat, onImportComplete],
