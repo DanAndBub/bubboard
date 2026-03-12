@@ -111,3 +111,49 @@ export function getDemoAgentMap(): AgentMap {
     },
   };
 }
+
+export function getDemoFileContents(): Record<string, string> {
+  return {
+    'AGENTS.md': `# Bub's Operating Manual
+
+## Delegation Rules
+- Use sonnet for complex engineering tasks and code review
+- Use coder for routine development and implementation
+- Use analyst for data analysis, research, and reporting
+- Delegate to local for local system tasks and file operations
+
+## Skills
+Skills: github, gog, weather, tmux, coding-agent, deploy, monitor
+
+## Communication
+Primary channel: Telegram
+`,
+    'openclaw.json': JSON.stringify({
+      models: {
+        providers: {
+          anthropic: { models: [
+            { id: 'claude-opus-4-6', name: 'Claude Opus 4.6' },
+            { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
+          ]},
+          deepseek: { models: [
+            { id: 'deepseek-chat', name: 'DeepSeek Chat' },
+          ]},
+        },
+      },
+      agents: {
+        defaults: { model: { primary: 'anthropic/claude-sonnet-4-6' } },
+        list: [
+          { id: 'main', model: { primary: 'anthropic/claude-opus-4-6' } },
+          { id: 'sonnet', model: { primary: 'anthropic/claude-sonnet-4-6' } },
+          { id: 'coder', model: { primary: 'deepseek/deepseek-chat' } },
+          { id: 'analyst', model: { primary: 'deepseek/deepseek-chat' } },
+          { id: 'local', model: { primary: 'deepseek/deepseek-chat' } },
+        ],
+      },
+      heartbeat: { model: 'deepseek-chat', every: '15m' },
+      channels: { telegram: { enabled: true } },
+    }, null, 2),
+    'HEARTBEAT.md': '# Heartbeat Tasks\n\nCheck email, calendar, weather during quiet periods.\nIf nothing needs attention: HEARTBEAT_OK\nProactive checks rotate 2-4x daily.\nLate night (23:00-08:00): stay quiet unless urgent.',
+    'SOUL.md': '# SOUL.md — Bub\n\nDirect and efficient. Say what needs saying. No filler.\nGenuinely helpful, not performatively helpful.\nOpinionated when it matters.\nConcise by default, thorough when it counts.\nResourceful before asking — read the file, check the context, search memory.',
+  };
+}

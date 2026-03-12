@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { parseAgentTree } from '@/lib/parser';
 import { pathsToTree } from '@/lib/pathsToTree';
 import { analyzeAgentsMd, analyzeOpenClawConfig, analyzeHeartbeat } from '@/lib/analyzer';
-import { getDemoAgentMap } from '@/lib/demo-data';
+import { getDemoAgentMap, getDemoFileContents } from '@/lib/demo-data';
 import type { AgentMap } from '@/lib/types';
 import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
 import { runReview, type ReviewResult } from '@/lib/config-review/runner';
@@ -38,9 +38,9 @@ function MapPageContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get('demo') === 'true';
 
-  const [agentMap, setAgentMap] = useState<AgentMap | null>(null);
-  const [fileContents, setFileContents] = useState<Record<string, string>>({});
-  const [inputCollapsed, setInputCollapsed] = useState(false);
+  const [agentMap, setAgentMap] = useState<AgentMap | null>(() => isDemo ? getDemoAgentMap() : null);
+  const [fileContents, setFileContents] = useState<Record<string, string>>(() => isDemo ? getDemoFileContents() : {});
+  const [inputCollapsed, setInputCollapsed] = useState(() => isDemo);
   const [isLoading, setIsLoading] = useState(false);
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
   const [analyzedFiles, setAnalyzedFiles] = useState<ReturnType<typeof analyzeFile>[]>([]);
@@ -68,66 +68,18 @@ function MapPageContent() {
 
   const snapshotInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-load demo
+  // Demo mode: run config review on initial demo data (state initialized in useState above)
   useEffect(() => {
-    if (isDemo) {
-      const demoMap = getDemoAgentMap();
-      const demoContents: Record<string, string> = {
-        'AGENTS.md': `# Bub's Operating Manual
-
-## Delegation Rules
-- Use sonnet for complex engineering tasks and code review
-- Use coder for routine development and implementation
-- Use analyst for data analysis, research, and reporting
-- Delegate to local for local system tasks and file operations
-
-## Skills
-Skills: github, gog, weather, tmux, coding-agent, deploy, monitor
-
-## Communication
-Primary channel: Telegram
-`,
-        'openclaw.json': JSON.stringify({
-          models: {
-            providers: {
-              anthropic: { models: [
-                { id: 'claude-opus-4-6', name: 'Claude Opus 4.6' },
-                { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
-              ]},
-              deepseek: { models: [
-                { id: 'deepseek-chat', name: 'DeepSeek Chat' },
-              ]},
-            },
-          },
-          agents: {
-            defaults: { model: { primary: 'anthropic/claude-sonnet-4-6' } },
-            list: [
-              { id: 'main', model: { primary: 'anthropic/claude-opus-4-6' } },
-              { id: 'sonnet', model: { primary: 'anthropic/claude-sonnet-4-6' } },
-              { id: 'coder', model: { primary: 'deepseek/deepseek-chat' } },
-              { id: 'analyst', model: { primary: 'deepseek/deepseek-chat' } },
-              { id: 'local', model: { primary: 'deepseek/deepseek-chat' } },
-            ],
-          },
-          heartbeat: { model: 'deepseek-chat', every: '15m' },
-          channels: { telegram: { enabled: true } },
-        }, null, 2),
-        'HEARTBEAT.md': '# Heartbeat Tasks\n\nCheck email, calendar, weather during quiet periods.\nIf nothing needs attention: HEARTBEAT_OK\nProactive checks rotate 2-4x daily.\nLate night (23:00-08:00): stay quiet unless urgent.',
-        'SOUL.md': '# SOUL.md — Bub\n\nDirect and efficient. Say what needs saying. No filler.\nGenuinely helpful, not performatively helpful.\nOpinionated when it matters.\nConcise by default, thorough when it counts.\nResourceful before asking — read the file, check the context, search memory.',
-      };
-      setFileContents(demoContents);
-      setAgentMap(demoMap);
-      setInputCollapsed(true);
-
-      // Run config review on demo data
-      const mdFiles = Object.entries(demoContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
+    if (isDemo && fileContents && Object.keys(fileContents).length > 0) {
+      const mdFiles = Object.entries(fileContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
       if (mdFiles.length > 0) {
         const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
         setAnalyzedFiles(analyzed);
         setReviewResult(runReview(analyzed));
       }
     }
-  }, [isDemo]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function applyAnalyzer(fileName: string, content: string, map: AgentMap): AgentMap {
     const name = fileName.toUpperCase();
