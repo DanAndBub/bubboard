@@ -45,10 +45,34 @@ describe("redactSensitiveValues", () => {
     expect(result.TOKEN).toBe("[REDACTED]");
   });
 
-  it("does NOT redact compound keys like OPENAI_API_KEY (exact match only)", () => {
+  it("redacts compound keys like OPENAI_API_KEY", () => {
     const input = JSON.stringify({ OPENAI_API_KEY: "sk-abc123" });
     const result = JSON.parse(redactSensitiveValues(input));
-    expect(result.OPENAI_API_KEY).not.toBe("[REDACTED]");
+    expect(result.OPENAI_API_KEY).toBe("[REDACTED]");
+  });
+
+  it("redacts ANTHROPIC_API_KEY", () => {
+    const input = JSON.stringify({ ANTHROPIC_API_KEY: "sk-ant-v1-xyz" });
+    const result = JSON.parse(redactSensitiveValues(input));
+    expect(result.ANTHROPIC_API_KEY).toBe("[REDACTED]");
+  });
+
+  it("redacts GITHUB_TOKEN", () => {
+    const input = JSON.stringify({ GITHUB_TOKEN: "ghp_abc123" });
+    const result = JSON.parse(redactSensitiveValues(input));
+    expect(result.GITHUB_TOKEN).toBe("[REDACTED]");
+  });
+
+  it("redacts webhook_secret", () => {
+    const input = JSON.stringify({ webhook_secret: "whsec_abc" });
+    const result = JSON.parse(redactSensitiveValues(input));
+    expect(result.webhook_secret).toBe("[REDACTED]");
+  });
+
+  it("redacts STRIPE_SECRET_KEY", () => {
+    const input = JSON.stringify({ STRIPE_SECRET_KEY: "sk_live_abc123" });
+    const result = JSON.parse(redactSensitiveValues(input));
+    expect(result.STRIPE_SECRET_KEY).toBe("[REDACTED]");
   });
 
   it("preserves non-sensitive fields", () => {
