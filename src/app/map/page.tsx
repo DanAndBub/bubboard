@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { parseAgentTree } from '@/lib/parser';
 import { pathsToTree } from '@/lib/pathsToTree';
 import { analyzeAgentsMd, analyzeOpenClawConfig, analyzeHeartbeat } from '@/lib/analyzer';
@@ -10,7 +9,6 @@ import { getDemoAgentMap } from '@/lib/demo-data';
 import type { AgentMap } from '@/lib/types';
 import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
 import { runReview, type ReviewResult } from '@/lib/config-review/runner';
-import ReviewPanel from '@/components/config-review/ReviewPanel';
 import { calculateBudget } from '@/lib/config-review/budget';
 import type { BootstrapBudget } from '@/lib/config-review/types';
 import { serializeSnapshot } from '@/lib/drift/snapshot-serialize';
@@ -20,11 +18,21 @@ import { computeDrift } from '@/lib/drift/diff-engine';
 import { generateSessionNotes } from '@/lib/drift/session-notes';
 import { downloadSessionNotes } from '@/lib/drift/session-notes-export';
 import type { Snapshot, DriftReport } from '@/lib/drift/types';
-import DriftReportPanel from '@/components/drift/DriftReport';
 import EditorPanel from '@/components/editor/EditorPanel';
 import DirectoryScanner from '@/scanner/DirectoryScanner';
 import TreeInput from '@/components/TreeInput';
-import AgentMapDisplay from '@/components/AgentMap';
+import { calculateHealthScore } from '@/lib/scoring';
+import MapShell from '@/components/map/MapShell';
+import MapTopBar from '@/components/map/MapTopBar';
+import MapSidebar from '@/components/map/MapSidebar';
+import OverviewView from '@/components/map/views/OverviewView';
+import AgentsView from '@/components/map/views/AgentsView';
+import FilesView from '@/components/map/views/FilesView';
+import CostsView from '@/components/map/views/CostsView';
+import ReviewView from '@/components/map/views/ReviewView';
+import DriftView from '@/components/map/views/DriftView';
+
+type View = 'overview' | 'agents' | 'files' | 'costs' | 'review' | 'drift';
 
 function MapPageContent() {
   const searchParams = useSearchParams();
@@ -41,11 +49,24 @@ function MapPageContent() {
   const [previousSnapshot, setPreviousSnapshot] = useState<Snapshot | null>(null);
   const [driftReport, setDriftReport] = useState<DriftReport | null>(null);
   const [editorFile, setEditorFile] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<View>('overview');
+
+  // Apply ?view= query param on mount
+  useEffect(() => {
+    const v = searchParams.get('view');
+    const valid: View[] = ['overview', 'agents', 'files', 'costs', 'review', 'drift'];
+    if (v && (valid as string[]).includes(v)) {
+      setActiveView(v as View);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Whether webkitdirectory is unsupported in this browser
   const [browserUnsupported, setBrowserUnsupported] = useState(false);
   // Whether the text-input fallback section is expanded
   const [textFallbackOpen, setTextFallbackOpen] = useState(false);
+
+  const snapshotInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-load demo
   useEffect(() => {
@@ -213,197 +234,98 @@ Primary channel: Telegram
     buildMapFromTree(tree);
   };
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      {/* Top nav */}
-      <nav className="sticky top-0 z-20 border-b border-[#506880] bg-[#0a0e17]/95 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-6 h-6 rounded border border-[#7db8fc]/30 bg-[#7db8fc]/10 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-            </div>
-            <span className="font-bold text-[#f1f5f9] text-sm">Driftwatch</span>
-          </Link>
+  function handleNewMap() {
+    setAgentMap(null);
+    setFileContents({});
+    setReviewResult(null);
+    setCurrentSnapshot(null);
+    setPreviousSnapshot(null);
+    setDriftReport(null);
+    setBudget(null);
+    setInputCollapsed(false);
+    setActiveView('overview');
+    window.history.pushState({}, '', '/map');
+  }
 
-          <div className="text-[#506880]">/</div>
-          <span className="text-sm text-[#b0bec9]">Agent Map</span>
+  function handleEditInput() {
+    setInputCollapsed(false);
+    setAgentMap(null);
+    setFileContents({});
+    setReviewResult(null);
+    setCurrentSnapshot(null);
+    setPreviousSnapshot(null);
+    setDriftReport(null);
+    setBudget(null);
+    setActiveView('overview');
+  }
 
-          {isDemo && (
-            <span className="text-xs px-2 py-0.5 rounded-full border border-[#7db8fc]/30 bg-[#7db8fc]/10 text-[#7db8fc]">
-              Demo: Bub&apos;s workspace
-            </span>
-          )}
+  // Derived values for sidebar and views (only when agentMap is set)
+  const health = agentMap ? calculateHealthScore(agentMap) : null;
+  const totalFileCount = agentMap
+    ? agentMap.workspace.coreFiles.length +
+      agentMap.workspace.customFiles.length +
+      agentMap.workspace.memoryFiles.length +
+      agentMap.workspace.subagentProtocols.length
+    : 0;
+  const stats = agentMap && health
+    ? {
+        totalFiles: totalFileCount,
+        agentCount: agentMap.agents.length,
+        memoryEntries: agentMap.workspace.memoryFiles.length,
+        skillCount: agentMap.skillCount,
+        score: health.score,
+        maxScore: health.maxScore,
+      }
+    : null;
 
-          {agentMap && (
-            <div className="ml-auto flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setAgentMap(null);
-                  setFileContents({});
-                  setReviewResult(null);
-                  setCurrentSnapshot(null);
-                  setPreviousSnapshot(null);
-                  setDriftReport(null);
-                  setBudget(null);
-                  setInputCollapsed(false);
-                  window.history.pushState({}, '', '/map');
-                }}
-                className="text-xs text-[#7a8a9b] hover:text-[#b0bec9] transition-colors border border-[#506880] rounded-lg px-3 py-1.5 hover:border-[#2d3f5a]"
-              >
-                New map
-              </button>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-6 space-y-6">
-
-        {/* ── INPUT SECTION ────────────────────────────────────────────────── */}
-        {!inputCollapsed ? (
-          <div className="max-w-2xl mx-auto space-y-4">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-[#f1f5f9] mb-2">Map Your Agent</h1>
-              <p className="text-sm text-[#b0bec9]">
-                Select your OpenClaw directory to generate an interactive architecture map
-              </p>
-            </div>
-
-            {/* Primary: folder picker (hidden when browser is unsupported) */}
-            {!browserUnsupported && (
-              <DirectoryScanner
-                onConfirm={handleDirectoryConfirm}
-              />
-            )}
-
-            {/* Secondary: text input fallback (collapsible) */}
-            <div className="rounded-xl border border-[#506880] bg-[#111827] overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setTextFallbackOpen(v => !v)}
-                className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#0d1520] transition-colors"
-              >
-                <span className="text-xs text-[#b0bec9]">
-                  Using SSH or headless server? Paste output instead
-                </span>
-                <svg
-                  className={`w-4 h-4 text-[#7a8a9b] transition-transform ${textFallbackOpen ? 'rotate-180' : ''}`}
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {textFallbackOpen && (
-                <div className="border-t border-[#506880]">
-                  <TreeInput onSubmit={handleTreeSubmit} isLoading={isLoading} />
-                </div>
-              )}
-            </div>
-
+  // Main content rendered inside MapShell
+  const mainContent = (
+    <>
+      {!agentMap ? (
+        /* ── INPUT SECTION ─────────────────────────────────────────────── */
+        <div className="max-w-2xl mx-auto space-y-4">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-[#f1f5f9] mb-2">Map Your Agent</h1>
+            <p className="text-sm text-[#b0bec9]">
+              Select your OpenClaw directory to generate an interactive architecture map
+            </p>
           </div>
-        ) : (
-          /* Collapsed input */
-          <div className="flex items-center gap-3">
+
+          {/* Primary: folder picker (hidden when browser is unsupported) */}
+          {!browserUnsupported && (
+            <DirectoryScanner
+              onConfirm={handleDirectoryConfirm}
+            />
+          )}
+
+          {/* Secondary: text input fallback (collapsible) */}
+          <div className="rounded-xl border border-[#506880] bg-[#111827] overflow-hidden">
             <button
-              onClick={() => { setInputCollapsed(false); setAgentMap(null); setFileContents({}); setReviewResult(null); setCurrentSnapshot(null); setPreviousSnapshot(null); setDriftReport(null); setBudget(null); }}
-              className="flex items-center gap-2 text-xs text-[#7a8a9b] hover:text-[#b0bec9] transition-colors border border-[#506880] rounded-lg px-3 py-2 hover:border-[#2d3f5a] hover:bg-[#111827]"
+              type="button"
+              onClick={() => setTextFallbackOpen(v => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#0d1520] transition-colors"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Edit input
-            </button>
-          </div>
-        )}
-
-        {/* ── MAP OUTPUT ───────────────────────────────────────────────────── */}
-        {agentMap && (
-          <div>
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#506880]">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#34d399] status-dot-ok" />
-                <span className="text-sm font-medium text-[#f1f5f9]">
-                  {isDemo ? "Bub's Agent Architecture" : 'Your Agent Architecture'}
-                </span>
-              </div>
-              <span className="text-xs text-[#7a8a9b]">
-                {agentMap.agents.length} agent{agentMap.agents.length !== 1 ? 's' : ''} detected
+              <span className="text-xs text-[#b0bec9]">
+                Using SSH or headless server? Paste output instead
               </span>
-              <div className="ml-auto text-xs text-[#7a8a9b] font-mono">
-                Generated in &lt;500ms
-              </div>
-            </div>
+              <svg
+                className={`w-4 h-4 text-[#7a8a9b] transition-transform ${textFallbackOpen ? 'rotate-180' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-            <AgentMapDisplay map={agentMap} fileContents={fileContents} />
-
-            {/* Config Review */}
-            {reviewResult && (
-              <div className="mt-6">
-                <ReviewPanel result={reviewResult} files={analyzedFiles} onOpenFile={openFileEditor} />
-              </div>
-            )}
-
-            {/* Drift Report */}
-            {driftReport && (
-              <div className="mt-6">
-                <DriftReportPanel report={driftReport} />
-              </div>
-            )}
-
-            {/* Snapshot & Notes Controls */}
-            {currentSnapshot && (
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <button
-                  onClick={() => downloadSnapshot(currentSnapshot)}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-[#506880] text-[#b0bec9] hover:text-[#f1f5f9] hover:border-[#7db8fc]/30 hover:bg-[#7db8fc]/5 transition-all"
-                >
-                  📥 Download Snapshot
-                </button>
-                <label className="text-xs px-3 py-1.5 rounded-lg border border-[#506880] text-[#b0bec9] hover:text-[#f1f5f9] hover:border-[#7db8fc]/30 hover:bg-[#7db8fc]/5 transition-all cursor-pointer">
-                  📤 Upload Previous Snapshot
-                  <input
-                    type="file"
-                    accept=".json"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const text = await file.text();
-                      const result = importSnapshot(text);
-                      if (result.ok) {
-                        setPreviousSnapshot(result.snapshot);
-                        setDriftReport(computeDrift(result.snapshot, currentSnapshot));
-                      } else {
-                        alert(result.error);
-                      }
-                      e.target.value = '';
-                    }}
-                  />
-                </label>
-                {reviewResult && budget && (
-                  <button
-                    onClick={() => {
-                      const notes = generateSessionNotes(reviewResult, budget, currentSnapshot, driftReport);
-                      downloadSessionNotes(notes);
-                    }}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-[#506880] text-[#b0bec9] hover:text-[#f1f5f9] hover:border-[#7db8fc]/30 hover:bg-[#7db8fc]/5 transition-all"
-                  >
-                    📝 Download Session Notes
-                  </button>
-                )}
+            {textFallbackOpen && (
+              <div className="border-t border-[#506880]">
+                <TreeInput onSubmit={handleTreeSubmit} isLoading={isLoading} />
               </div>
             )}
           </div>
-        )}
 
-        {/* Quick-start guide — shown when no map has been generated yet */}
-        {!agentMap && (
-          <div className="max-w-2xl mx-auto space-y-4 pt-2">
+          {/* Quick-start guide */}
+          <div className="space-y-4 pt-2">
             <h2 className="text-sm font-semibold text-[#b0bec9] tracking-wide uppercase">
               How to scan your workspace
             </h2>
@@ -456,10 +378,49 @@ Primary channel: Telegram
               Tip: For the richest map, toggle on file content reading. Your files never leave your browser.
             </p>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        /* ── VIEW-BASED LAYOUT ──────────────────────────────────────────── */
+        <>
+          {activeView === 'overview' && stats && (
+            <OverviewView
+              agentMap={agentMap}
+              stats={stats}
+              reviewFindings={reviewResult?.findings ?? []}
+              healthScore={health!.score}
+              budget={budget}
+              onNavigate={setActiveView}
+              isDemo={isDemo}
+            />
+          )}
+          {activeView === 'agents' && (
+            <AgentsView agents={agentMap.agents} />
+          )}
+          {activeView === 'files' && (
+            <FilesView
+              workspace={agentMap.workspace}
+              fileContents={fileContents}
+              analyzedFiles={analyzedFiles}
+              budget={budget}
+            />
+          )}
+          {activeView === 'costs' && (
+            <CostsView />
+          )}
+          {activeView === 'review' && (
+            <ReviewView
+              reviewResult={reviewResult}
+              analyzedFiles={analyzedFiles}
+              onOpenFile={openFileEditor}
+            />
+          )}
+          {activeView === 'drift' && (
+            <DriftView driftReport={driftReport} />
+          )}
+        </>
+      )}
 
-      {/* Editor Slide-in Panel */}
+      {/* Editor Slide-in Panel — overlays main content area */}
       {editorFile && fileContents[editorFile] !== undefined && (
         <>
           {/* Backdrop */}
@@ -476,7 +437,76 @@ Primary channel: Telegram
           />
         </>
       )}
-    </div>
+    </>
+  );
+
+  return (
+    <MapShell
+      topBar={
+        <MapTopBar
+          isDemo={isDemo}
+          onNewMap={handleNewMap}
+          showNewMap={agentMap !== null}
+        />
+      }
+      sidebar={
+        agentMap && health ? (
+          <MapSidebar
+            activeView={activeView}
+            onViewChange={setActiveView}
+            setupScore={health.score}
+            maxScore={health.maxScore}
+            agentCount={agentMap.agents.length}
+            fileCount={totalFileCount}
+            hasFindings={(reviewResult?.findings.length ?? 0) > 0}
+            onDownloadSnapshot={() => {
+              if (currentSnapshot) downloadSnapshot(currentSnapshot);
+            }}
+            onUploadSnapshot={() => snapshotInputRef.current?.click()}
+            onDownloadNotes={() => {
+              if (reviewResult && budget && currentSnapshot) {
+                const notes = generateSessionNotes(reviewResult, budget, currentSnapshot, driftReport);
+                downloadSessionNotes(notes);
+              }
+            }}
+          />
+        ) : (
+          /* No sidebar content before a map is loaded */
+          <div
+            style={{
+              background: '#080c14',
+              borderRight: '1px solid #3a4e63',
+              height: '100%',
+            }}
+          />
+        )
+      }
+    >
+      {mainContent}
+
+      {/* Hidden file input for snapshot upload */}
+      <input
+        ref={snapshotInputRef}
+        type="file"
+        accept=".json"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const text = await file.text();
+          const result = importSnapshot(text);
+          if (result.ok) {
+            setPreviousSnapshot(result.snapshot);
+            if (currentSnapshot) {
+              setDriftReport(computeDrift(result.snapshot, currentSnapshot));
+            }
+          } else {
+            alert(result.error);
+          }
+          e.target.value = '';
+        }}
+      />
+    </MapShell>
   );
 }
 
