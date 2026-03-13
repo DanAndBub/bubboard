@@ -390,6 +390,7 @@ function MapPageContent() {
               fileContents={fileContents}
               analyzedFiles={analyzedFiles}
               budget={budget}
+              onNavigateToReview={() => setActiveView('review')}
             />
           )}
           {activeView === 'costs' && (

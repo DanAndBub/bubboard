@@ -276,6 +276,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   const [pasteMode, setPasteMode] = useState(false);
   const [pasteText, setPasteText] = useState('');
   const [includeContents, setIncludeContents] = useState(false);
+  const [scanSource, setScanSource] = useState<'picker' | 'paste'>('picker');
   const [copied, setCopied] = useState(false);
 
   const supportsDirectoryPicker =
@@ -294,6 +295,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   async function handleDirectoryPicker() {
     setError(null);
     setScanState('scanning');
+    setScanSource('picker');
     setProgressMsg('Opening folder picker…');
     try {
       const { items: found, fileContents: contents } = await scanWithDirectoryPicker(setProgressMsg);
@@ -309,8 +311,10 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   }
 
   function handlePasteSubmit() {
+    setScanSource('paste');
     setItems(parsePastedOutput(pasteText));
     setFileContents({});
+    setIncludeContents(false);
     setScanState('review');
   }
 
@@ -392,7 +396,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             disabled={!supportsDirectoryPicker}
             className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
               supportsDirectoryPicker
-                ? 'bg-[#7db8fc] hover:bg-blue-600 text-white cursor-pointer'
+                ? 'bg-[#1c3a5e] hover:bg-[#254a75] border border-[#7db8fc]/40 text-white cursor-pointer'
                 : 'bg-[#111827] border border-[#506880] text-[#7a8a9b] cursor-not-allowed opacity-60'
             }`}
           >
@@ -495,21 +499,25 @@ export default function DirectoryScanner({ onConfirm }: Props) {
               </p>
 
               {/* Contents toggle */}
-              <div className="flex items-center justify-between gap-4 rounded-lg border border-[#506880] bg-[#0a0e17] px-3 py-2.5">
+              <div className={`flex items-center justify-between gap-4 rounded-lg border border-[#506880] bg-[#0a0e17] px-3 py-2.5 ${scanSource === 'paste' ? 'opacity-60' : ''}`}>
                 <div className="flex flex-col gap-0.5">
                   <span className="text-xs font-medium text-slate-200">Read file contents</span>
                   <span className="text-xs text-slate-500">
-                    {includeContents
-                      ? 'File contents will be read to populate your map with relationships, config details, and agent roles.'
-                      : 'Only filenames will be scanned — faster and more private.'}
+                    {scanSource === 'paste'
+                      ? 'Not available with terminal paste. Use Chrome/Edge folder picker to read file contents.'
+                      : includeContents
+                        ? 'File contents will be read to populate your map with relationships, config details, and agent roles.'
+                        : 'Only filenames will be scanned — faster and more private.'}
                   </span>
                 </div>
                 <button
                   type="button"
                   role="switch"
                   aria-checked={includeContents}
+                  disabled={scanSource === 'paste'}
                   onClick={() => setIncludeContents(v => !v)}
-                  className={`relative flex-shrink-0 w-9 h-5 rounded-full transition-colors ${includeContents ? 'bg-[#7db8fc]' : 'bg-slate-600'}`}
+                  title={scanSource === 'paste' ? 'File contents not available with terminal paste method' : undefined}
+                  className={`relative flex-shrink-0 w-9 h-5 rounded-full transition-colors ${scanSource === 'paste' ? 'bg-slate-700 cursor-not-allowed' : includeContents ? 'bg-[#7db8fc]' : 'bg-slate-600'}`}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${includeContents ? 'translate-x-4' : 'translate-x-0'}`}

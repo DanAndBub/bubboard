@@ -6,22 +6,30 @@ interface ModelBreakdownProps {
   data: Array<{ model: string; cost: number; count: number; percentage: number }>;
 }
 
-const MODEL_COLORS: Record<string, { main: string; glow: string }> = {
-  'claude-opus':    { main: '#3b82f6', glow: 'rgba(59,130,246,0.35)' },
-  'claude-sonnet':  { main: '#a78bfa', glow: 'rgba(139,92,246,0.35)' },
-  'claude-haiku':   { main: '#06b6d4', glow: 'rgba(6,182,212,0.35)' },
-  'deepseek-chat':  { main: '#34d399', glow: 'rgba(16,185,129,0.35)' },
-  'deepseek-reasoner': { main: '#34d399', glow: 'rgba(52,211,153,0.35)' },
-  'deepseek':       { main: '#34d399', glow: 'rgba(16,185,129,0.35)' },
-  'gpt-4.1':        { main: '#fbbf24', glow: 'rgba(245,158,11,0.35)' },
-  'gpt-4o':         { main: '#f87171', glow: 'rgba(239,68,68,0.35)' },
-  'o3':             { main: '#ec4899', glow: 'rgba(236,72,153,0.35)' },
-  'o1':             { main: '#f97316', glow: 'rgba(249,115,22,0.35)' },
-};
+// Ordered longest-first so versioned names match before family prefix
+const MODEL_COLORS: [string, { main: string; glow: string }][] = [
+  ['claude-opus-4-6',    { main: '#3b82f6', glow: 'rgba(59,130,246,0.35)' }],
+  ['claude-opus-4-5',    { main: '#60a5fa', glow: 'rgba(96,165,250,0.35)' }],
+  ['claude-opus',        { main: '#3b82f6', glow: 'rgba(59,130,246,0.35)' }],
+  ['claude-sonnet-4-6',  { main: '#a78bfa', glow: 'rgba(139,92,246,0.35)' }],
+  ['claude-sonnet-4-5',  { main: '#c084fc', glow: 'rgba(192,132,252,0.35)' }],
+  ['claude-sonnet-4',    { main: '#8b5cf6', glow: 'rgba(139,92,246,0.35)' }],
+  ['claude-sonnet',      { main: '#a78bfa', glow: 'rgba(139,92,246,0.35)' }],
+  ['claude-haiku-4-5',   { main: '#06b6d4', glow: 'rgba(6,182,212,0.35)' }],
+  ['claude-haiku-3-5',   { main: '#22d3ee', glow: 'rgba(34,211,238,0.35)' }],
+  ['claude-haiku',       { main: '#06b6d4', glow: 'rgba(6,182,212,0.35)' }],
+  ['deepseek-chat',      { main: '#34d399', glow: 'rgba(16,185,129,0.35)' }],
+  ['deepseek-reasoner',  { main: '#10b981', glow: 'rgba(16,185,129,0.35)' }],
+  ['deepseek',           { main: '#34d399', glow: 'rgba(16,185,129,0.35)' }],
+  ['gpt-4.1',            { main: '#fbbf24', glow: 'rgba(245,158,11,0.35)' }],
+  ['gpt-4o',             { main: '#f87171', glow: 'rgba(239,68,68,0.35)' }],
+  ['o3',                 { main: '#ec4899', glow: 'rgba(236,72,153,0.35)' }],
+  ['o1',                 { main: '#f97316', glow: 'rgba(249,115,22,0.35)' }],
+];
 
 function getModelColor(model: string): { main: string; glow: string } {
-  const key = Object.keys(MODEL_COLORS).find(k => model.includes(k));
-  return key ? MODEL_COLORS[key] : { main: '#6b7280', glow: 'rgba(107,114,128,0.35)' };
+  const match = MODEL_COLORS.find(([k]) => model.includes(k));
+  return match ? match[1] : { main: '#6b7280', glow: 'rgba(107,114,128,0.35)' };
 }
 
 export default function ModelBreakdown({ data }: ModelBreakdownProps) {

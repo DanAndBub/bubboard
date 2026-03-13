@@ -136,7 +136,6 @@ export default function CostsView() {
     try {
       let totalImported = 0
       let totalSkipped = 0
-      const allModels = new Set<string>()
       for (const file of files) {
         const content = await file.text()
         const name = file.name.toLowerCase()
@@ -162,14 +161,12 @@ export default function CostsView() {
           const result = await addUsageRecords(parsed)
           totalImported += result.added
           totalSkipped += result.skipped
-          result.models.forEach(m => allModels.add(m))
         }
       }
       await loadData()
-      const skipMsg = totalSkipped > 0 ? ` (${totalSkipped} duplicates skipped)` : ''
-      const modelMsg = allModels.size > 0 ? ` Models: ${[...allModels].join(', ')}` : ''
-      setImportToast(`Imported ${totalImported} records from ${files.length} file${files.length === 1 ? '' : 's'}${skipMsg}.${modelMsg}`)
-      setTimeout(() => setImportToast(null), 8000)
+      const skipMsg = totalSkipped > 0 ? ` ${totalSkipped} duplicates excluded.` : ''
+      setImportToast(`Imported ${totalImported} records.${skipMsg}`)
+      setTimeout(() => setImportToast(null), 5000)
     } catch (err) {
       setImportToast(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
       setTimeout(() => setImportToast(null), 5000)

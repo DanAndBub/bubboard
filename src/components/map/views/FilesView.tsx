@@ -8,6 +8,7 @@ interface FilesViewProps {
   fileContents: Record<string, string>;
   analyzedFiles: FileAnalysis[];
   budget: BootstrapBudget | null;
+  onNavigateToReview?: () => void;
 }
 
 const CORE_IDENTITY_FILES = ['SOUL.md', 'IDENTITY.md', 'USER.md'];
@@ -158,7 +159,7 @@ function GroupHeader({ dotColor, label, topMargin = true }: { dotColor: string; 
   );
 }
 
-export default function FilesView({ workspace, fileContents: _fileContents, analyzedFiles, budget }: FilesViewProps) {
+export default function FilesView({ workspace, fileContents: _fileContents, analyzedFiles, budget, onNavigateToReview }: FilesViewProps) {
   const coreFileNames = new Set(workspace.coreFiles.map(basename));
   const customFileNames = new Set(workspace.customFiles.map(basename));
 
@@ -191,6 +192,20 @@ export default function FilesView({ workspace, fileContents: _fileContents, anal
 
   return (
     <div>
+      {/* Navigate to Config Review CTA */}
+      {onNavigateToReview && (
+        <button
+          onClick={onNavigateToReview}
+          className="w-full flex items-center justify-between gap-3 rounded-lg border border-[#506880] bg-[#111827] hover:border-[#7db8fc]/40 hover:bg-[#1c2637]/50 px-4 py-3 mb-5 text-left transition-colors group"
+        >
+          <div>
+            <span className="text-sm font-medium text-[#f1f5f9] group-hover:text-[#7db8fc] transition-colors">View &amp; edit files in Config Review</span>
+            <span className="block text-xs text-[#7a8a9b] mt-0.5">Review findings, edit content, and fix issues</span>
+          </div>
+          <span className="text-[#7a8a9b] group-hover:text-[#7db8fc] transition-colors text-lg shrink-0">→</span>
+        </button>
+      )}
+
       {/* Page header */}
       <div className="flex items-center gap-3 mb-5">
         <h1 className="text-[22px] font-semibold text-white">Workspace Files</h1>
