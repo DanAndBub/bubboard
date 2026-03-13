@@ -51,9 +51,17 @@ function MapPageContent() {
   const [editorFile, setEditorFile] = useState<string | null>(null);
   const [editorFinding, setEditorFinding] = useState<ReviewFinding | null>(null);
   const [activeView, setActiveView] = useState<View>('overview');
+  const [costRecordCount, setCostRecordCount] = useState(0);
 
   // Apply ?view= query param on mount
   const initialView = searchParams.get('view');
+  // Load cost record count for reset dialog
+  useEffect(() => {
+    import('@/lib/cost-tracking/store').then(({ getRecordCount }) =>
+      getRecordCount().then(setCostRecordCount)
+    );
+  }, []);
+
   useEffect(() => {
     const valid: View[] = ['overview', 'agents', 'files', 'costs', 'review', 'drift'];
     if (initialView && (valid as string[]).includes(initialView)) {
@@ -198,7 +206,7 @@ function MapPageContent() {
     buildMapFromTree(tree);
   };
 
-  function handleNewMap() {
+  function handleNewMap(options: { clearCosts: boolean; clearSnapshots: boolean }) {
     setAgentMap(null);
     setFileContents({});
     setReviewResult(null);
@@ -209,6 +217,14 @@ function MapPageContent() {
     setInputCollapsed(false);
     setActiveView('overview');
     window.history.pushState({}, '', '/map');
+    if (options.clearCosts) {
+      import('@/lib/cost-tracking/store').then(({ clearAllData }) => clearAllData());
+    }
+    if (options.clearSnapshots) {
+      setCurrentSnapshot(null);
+      setPreviousSnapshot(null);
+      setDriftReport(null);
+    }
   }
 
   function handleEditInput() {
@@ -420,6 +436,8 @@ function MapPageContent() {
           isDemo={isDemo}
           onNewMap={handleNewMap}
           showNewMap={agentMap !== null}
+          costRecordCount={costRecordCount}
+          snapshotCount={(currentSnapshot ? 1 : 0) + (previousSnapshot ? 1 : 0)}
         />
       }
       sidebar={

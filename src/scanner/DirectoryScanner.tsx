@@ -245,20 +245,17 @@ async function scanWithDirectoryPicker(
 
 // ─── Paste fallback ───────────────────────────────────────────────────────────
 
-const PASTE_LS_COMMAND = `ls openclaw.json 2>/dev/null
-ls cron/jobs.json 2>/dev/null
-ls workspace/*.md 2>/dev/null
-ls workspace/memory/*.md 2>/dev/null
-ls workspace/subagents/*.md 2>/dev/null
-ls agents/ 2>/dev/null
-ls skills/ 2>/dev/null`;
+const PASTE_LS_COMMAND = `cd ~/.openclaw && ls -1 openclaw.json cron/jobs.json 2>/dev/null; ls -1 workspace/*.md workspace/memory/*.md workspace/subagents/*.md 2>/dev/null; ls -1d agents/*/ skills/*/ 2>/dev/null`;
 
 function parsePastedOutput(text: string): ScannedItem[] {
   const seen = new Set<string>();
   const items: ScannedItem[] = [];
   for (const line of text.split('\n')) {
-    const rel = line.trim().replace(/^\.\//, '');
-    if (!rel) continue;
+    let rel = line.trim()
+      .replace(/^\.\//, '')
+      // Strip absolute paths to ~/.openclaw/
+      .replace(/^.*?\.openclaw\//, '');
+    if (!rel || rel.endsWith(':')) continue; // skip empty lines and ls headers like "agents/:"
     const bucket = classifyRelativePath(rel);
     if (bucket && !seen.has(rel)) {
       seen.add(rel);
@@ -283,6 +280,14 @@ export default function DirectoryScanner({ onConfirm }: Props) {
 
   const supportsDirectoryPicker =
     typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+
+  const detectedBrowser = typeof navigator !== 'undefined'
+    ? /Edg\//.test(navigator.userAgent) ? 'Edge'
+      : /Chrome\//.test(navigator.userAgent) ? 'Chrome'
+      : /Firefox\//.test(navigator.userAgent) ? 'Firefox'
+      : /Safari\//.test(navigator.userAgent) ? 'Safari'
+      : null
+    : null;
 
   // ── Scan handlers ──────────────────────────────────────────────────────────
 
@@ -373,9 +378,14 @@ export default function DirectoryScanner({ onConfirm }: Props) {
       {/* ── IDLE: picker buttons ── */}
       {scanState === 'idle' && !pasteMode && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs text-slate-400 mb-1">
-            Only known locations are checked — no full crawl.
-          </p>
+          {detectedBrowser && (
+            <p className="text-[10px] text-[#7a8a9b] mb-1">
+              Detected: <span className="text-[#b0bec9] font-medium">{detectedBrowser}</span>
+              {supportsDirectoryPicker
+                ? ' — folder picker available ✓'
+                : ' — use terminal paste below'}
+            </p>
+          )}
 
           <button
             onClick={supportsDirectoryPicker ? handleDirectoryPicker : undefined}
@@ -389,7 +399,9 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             <IconDoc />
             Select Workspace Folder
             <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-blue-200' : 'text-[#7a8a9b]'}`}>
-              {supportsDirectoryPicker ? 'Chrome / Edge' : 'Requires Chrome or Edge'}
+              {supportsDirectoryPicker ? (
+                <><span className="text-[#34d399]">●</span> Recommended</>
+              ) : 'Requires Chrome or Edge'}
             </span>
           </button>
 
@@ -402,12 +414,14 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             }`}
           >
             <span className="text-base leading-none">📋</span>
-            Paste ls output
-            <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-slate-600' : 'text-blue-200'}`}>Any browser</span>
+            Paste terminal output
+            <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-slate-600' : 'text-blue-200'}`}>
+              {supportsDirectoryPicker ? 'Firefox / Safari / SSH' : 'Any terminal'}
+            </span>
           </button>
 
           <p className="text-xs text-[#7a8a9b] text-center pl-1 mt-1">
-            🔒 Your files stay in your browser. No API keys, tokens, or sensitive data are uploaded to any server.
+            🔒 Everything stays in your browser. Nothing is uploaded.
           </p>
         </div>
       )}
@@ -417,7 +431,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
         <div className="flex flex-col gap-3">
           <div className="relative rounded-lg border border-[#506880] bg-[#0a0e17] p-3">
             <p className="text-xs text-slate-400 mb-2 font-medium">
-              Run these commands from your workspace root and paste the combined output:
+              Copy this command, run it in your terminal, and paste the output below:
             </p>
             <pre className="text-xs text-blue-300 whitespace-pre font-mono leading-relaxed">
               {PASTE_LS_COMMAND}

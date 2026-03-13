@@ -47,9 +47,13 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
     const sliceDeg = total > 0 ? (entry.cost / total) * 360 : 0;
     if (sliceDeg < 0.5) return; // skip tiny slices
     const gap = filtered.length > 1 ? gapDeg : 0;
+    // For single-model: render a near-full ring (359.5°) to avoid SVG arc collapse at exactly 360°
+    const effectiveEnd = (filtered.length === 1 && sliceDeg >= 359)
+      ? currentAngle + 359.5
+      : currentAngle + sliceDeg - gap / 2;
     segments.push({
       startAngle: currentAngle + gap / 2,
-      endAngle: currentAngle + sliceDeg - gap / 2,
+      endAngle: effectiveEnd,
       color: getModelColor(entry.model),
       index: i,
     });
@@ -80,7 +84,7 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
   return (
     <div className="flex h-full flex-col rounded-xl border border-[#506880] bg-[#111827] p-6">
       <p className="mb-4 text-sm font-semibold text-[#f1f5f9]">Cost by Model</p>
-      <div className="flex flex-1 flex-col items-center gap-6 lg:flex-row">
+      <div className="flex flex-1 flex-col items-center gap-6 lg:flex-row overflow-hidden">
         {/* Donut */}
         <div className="relative flex-1 flex items-center justify-center min-h-[280px]">
           <svg width="100%" viewBox={`0 0 ${size} ${size}`} style={{ maxWidth: size }} className="drop-shadow-lg">
@@ -158,7 +162,7 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
         </div>
 
         {/* Legend */}
-        <div className="w-full shrink-0 lg:w-52">
+        <div className="w-full shrink-0 lg:w-52 lg:max-h-[280px] overflow-y-auto">
           {filtered.map((entry, index) => {
             const color = getModelColor(entry.model);
             const isActive = hovered === index;

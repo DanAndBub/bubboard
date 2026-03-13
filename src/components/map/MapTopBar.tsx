@@ -1,12 +1,19 @@
 'use client';
 
+import { useState } from 'react';
+import ResetDialog from './ResetDialog';
+
 interface MapTopBarProps {
   isDemo?: boolean;
-  onNewMap: () => void;
+  onNewMap: (options: { clearCosts: boolean; clearSnapshots: boolean }) => void;
   showNewMap: boolean;
+  costRecordCount: number;
+  snapshotCount: number;
 }
 
-export default function MapTopBar({ isDemo, onNewMap, showNewMap }: MapTopBarProps) {
+export default function MapTopBar({ isDemo, onNewMap, showNewMap, costRecordCount, snapshotCount }: MapTopBarProps) {
+  const [resetOpen, setResetOpen] = useState(false);
+
   return (
     <div
       className="flex items-center justify-between h-[52px] px-6 border-b"
@@ -43,21 +50,30 @@ export default function MapTopBar({ isDemo, onNewMap, showNewMap }: MapTopBarPro
 
       {/* Right side */}
       {showNewMap && (
-        <button
-          onClick={onNewMap}
-          className="text-[12px] px-3.5 py-1.5 rounded-md transition-colors"
-          style={{ border: '1px solid #506880', color: '#b0bec9' }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = '#7db8fc';
-            (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = '#506880';
-            (e.currentTarget as HTMLButtonElement).style.color = '#b0bec9';
-          }}
-        >
-          New map
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setResetOpen(!resetOpen)}
+            className="text-[12px] px-3.5 py-1.5 rounded-md transition-colors"
+            style={{ border: '1px solid #506880', color: '#b0bec9' }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#7db8fc';
+              (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#506880';
+              (e.currentTarget as HTMLButtonElement).style.color = '#b0bec9';
+            }}
+          >
+            New map
+          </button>
+          <ResetDialog
+            open={resetOpen}
+            onClose={() => setResetOpen(false)}
+            onReset={onNewMap}
+            costRecordCount={costRecordCount}
+            snapshotCount={snapshotCount}
+          />
+        </div>
       )}
     </div>
   );

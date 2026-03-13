@@ -65,6 +65,7 @@ export default function RequestLog({ records }: RequestLogProps) {
         <button
           onClick={() => exportCSV(records)}
           className="text-xs text-[#7db8fc] hover:text-blue-300 px-3 py-1 rounded border border-[#7db8fc]/30 hover:bg-[#7db8fc]/10"
+          title="Exports tracked fields only (timestamps, tokens, costs). Raw source data is not retained after import."
         >
           Export CSV
         </button>
@@ -82,7 +83,7 @@ export default function RequestLog({ records }: RequestLogProps) {
               <th className="text-right px-3 py-2 font-medium text-[#7a8a9b] hidden md:table-cell">Output</th>
               <th className="text-right px-3 py-2 font-medium text-[#7a8a9b] hidden lg:table-cell">Cache</th>
               <th className="text-right px-3 py-2 font-medium text-[#7a8a9b]">Cost</th>
-              <th className="text-left px-3 py-2 pr-6 font-medium text-[#7a8a9b] hidden lg:table-cell">Task</th>
+              {/* Task column hidden — task_id preserved in CSV export for power users */}
             </tr>
           </thead>
           <tbody className="divide-y divide-[#506880]/50">
@@ -111,7 +112,7 @@ export default function RequestLog({ records }: RequestLogProps) {
                       {r.cached_input_tokens > 0 ? r.cached_input_tokens.toLocaleString() : '-'}
                     </td>
                     <td className="px-3 py-2 font-mono text-[#7db8fc] text-right">${r.cost_usd.toFixed(6)}</td>
-                    <td className="px-3 py-2 pr-6 text-[#7a8a9b] hidden lg:table-cell truncate max-w-[120px]">{r.task_id ?? '-'}</td>
+                    {/* Task column hidden — preserved in CSV export */}
                   </tr>
                   {isExpanded && (
                     <tr key={`${r.id}-expanded`}>
