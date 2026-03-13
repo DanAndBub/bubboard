@@ -1,13 +1,13 @@
 'use client';
 
 import type { ReviewResult } from '@/lib/config-review/runner';
-import type { FileAnalysis } from '@/lib/config-review/types';
+import type { FileAnalysis, ReviewFinding } from '@/lib/config-review/types';
 import ReviewPanel from '@/components/config-review/ReviewPanel';
 
 interface ReviewViewProps {
   reviewResult: ReviewResult | null;
   analyzedFiles: FileAnalysis[];
-  onOpenFile: (path: string) => void;
+  onOpenFile: (path: string, finding?: ReviewFinding) => void;
 }
 
 export default function ReviewView({ reviewResult, analyzedFiles, onOpenFile }: ReviewViewProps) {

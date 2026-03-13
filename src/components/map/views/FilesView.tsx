@@ -85,7 +85,7 @@ function FileRow({
   if (analysis) {
     if (analysis.charCount > thresholds.crit) {
       badgeVariant = 'crit';
-      charCountColor = '#fbbf24';
+      charCountColor = '#f87171';
     } else if (analysis.charCount > thresholds.warn) {
       badgeVariant = 'warn';
       charCountColor = '#fbbf24';
@@ -178,10 +178,16 @@ export default function FilesView({ workspace, fileContents: _fileContents, anal
   const memLast = sortedMemory.length > 0 ? basename(sortedMemory[sortedMemory.length - 1]) : null;
 
   const budgetPct = budget
-    ? Math.min(100, Math.round((budget.totalChars / budget.budgetLimit) * 100))
+    ? Math.round((budget.totalChars / budget.budgetLimit) * 100)
     : 0;
+  const budgetBarWidth = Math.min(100, budgetPct);
   const budgetColor =
     budgetPct >= 100 ? '#f87171' : budgetPct >= 75 ? '#fbbf24' : '#34d399';
+  const budgetBarGradient = budgetPct >= 100
+    ? 'linear-gradient(90deg, #f87171, #ef4444)'
+    : budgetPct >= 75
+      ? 'linear-gradient(90deg, #fbbf24, #f59e0b)'
+      : 'linear-gradient(90deg, #34d399, #7db8fc)';
 
   return (
     <div>
@@ -294,8 +300,8 @@ export default function FilesView({ workspace, fileContents: _fileContents, anal
             <div
               className="h-full rounded-full"
               style={{
-                width: `${budgetPct}%`,
-                background: 'linear-gradient(to right, #34d399, #7db8fc)',
+                width: `${budgetBarWidth}%`,
+                background: budgetBarGradient,
                 transition: 'width 0.3s ease',
               }}
             />

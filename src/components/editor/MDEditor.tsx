@@ -12,36 +12,75 @@ interface MDEditorProps {
   onRescan?: () => void;
 }
 
-const API_KEY_PATTERNS = [
+const REDACTED_PATTERNS = [
+  /sk-ant-/,
+  /sk-proj-/,
+  /\[REDACTED\]/,
+  /\bREDACTED\b/,
+];
+
+const REAL_KEY_PATTERNS = [
   /sk-ant-[a-zA-Z0-9_-]{10,}/,
   /sk-[a-zA-Z0-9]{20,}/,
   /ANTHROPIC_API_KEY\s*=\s*\S{10,}/,
   /OPENAI_API_KEY\s*=\s*\S{10,}/,
 ];
 
-function detectApiKeys(text: string): boolean {
-  return API_KEY_PATTERNS.some(p => p.test(text));
+function detectSensitiveContent(text: string): boolean {
+  return REDACTED_PATTERNS.some(p => p.test(text)) || REAL_KEY_PATTERNS.some(p => p.test(text));
+}
+
+interface SaveDialogProps {
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+function SaveDialog({ onConfirm, onCancel }: SaveDialogProps) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="bg-[#111827] border border-[#506880] rounded-xl shadow-2xl w-full max-w-sm mx-4 p-5">
+        <h2 className="text-sm font-semibold text-[#f1f5f9] mb-2">Save Changes?</h2>
+        <p className="text-xs text-[#7a8a9b] mb-5">
+          Remember: Driftwatch edits are local. Copy this content and paste it into your actual file for changes to take effect.
+        </p>
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={onCancel}
+            className="text-xs px-3 py-1.5 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="text-xs px-3 py-1.5 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 transition-all"
+          >
+            Save &amp; Copy
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function MDEditor({ path, content, fileHandle, onSave, onCancel, onRescan }: MDEditorProps) {
   const [value, setValue] = useState(content);
-  const [backup] = useState(content); // pre-edit backup
+  const [backup] = useState(content);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const threshold = getFileThreshold(path);
   const charCount = value.length;
   const delta = charCount - content.length;
   const pct = Math.round((charCount / threshold.hardLimit) * 100);
-  const hasApiKey = detectApiKeys(value);
+  const hasSensitiveContent = detectSensitiveContent(value);
   const canSaveToFS = !!fileHandle;
 
   const barColor = charCount > threshold.critical ? 'bg-red-500'
     : charCount > threshold.warning ? 'bg-amber-500' : 'bg-[#7db8fc]';
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -54,11 +93,11 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
     setError(null);
     try {
       if (fileHandle) {
-        // File System Access API — write back to filesystem
         const writable = await fileHandle.createWritable();
         await writable.write(value);
         await writable.close();
       }
+      await navigator.clipboard.writeText(value).catch(() => {/* ignore clipboard errors */});
       onSave(value);
       setSaved(true);
     } catch (err) {
@@ -67,6 +106,20 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
       setSaving(false);
     }
   }, [value, fileHandle, onSave]);
+
+  const handleSaveRequest = useCallback(() => {
+    setShowSaveDialog(true);
+  }, []);
+
+  const handleApplyChanges = useCallback(async () => {
+    await navigator.clipboard.writeText(value).catch(() => {/* ignore */});
+    onSave(value);
+    setSaved(true);
+  }, [value, onSave]);
+
+  const handleApplyRequest = useCallback(() => {
+    setShowSaveDialog(true);
+  }, []);
 
   const handleRevert = useCallback(() => {
     setValue(backup);
@@ -79,7 +132,17 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
   }, [value]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
+      {/* FIX 2 — Redacted key warning banner */}
+      {hasSensitiveContent && (
+        <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-500/30 shrink-0 flex items-start gap-2">
+          <span className="text-[#fbbf24] shrink-0 mt-px">⚠</span>
+          <p className="text-xs text-[#fbbf24]">
+            This content may contain redacted API keys. When pasting this content back into your files, ensure you restore your actual API keys.
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#506880] shrink-0">
         <div className="flex items-center gap-2 min-w-0">
@@ -104,7 +167,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
           </button>
           {canSaveToFS ? (
             <button
-              onClick={handleSave}
+              onClick={handleSaveRequest}
               disabled={saving || value === content}
               className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 disabled:opacity-30 transition-all"
             >
@@ -112,7 +175,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
             </button>
           ) : (
             <button
-              onClick={() => { onSave(value); setSaved(true); }}
+              onClick={handleApplyRequest}
               disabled={value === content}
               className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 disabled:opacity-30 transition-all"
               title="File System Access not available — saves to session only"
@@ -128,7 +191,6 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
 
       {/* Status bar */}
       <div className="px-4 py-2 border-b border-[#506880] shrink-0 space-y-1.5">
-        {/* Char count + delta */}
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-mono text-[#b0bec9]">
             {charCount.toLocaleString()} chars
@@ -142,20 +204,12 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
             Limit: {threshold.hardLimit.toLocaleString()} · Recommended: &lt;{threshold.recommended.toLocaleString()}
           </span>
         </div>
-        {/* Size bar */}
         <div className="h-1 rounded-full bg-[#0a0e17] overflow-hidden">
           <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${Math.min(100, pct)}%` }} />
         </div>
-
-        {/* Warnings */}
-        {hasApiKey && (
-          <p className="text-[10px] text-[#f87171] flex items-center gap-1">
-            ⚠️ API key pattern detected — be careful not to expose secrets in snapshots or exports.
-          </p>
-        )}
         {!canSaveToFS && (
           <p className="text-[10px] text-[#7a8a9b]">
-            💡 File System Access not available in this browser. Changes apply to this session only. Use "Copy" to save content manually.
+            💡 File System Access not available in this browser. Changes apply to this session only. Use &quot;Copy&quot; to save content manually.
           </p>
         )}
         {error && (
@@ -163,14 +217,16 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
         )}
       </div>
 
-      {/* Post-save re-scan prompt */}
-      {saved && onRescan && (
+      {/* FIX 4 — Post-save re-scan prompt */}
+      {saved && (
         <div className="px-4 py-2 border-b border-[#506880] bg-green-500/5 flex items-center justify-between shrink-0">
-          <span className="text-xs text-[#34d399]">✓ Saved. Re-scan to update findings?</span>
+          <span className="text-xs text-[#34d399]">Content updated. Re-scan to see updated findings?</span>
           <div className="flex items-center gap-2">
-            <button onClick={onRescan} className="text-xs px-2.5 py-1 rounded bg-green-500/10 text-[#34d399] border border-green-500/20 hover:bg-green-500/20 transition-all">
-              Re-scan
-            </button>
+            {onRescan && (
+              <button onClick={onRescan} className="text-xs px-2.5 py-1 rounded bg-green-500/10 text-[#34d399] border border-green-500/20 hover:bg-green-500/20 transition-all">
+                Re-scan
+              </button>
+            )}
             <button onClick={() => setSaved(false)} className="text-xs text-[#7a8a9b] hover:text-[#b0bec9]">
               Later
             </button>
@@ -189,6 +245,21 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
           style={{ tabSize: 2 }}
         />
       </div>
+
+      {/* FIX 3 — Save confirmation dialog */}
+      {showSaveDialog && (
+        <SaveDialog
+          onConfirm={() => {
+            setShowSaveDialog(false);
+            if (canSaveToFS) {
+              handleSave();
+            } else {
+              handleApplyChanges();
+            }
+          }}
+          onCancel={() => setShowSaveDialog(false)}
+        />
+      )}
     </div>
   );
 }

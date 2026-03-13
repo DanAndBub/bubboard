@@ -83,8 +83,14 @@ export default function OverviewView({
   const topAgents = agentMap.agents.slice(0, 5);
   const topFindings = reviewFindings.slice(0, 3);
   const budgetPct = budget
-    ? Math.min(100, Math.round((budget.totalChars / budget.budgetLimit) * 100))
+    ? Math.round((budget.totalChars / budget.budgetLimit) * 100)
     : 0;
+  const budgetBarWidth = Math.min(100, budgetPct);
+  const budgetBarColor = budgetPct >= 100
+    ? 'linear-gradient(90deg, #f87171, #ef4444)'
+    : budgetPct >= 75
+      ? 'linear-gradient(90deg, #fbbf24, #f59e0b)'
+      : 'linear-gradient(90deg, #34d399, #7db8fc)';
   const topBudgetFiles = budget ? budget.perFileBreakdown.slice(0, 3) : [];
   const coreFiles = agentMap.workspace.coreFiles.slice(0, 5);
   const memoryFileCount = agentMap.workspace.memoryFiles.length;
@@ -95,12 +101,13 @@ export default function OverviewView({
       <div className="flex items-center justify-between" style={{ marginBottom: 24 }}>
         <div className="flex items-center gap-[10px]">
           <span
-            className="rounded-full shrink-0 animate-pulse"
+            className="rounded-full shrink-0"
             style={{
-              width: 8,
-              height: 8,
+              width: 10,
+              height: 10,
               background: '#34d399',
               boxShadow: '0 0 8px rgba(52,211,153,0.6)',
+              animation: 'pulse 2s ease-in-out infinite',
             }}
             aria-hidden="true"
           />
@@ -209,7 +216,7 @@ export default function OverviewView({
             <>
               <div
                 role="progressbar"
-                aria-valuenow={budgetPct}
+                aria-valuenow={budgetBarWidth}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-label={`${budgetPct}% of bootstrap budget used`}
@@ -224,8 +231,8 @@ export default function OverviewView({
                 <div
                   style={{
                     height: '100%',
-                    width: `${budgetPct}%`,
-                    background: 'linear-gradient(90deg, #34d399, #7db8fc)',
+                    width: `${budgetBarWidth}%`,
+                    background: budgetBarColor,
                     borderRadius: 4,
                     transition: 'width 0.3s ease',
                   }}

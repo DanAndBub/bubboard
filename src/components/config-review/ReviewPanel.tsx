@@ -11,7 +11,7 @@ import TruncationDiagram from './TruncationDiagram';
 interface ReviewPanelProps {
   result: ReviewResult;
   files: FileAnalysis[];
-  onOpenFile?: (path: string) => void;
+  onOpenFile?: (path: string, finding?: ReviewFinding) => void;
 }
 
 const SEVERITY_ICON: Record<string, string> = {
@@ -41,6 +41,7 @@ function scoreBarColor(score: number): string {
 export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelProps) {
   const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
   const [expandedFindings, setExpandedFindings] = useState<Set<string>>(new Set());
+  const [activeSeverities, setActiveSeverities] = useState<Set<string>>(new Set(['critical', 'warning', 'info']));
 
   // Group findings by file
   const grouped = useMemo(() => {
@@ -53,6 +54,16 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
     return map;
   }, [result.findings]);
 
+  // Filtered view based on active severities
+  const filteredGrouped = useMemo(() => {
+    const map = new Map<string, ReviewFinding[]>();
+    for (const [file, findings] of grouped.entries()) {
+      const filtered = findings.filter(f => activeSeverities.has(f.severity));
+      if (filtered.length > 0) map.set(file, filtered);
+    }
+    return map;
+  }, [grouped, activeSeverities]);
+
   // Budget
   const budget = useMemo(() => calculateBudget(files), [files]);
   const budgetPct = Math.min(100, (budget.totalChars / budget.budgetLimit) * 100);
@@ -64,6 +75,24 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
       if (next.has(file)) next.delete(file); else next.add(file);
       return next;
     });
+  }
+
+  function toggleSeverity(sev: string) {
+    setActiveSeverities(prev => {
+      const next = new Set(prev);
+      if (next.has(sev)) next.delete(sev); else next.add(sev);
+      return next;
+    });
+  }
+
+  const allExpanded = filteredGrouped.size > 0 && [...filteredGrouped.keys()].every(f => expandedFiles.has(f));
+
+  function toggleAll() {
+    if (allExpanded) {
+      setExpandedFiles(new Set());
+    } else {
+      setExpandedFiles(new Set(filteredGrouped.keys()));
+    }
   }
 
   function toggleFinding(id: string) {
@@ -120,6 +149,7 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
             style={{ width: `${result.healthScore}%` }}
           />
         </div>
+        <p className="text-[10px] text-[#7a8a9b] mt-1.5">Score = 100 minus penalties (critical: −15, warning: −5)</p>
       </div>
 
       {/* Bootstrap Budget Bar */}
@@ -146,6 +176,35 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
         )}
       </div>
 
+      {/* Severity filters + Expand All */}
+      {result.findings.length > 0 && (
+        <div className="px-5 py-2.5 border-b border-[#506880] flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            {(['critical', 'warning', 'info'] as const).map(sev => (
+              <button
+                key={sev}
+                onClick={() => toggleSeverity(sev)}
+                className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+                  activeSeverities.has(sev)
+                    ? sev === 'critical' ? 'bg-red-500/10 text-[#f87171] border-red-500/20'
+                      : sev === 'warning' ? 'bg-amber-500/10 text-[#fbbf24] border-amber-500/20'
+                      : 'bg-[#7db8fc]/10 text-[#7db8fc] border-[#7db8fc]/20'
+                    : 'bg-transparent text-[#7a8a9b] border-[#506880]/50'
+                }`}
+              >
+                {SEVERITY_ICON[sev]} {sev.charAt(0).toUpperCase() + sev.slice(1)}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={toggleAll}
+            className="text-[10px] text-[#7db8fc] hover:text-[#a8d4ff] transition-colors"
+          >
+            {allExpanded ? 'Collapse All' : 'Expand All'}
+          </button>
+        </div>
+      )}
+
       {/* Findings grouped by file */}
       <div className="divide-y divide-[#506880]/50">
         {result.findings.length === 0 ? (
@@ -154,7 +213,7 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
             <p className="text-[10px] text-[#7a8a9b] mt-1">{result.rulesExecuted} rules checked across {result.filesAnalyzed} files</p>
           </div>
         ) : (
-          [...grouped.entries()].map(([file, findings]) => {
+          [...filteredGrouped.entries()].map(([file, findings]) => {
             const isExpanded = expandedFiles.has(file);
             const fileAnalysis = files.find(f => f.path === file);
             const critCount = findings.filter(f => f.severity === 'critical').length;
@@ -179,6 +238,7 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
                   </span>
                   {critCount > 0 && <span className="text-[10px]">🔴 {critCount}</span>}
                   {warnCount > 0 && <span className="text-[10px]">🟡 {warnCount}</span>}
+                  {findings.filter(f => f.severity === 'info').length > 0 && <span className="text-[10px]">🔵 {findings.filter(f => f.severity === 'info').length}</span>}
                 </button>
 
                 {/* Findings */}
@@ -196,11 +256,12 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
                         <div key={fId}>
                           <button
                             onClick={() => toggleFinding(fId)}
-                            className={`w-full text-left px-3 py-2 rounded-lg border ${SEVERITY_COLORS[finding.severity]} transition-colors`}
+                            className={`w-full text-left px-3 py-2 rounded-lg border ${SEVERITY_COLORS[finding.severity]} hover:brightness-110 transition-all`}
                           >
                             <div className="flex items-start gap-2">
                               <span className="text-xs shrink-0">{SEVERITY_ICON[finding.severity]}</span>
-                              <span className="text-xs text-[#b0bec9] leading-relaxed">{finding.message}</span>
+                              <span className="text-xs text-[#b0bec9] leading-relaxed flex-1">{finding.message}</span>
+                              <span className="text-[10px] text-[#7a8a9b] shrink-0 mt-0.5">{isOpen ? '▾' : '▸'}</span>
                             </div>
                           </button>
                           {isOpen && (
@@ -211,7 +272,7 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
                               )}
                               {onOpenFile && !finding.file.includes('↔') && !finding.file.startsWith('(') && (
                                 <button
-                                  onClick={() => onOpenFile(finding.file)}
+                                  onClick={() => onOpenFile(finding.file, finding)}
                                   className="mt-2 text-[10px] px-2 py-0.5 rounded border border-[#7db8fc]/20 bg-[#7db8fc]/5 text-[#7db8fc] hover:bg-[#7db8fc]/10 transition-all"
                                 >
                                   Fix →

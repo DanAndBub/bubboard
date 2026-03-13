@@ -10,7 +10,7 @@ import type { AgentMap } from '@/lib/types';
 import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
 import { runReview, type ReviewResult } from '@/lib/config-review/runner';
 import { calculateBudget } from '@/lib/config-review/budget';
-import type { BootstrapBudget } from '@/lib/config-review/types';
+import type { BootstrapBudget, ReviewFinding } from '@/lib/config-review/types';
 import { serializeSnapshot } from '@/lib/drift/snapshot-serialize';
 import { downloadSnapshot } from '@/lib/drift/snapshot-export';
 import { importSnapshot } from '@/lib/drift/snapshot-import';
@@ -49,14 +49,19 @@ function MapPageContent() {
   const [previousSnapshot, setPreviousSnapshot] = useState<Snapshot | null>(null);
   const [driftReport, setDriftReport] = useState<DriftReport | null>(null);
   const [editorFile, setEditorFile] = useState<string | null>(null);
+  const [editorFinding, setEditorFinding] = useState<ReviewFinding | null>(null);
   const [activeView, setActiveView] = useState<View>('overview');
 
   // Apply ?view= query param on mount
+  const initialView = searchParams.get('view');
   useEffect(() => {
-    const v = searchParams.get('view');
     const valid: View[] = ['overview', 'agents', 'files', 'costs', 'review', 'drift'];
-    if (v && (valid as string[]).includes(v)) {
-      setActiveView(v as View);
+    if (initialView && (valid as string[]).includes(initialView)) {
+      setActiveView(initialView as View);
+      // Cost tracking doesn't need scan data — skip input screen
+      if (initialView === 'costs' && !agentMap) {
+        setInputCollapsed(true);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -89,8 +94,9 @@ function MapPageContent() {
     return map;
   }
 
-  function openFileEditor(path: string) {
+  function openFileEditor(path: string, finding?: ReviewFinding) {
     setEditorFile(path);
+    setEditorFinding(finding ?? null);
   }
 
   function handleContentChange(path: string, newContent: string) {
@@ -130,8 +136,8 @@ function MapPageContent() {
       setAgentMap(enriched);
       setInputCollapsed(true);
 
-      // Run config review on file contents
-      const mdFiles = Object.entries(allContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
+      // Run config review on file contents (only if we actually have content)
+      const mdFiles = Object.entries(allContents).filter(([k, v]) => k.toLowerCase().endsWith('.md') && v.length > 0);
       if (mdFiles.length > 0) {
         const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
         setAnalyzedFiles(analyzed);
@@ -149,6 +155,12 @@ function MapPageContent() {
             return prev;
           });
         });
+      } else {
+        // No file contents — clear any stale review data
+        setAnalyzedFiles([]);
+        setReviewResult(null);
+        setBudget(null);
+        setCurrentSnapshot(null);
       }
 
       setIsLoading(false);
@@ -216,8 +228,7 @@ function MapPageContent() {
   const totalFileCount = agentMap
     ? agentMap.workspace.coreFiles.length +
       agentMap.workspace.customFiles.length +
-      agentMap.workspace.memoryFiles.length +
-      agentMap.workspace.subagentProtocols.length
+      agentMap.workspace.memoryFiles.length
     : 0;
   const stats = agentMap && health
     ? {
@@ -233,7 +244,7 @@ function MapPageContent() {
   // Main content rendered inside MapShell
   const mainContent = (
     <>
-      {!agentMap ? (
+      {!agentMap && activeView !== 'costs' ? (
         /* ── INPUT SECTION ─────────────────────────────────────────────── */
         <div className="max-w-2xl mx-auto space-y-4">
           {/* Header */}
@@ -329,12 +340,21 @@ function MapPageContent() {
             <p className="text-xs text-[#7a8a9b] border-l-2 border-[#7db8fc]/30 pl-3">
               Tip: For the richest map, toggle on file content reading. Your files never leave your browser.
             </p>
+
+            <div className="text-center pt-2">
+              <a
+                href="/map?demo=true"
+                className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-lg border border-[#7db8fc]/30 text-[#7db8fc] hover:bg-[#7db8fc]/10 transition-colors"
+              >
+                ◈ Try Demo — see an example workspace
+              </a>
+            </div>
           </div>
         </div>
       ) : (
         /* ── VIEW-BASED LAYOUT ──────────────────────────────────────────── */
         <>
-          {activeView === 'overview' && stats && (
+          {activeView === 'overview' && agentMap && stats && (
             <OverviewView
               agentMap={agentMap}
               stats={stats}
@@ -345,10 +365,10 @@ function MapPageContent() {
               isDemo={isDemo}
             />
           )}
-          {activeView === 'agents' && (
+          {activeView === 'agents' && agentMap && (
             <AgentsView agents={agentMap.agents} />
           )}
-          {activeView === 'files' && (
+          {activeView === 'files' && agentMap && (
             <FilesView
               workspace={agentMap.workspace}
               fileContents={fileContents}
@@ -383,7 +403,8 @@ function MapPageContent() {
           <EditorPanel
             path={editorFile}
             content={fileContents[editorFile]}
-            onClose={() => setEditorFile(null)}
+            finding={editorFinding}
+            onClose={() => { setEditorFile(null); setEditorFinding(null); }}
             onContentChange={handleContentChange}
             onRescan={handleRescan}
           />

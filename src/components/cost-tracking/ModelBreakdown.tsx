@@ -82,8 +82,8 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
       <p className="mb-4 text-sm font-semibold text-[#f1f5f9]">Cost by Model</p>
       <div className="flex flex-1 flex-col items-center gap-6 lg:flex-row">
         {/* Donut */}
-        <div className="relative flex-1 flex items-center justify-center min-h-[300px]">
-          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-lg">
+        <div className="relative flex-1 flex items-center justify-center min-h-[280px]">
+          <svg width="100%" viewBox={`0 0 ${size} ${size}`} style={{ maxWidth: size }} className="drop-shadow-lg">
             <defs>
               {segments.map((seg) => (
                 <filter key={`glow-${seg.index}`} id={`glow-${seg.index}`} x="-50%" y="-50%" width="200%" height="200%">

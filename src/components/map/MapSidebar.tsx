@@ -71,7 +71,7 @@ function NavItem({ icon, label, active, badge, alertDot, onClick }: NavItemProps
       )}
       {alertDot && (
         <span
-          className="ml-auto rounded-full shrink-0"
+          className="ml-auto rounded-full shrink-0 animate-pulse"
           style={{
             width: 7,
             height: 7,
@@ -156,7 +156,7 @@ export default function MapSidebar({
   return (
     <nav
       aria-label="Main navigation"
-      className="flex flex-col overflow-y-auto"
+      className="flex flex-col overflow-y-auto h-full"
       style={{
         background: '#080c14',
         borderRight: '1px solid #3a4e63',

@@ -305,7 +305,7 @@ export default function CostsView() {
   }, [records])
 
   return (
-    <div className="min-h-full">
+    <div className="min-h-full overflow-x-hidden">
       {/* Page header */}
       <div className="px-4 sm:px-6 py-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
