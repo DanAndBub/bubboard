@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ResetDialog from './ResetDialog';
 
 interface MapTopBarProps {
@@ -13,6 +13,7 @@ interface MapTopBarProps {
 
 export default function MapTopBar({ isDemo, onNewMap, showNewMap, costRecordCount, snapshotCount }: MapTopBarProps) {
   const [resetOpen, setResetOpen] = useState(false);
+  const newMapBtnRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div
@@ -52,6 +53,7 @@ export default function MapTopBar({ isDemo, onNewMap, showNewMap, costRecordCoun
       {showNewMap && (
         <div className="relative">
           <button
+            ref={newMapBtnRef}
             onClick={() => setResetOpen(!resetOpen)}
             className="text-[12px] px-3.5 py-1.5 rounded-md transition-colors"
             style={{ border: '1px solid #506880', color: '#b0bec9' }}
@@ -72,6 +74,7 @@ export default function MapTopBar({ isDemo, onNewMap, showNewMap, costRecordCoun
             onReset={onNewMap}
             costRecordCount={costRecordCount}
             snapshotCount={snapshotCount}
+            anchorRef={newMapBtnRef}
           />
         </div>
       )}

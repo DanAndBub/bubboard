@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ResetDialogProps {
   open: boolean;
@@ -8,12 +9,31 @@ interface ResetDialogProps {
   onReset: (options: { clearCosts: boolean; clearSnapshots: boolean }) => void;
   costRecordCount: number;
   snapshotCount: number;
+  anchorRef?: React.RefObject<HTMLElement | null>;
 }
 
-export default function ResetDialog({ open, onClose, onReset, costRecordCount, snapshotCount }: ResetDialogProps) {
+export default function ResetDialog({ open, onClose, onReset, costRecordCount, snapshotCount, anchorRef }: ResetDialogProps) {
   const [clearCosts, setClearCosts] = useState(false);
   const [clearSnapshots, setClearSnapshots] = useState(false);
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+
+  // Position the popover below the anchor button
+  const updatePosition = useCallback(() => {
+    if (!anchorRef?.current) return;
+    const rect = anchorRef.current.getBoundingClientRect();
+    setPos({
+      top: rect.bottom + 4,
+      right: window.innerWidth - rect.right,
+    });
+  }, [anchorRef]);
+
+  useEffect(() => {
+    if (!open) return;
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    return () => window.removeEventListener('resize', updatePosition);
+  }, [open, updatePosition]);
 
   // Close on click outside
   useEffect(() => {
@@ -21,8 +41,9 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();
     }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    // Use setTimeout to avoid the opening click triggering close
+    const timer = setTimeout(() => document.addEventListener('mousedown', handleClick), 0);
+    return () => { clearTimeout(timer); document.removeEventListener('mousedown', handleClick); };
   }, [open, onClose]);
 
   // Close on Escape
@@ -40,15 +61,22 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
     if (open) { setClearCosts(false); setClearSnapshots(false); }
   }, [open]);
 
-  if (!open) return null;
+  if (!open || !pos) return null;
 
   const hasDestructive = clearCosts || clearSnapshots;
 
-  return (
-    <>
-      {/* Invisible backdrop to block content bleed-through */}
-      <div className="fixed inset-0 z-40" onClick={onClose} />
-      <div ref={ref} className="absolute top-full right-0 mt-1 w-72 rounded-lg border border-[#506880] bg-[#0f1724] z-50 overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,0,0,0.3)' }}>
+  const dialog = (
+    <div
+      ref={ref}
+      className="fixed w-72 rounded-lg border border-[#506880] overflow-hidden"
+      style={{
+        top: pos.top,
+        right: pos.right,
+        zIndex: 9999,
+        backgroundColor: '#0f1724',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
+      }}
+    >
       <div className="p-3 space-y-2.5">
         <p className="text-xs font-medium text-[#f1f5f9]">Reset map</p>
 
@@ -118,6 +146,11 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
         </div>
       </div>
     </div>
-    </>
   );
+
+  // Portal to document.body to escape any parent opacity/backdrop-filter context
+  if (typeof document !== 'undefined') {
+    return createPortal(dialog, document.body);
+  }
+  return dialog;
 }
