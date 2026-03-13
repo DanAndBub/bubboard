@@ -6,11 +6,12 @@ interface AgentsViewProps {
   agents: AgentInfo[];
 }
 
-function deriveProvider(model?: string): 'anthropic' | 'ollama' | 'other' {
+function deriveProvider(model?: string): 'anthropic' | 'deepseek' | 'openai' | 'other' {
   if (!model) return 'other';
   const m = model.toLowerCase();
-  if (m.startsWith('claude')) return 'anthropic';
-  if (m.includes('llama') || m.includes('mistral') || m.includes('ollama') || m.includes('gemma') || m.includes('phi')) return 'ollama';
+  if (m.includes('claude') || m.includes('anthropic')) return 'anthropic';
+  if (m.includes('deepseek')) return 'deepseek';
+  if (m.includes('gpt') || m.includes('openai')) return 'openai';
   return 'other';
 }
 
@@ -26,27 +27,99 @@ function ProviderBadge({ model }: { model?: string }) {
       </span>
     );
   }
-  if (provider === 'ollama') {
+  if (provider === 'deepseek') {
     return (
       <span
         className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium"
         style={{ background: 'rgba(52,211,153,0.10)', color: '#34d399' }}
       >
-        Local
+        DeepSeek
+      </span>
+    );
+  }
+  if (provider === 'openai') {
+    return (
+      <span
+        className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+        style={{ background: 'rgba(167,139,250,0.10)', color: '#a78bfa' }}
+      >
+        OpenAI
       </span>
     );
   }
   return (
     <span
       className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-      style={{ background: 'rgba(255,255,255,0.06)', color: '#b0bec9' }}
+      style={{ background: 'rgba(122,138,155,0.10)', color: '#7a8a9b' }}
     >
       {model ? model.split('/')[0] : 'Unknown'}
     </span>
   );
 }
 
+/**
+ * Build a nested hierarchy tree from a flat list of agents using reportsTo.
+ * Returns an array of root agents, each with a `children` array (recursive).
+ */
+interface AgentNode extends AgentInfo {
+  children: AgentNode[];
+}
+
+function buildHierarchy(agents: AgentInfo[]): AgentNode[] {
+  const nodeMap = new Map<string, AgentNode>();
+  for (const agent of agents) {
+    nodeMap.set(agent.id, { ...agent, children: [] });
+  }
+  const roots: AgentNode[] = [];
+  for (const node of nodeMap.values()) {
+    if (node.reportsTo && nodeMap.has(node.reportsTo)) {
+      nodeMap.get(node.reportsTo)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+  return roots;
+}
+
+function HierarchyNode({ node, depth }: { node: AgentNode; depth: number }) {
+  const isRoot = depth === 0;
+  const indent = depth * 24; // px per level
+
+  return (
+    <>
+      <div
+        className="flex items-center gap-2"
+        style={{ paddingLeft: `${indent}px` }}
+      >
+        {!isRoot && (
+          <span style={{ color: '#3a4e63', marginRight: 2 }}>└</span>
+        )}
+        <span
+          className="w-2 h-2 rounded-full shrink-0"
+          style={{ background: isRoot ? '#34d399' : '#7db8fc' }}
+        />
+        <span
+          className={`font-semibold text-[13px] ${isRoot ? 'text-white' : ''}`}
+          style={isRoot ? {} : { color: '#b0bec9' }}
+        >
+          {node.id}
+        </span>
+        {node.role && (
+          <span className="text-[11px] font-mono" style={{ color: '#7a8a9b' }}>
+            {node.role}
+          </span>
+        )}
+      </div>
+      {node.children.map(child => (
+        <HierarchyNode key={child.id} node={child} depth={depth + 1} />
+      ))}
+    </>
+  );
+}
+
 export default function AgentsView({ agents }: AgentsViewProps) {
+  const hierarchyRoots = buildHierarchy(agents);
+
   return (
     <div>
       {/* Page header */}
@@ -100,8 +173,12 @@ export default function AgentsView({ agents }: AgentsViewProps) {
             </div>
 
             {/* Col 4: reports-to */}
-            <div className="text-right text-[12px]" style={{ color: '#34d399' }}>
-              root
+            <div className="text-right text-[12px]">
+              {agent.reportsTo ? (
+                <span style={{ color: '#7a8a9b' }}>→ {agent.reportsTo}</span>
+              ) : (
+                <span style={{ color: '#34d399' }}>root</span>
+              )}
             </div>
           </div>
         ))}
@@ -133,43 +210,8 @@ export default function AgentsView({ agents }: AgentsViewProps) {
           <p className="text-[13px]" style={{ color: '#7a8a9b' }}>No agents</p>
         ) : (
           <div className="flex flex-col gap-1">
-            {/* All agents are roots since AgentInfo has no reportsTo field */}
-            {agents.map((agent, i) => (
-              <div key={agent.id} className="flex items-center gap-2">
-                {i === 0 ? (
-                  /* First agent shown as primary root */
-                  <>
-                    <span
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{ background: '#34d399' }}
-                    />
-                    <span className="font-semibold text-[13px] text-white">
-                      {agent.id}
-                    </span>
-                    {agent.role && (
-                      <span className="text-[11px] font-mono" style={{ color: '#7a8a9b' }}>
-                        {agent.role}
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  /* Remaining agents indented as siblings */
-                  <div className="flex items-center gap-2 ml-6 pl-4" style={{ borderLeft: '1px solid #3a4e63' }}>
-                    <span
-                      className="w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ background: '#7db8fc' }}
-                    />
-                    <span className="text-[13px]" style={{ color: '#b0bec9' }}>
-                      {agent.id}
-                    </span>
-                    {agent.role && (
-                      <span className="text-[11px] font-mono" style={{ color: '#7a8a9b' }}>
-                        {agent.role}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
+            {hierarchyRoots.map(root => (
+              <HierarchyNode key={root.id} node={root} depth={0} />
             ))}
           </div>
         )}

@@ -53,16 +53,33 @@ export function analyzeOpenClawConfig(jsonContent: string, map: AgentMap): Agent
       }
 
       for (const [id, a] of agentEntries) {
+        const modelStr = extractModelString(a.model);
+        // Extract provider from "provider/model-name" format
+        const providerFromModel = modelStr.includes('/') ? modelStr.split('/')[0] : undefined;
         configInfo.agents.push({
           id,
-          model: extractModelString(a.model),
+          model: modelStr,
           role: a.role as string | undefined,
+          provider: (a.provider as string | undefined) || providerFromModel,
         });
       }
     }
 
+    // Derive reportsTo hierarchy from agent ids.
+    // Heuristic based on delegation rules (AGENTS.md):
+    //   main → no reportsTo (root)
+    //   coder → sonnet
+    //   analyst → main
+    //   all others → main
+    function deriveReportsTo(id: string, allIds: string[]): string | undefined {
+      if (id === 'main') return undefined;
+      if (id === 'coder' && allIds.includes('sonnet')) return 'sonnet';
+      return 'main';
+    }
+
     // Merge agent roles into our agent list
     if (configInfo.agents.length > 0) {
+      const allConfigIds = configInfo.agents.map(a => a.id);
       const enriched = map.agents.map(agent => {
         const found = configInfo.agents.find(a => a.id === agent.id);
         if (found) {
@@ -70,6 +87,7 @@ export function analyzeOpenClawConfig(jsonContent: string, map: AgentMap): Agent
             ...agent,
             model: found.model,
             role: found.role || agent.role,
+            reportsTo: deriveReportsTo(agent.id, allConfigIds),
           };
         }
         return agent;
@@ -83,6 +101,7 @@ export function analyzeOpenClawConfig(jsonContent: string, map: AgentMap): Agent
             name: ca.id.charAt(0).toUpperCase() + ca.id.slice(1),
             model: ca.model,
             role: ca.role,
+            reportsTo: deriveReportsTo(ca.id, allConfigIds),
           });
         }
       }

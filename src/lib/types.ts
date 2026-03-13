@@ -4,6 +4,7 @@ export interface AgentInfo {
   model?: string;
   role?: string;
   hasProtocol?: boolean;
+  reportsTo?: string;
 }
 
 export interface WorkspaceFiles {
@@ -17,7 +18,7 @@ export interface WorkspaceFiles {
 
 export interface ConfigInfo {
   models: { id: string; provider: string; alias?: string }[];
-  agents: { id: string; model: string; role?: string }[];
+  agents: { id: string; model: string; role?: string; provider?: string }[];
   heartbeat: { enabled: boolean; model?: string; interval?: string };
   channels: string[];
 }
