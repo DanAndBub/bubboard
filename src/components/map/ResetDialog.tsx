@@ -45,7 +45,10 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
   const hasDestructive = clearCosts || clearSnapshots;
 
   return (
-    <div ref={ref} className="absolute top-full right-0 mt-1 w-72 rounded-lg border border-[#506880] bg-[#0f1724] shadow-2xl z-50 overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}>
+    <>
+      {/* Invisible backdrop to block content bleed-through */}
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div ref={ref} className="absolute top-full right-0 mt-1 w-72 rounded-lg border border-[#506880] bg-[#0f1724] z-50 overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,0,0,0.3)' }}>
       <div className="p-3 space-y-2.5">
         <p className="text-xs font-medium text-[#f1f5f9]">Reset map</p>
 
@@ -115,5 +118,6 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
         </div>
       </div>
     </div>
+    </>
   );
 }
