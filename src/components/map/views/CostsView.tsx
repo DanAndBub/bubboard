@@ -136,12 +136,20 @@ export default function CostsView() {
     try {
       let totalImported = 0
       let totalSkipped = 0
+      const allModels = new Set<string>()
       for (const file of files) {
         const content = await file.text()
         const name = file.name.toLowerCase()
-        let parsed: Omit<UsageRecord, 'id' | 'cost_usd'>[] = []
-        if (name.endsWith('.jsonl')) {
-          // Try Claude Code format first, then OpenClaw
+        let parsed: (Omit<UsageRecord, 'id' | 'cost_usd'> & { cost_usd?: number })[] = []
+        if (name.endsWith('.csv')) {
+          const { parseCSV } = await import('@/lib/cost-tracking/importers/csv')
+          parsed = parseCSV(content)
+        } else if (name.endsWith('.json') && !name.includes('.jsonl')) {
+          const { parseJSON } = await import('@/lib/cost-tracking/importers/json')
+          parsed = parseJSON(content)
+        } else {
+          // JSONL or unknown extension — try all JSONL parsers
+          // Try Claude Code format first, then OpenClaw session format
           const claudeParsed = parseClaudeCodeJSONL(content)
           if (claudeParsed.length > 0) {
             parsed = claudeParsed
@@ -149,23 +157,19 @@ export default function CostsView() {
             const { parseOpenClawSessions } = await import('@/lib/cost-tracking/importers/openclaw')
             parsed = parseOpenClawSessions(content)
           }
-        } else if (name.endsWith('.json')) {
-          const { parseJSON } = await import('@/lib/cost-tracking/importers/json')
-          parsed = parseJSON(content)
-        } else if (name.endsWith('.csv')) {
-          const { parseCSV } = await import('@/lib/cost-tracking/importers/csv')
-          parsed = parseCSV(content)
         }
         if (parsed.length > 0) {
           const result = await addUsageRecords(parsed)
           totalImported += result.added
           totalSkipped += result.skipped
+          result.models.forEach(m => allModels.add(m))
         }
       }
       await loadData()
       const skipMsg = totalSkipped > 0 ? ` (${totalSkipped} duplicates skipped)` : ''
-      setImportToast(`Imported ${totalImported} new records from ${files.length} file${files.length === 1 ? '' : 's'}${skipMsg}`)
-      setTimeout(() => setImportToast(null), 5000)
+      const modelMsg = allModels.size > 0 ? ` Models: ${[...allModels].join(', ')}` : ''
+      setImportToast(`Imported ${totalImported} records from ${files.length} file${files.length === 1 ? '' : 's'}${skipMsg}.${modelMsg}`)
+      setTimeout(() => setImportToast(null), 8000)
     } catch (err) {
       setImportToast(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
       setTimeout(() => setImportToast(null), 5000)

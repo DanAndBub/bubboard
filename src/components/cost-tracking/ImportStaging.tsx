@@ -30,7 +30,10 @@ export default function ImportStaging({ onImport, loading }: ImportStagingProps)
     const newFiles: StagedFile[] = [];
     for (const file of Array.from(files)) {
       const name = file.name.toLowerCase();
-      if (name.endsWith('.jsonl') || name.endsWith('.json') || name.endsWith('.csv')) {
+      // Accept known extensions + any file that might be a renamed JSONL/JSON/CSV
+      const isKnown = name.endsWith('.jsonl') || name.endsWith('.json') || name.endsWith('.csv');
+      const mightBeData = name.includes('.jsonl') || name.includes('.json') || name.includes('.csv');
+      if (isKnown || mightBeData) {
         // Avoid duplicates by name+size
         const isDup = staged.some(s => s.file.name === file.name && s.file.size === file.size);
         if (!isDup) {
@@ -62,7 +65,7 @@ export default function ImportStaging({ onImport, loading }: ImportStagingProps)
         ref={fileRef}
         type="file"
         multiple
-        accept=".csv,.json,.jsonl"
+        accept=".csv,.json,.jsonl,*"
         className="hidden"
         onChange={(e) => { addFiles(e.target.files, 'files'); e.target.value = ''; }}
       />
