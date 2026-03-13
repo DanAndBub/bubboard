@@ -98,7 +98,7 @@ function FileRow({
       <div
         className="grid items-center rounded-[7px] mb-1"
         style={{
-          gridTemplateColumns: '1fr 100px 80px',
+          gridTemplateColumns: '1fr auto auto', gap: '8px',
           background: '#111827',
           border: '1px solid rgba(58,78,99,0.3)',
           padding: '9px 16px',
@@ -120,7 +120,7 @@ function FileRow({
     <div
       className="grid items-center rounded-[7px] mb-1 cursor-default"
       style={{
-        gridTemplateColumns: '1fr 100px 80px',
+        gridTemplateColumns: '1fr auto auto', gap: '8px',
         background: '#111827',
         border: '1px solid rgba(58,78,99,0.3)',
         padding: '9px 16px',

@@ -379,9 +379,17 @@ export default function DirectoryScanner({ onConfirm }: Props) {
         </div>
       )}
 
+      {/* ── IDLE: mobile message ── */}
+      {scanState === 'idle' && (
+        <div className="md:hidden rounded-lg border border-[#506880] bg-[#111827] px-4 py-3 text-center">
+          <p className="text-xs text-[#b0bec9] font-medium">Scanning works best on desktop</p>
+          <p className="text-[11px] text-[#7a8a9b] mt-1">Open Driftwatch on your computer with Chrome or Edge to scan your agent directory.</p>
+        </div>
+      )}
+
       {/* ── IDLE: picker buttons ── */}
       {scanState === 'idle' && !pasteMode && (
-        <div className="flex flex-col gap-2">
+        <div className="hidden md:flex flex-col gap-2">
           {detectedBrowser && (
             <p className="text-[10px] text-[#7a8a9b] mb-1">
               Detected: <span className="text-[#b0bec9] font-medium">{detectedBrowser}</span>
@@ -432,12 +440,12 @@ export default function DirectoryScanner({ onConfirm }: Props) {
 
       {/* ── IDLE: paste mode ── */}
       {scanState === 'idle' && pasteMode && (
-        <div className="flex flex-col gap-3">
+        <div className="hidden md:flex flex-col gap-3">
           <div className="relative rounded-lg border border-[#506880] bg-[#0a0e17] p-3">
             <p className="text-xs text-slate-400 mb-2 font-medium">
               Copy this command, run it in your terminal, and paste the output below:
             </p>
-            <pre className="text-xs text-blue-300 whitespace-pre font-mono leading-relaxed">
+            <pre className="text-xs text-blue-300 whitespace-pre-wrap break-all font-mono leading-relaxed overflow-x-auto">
               {PASTE_LS_COMMAND}
             </pre>
             <button

@@ -17,7 +17,7 @@ export default function MapTopBar({ isDemo, onNewMap, showNewMap, costRecordCoun
 
   return (
     <div
-      className="flex items-center justify-between h-[52px] px-6 border-b"
+      className="flex items-center justify-between h-[52px] px-3 sm:px-6 border-b"
       style={{
         background: 'rgba(8,12,20,0.92)',
         backdropFilter: 'blur(8px)',
@@ -40,11 +40,11 @@ export default function MapTopBar({ isDemo, onNewMap, showNewMap, costRecordCoun
           ◈
         </div>
         <span className="font-semibold text-sm text-[#f1f5f9]">Driftwatch</span>
-        <span className="text-[#7a8a9b] text-sm">/</span>
-        <span className="text-[#b0bec9] text-[13px]">Agent Map</span>
+        <span className="hidden sm:inline text-[#7a8a9b] text-sm">/</span>
+        <span className="hidden sm:inline text-[#b0bec9] text-[13px]">Agent Map</span>
         {isDemo && (
-          <span className="ml-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-900/60 text-blue-300 border border-blue-700/50">
-            Demo: Bub&apos;s workspace
+          <span className="hidden sm:inline ml-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-900/60 text-blue-300 border border-blue-700/50">
+            Demo
           </span>
         )}
       </div>

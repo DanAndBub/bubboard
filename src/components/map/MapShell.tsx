@@ -10,15 +10,7 @@ interface MapShellProps {
 
 export default function MapShell({ topBar, sidebar, children }: MapShellProps) {
   return (
-    <div
-      className="bg-[#0a0e17] overflow-hidden"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '252px 1fr',
-        gridTemplateRows: '52px 1fr',
-        height: '100vh',
-      }}
-    >
+    <div className="bg-[#0a0e17] h-dvh flex flex-col lg:grid lg:grid-cols-[252px_1fr] lg:grid-rows-[52px_1fr] overflow-hidden">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:top-2 focus:left-2 focus:rounded"
@@ -26,24 +18,28 @@ export default function MapShell({ topBar, sidebar, children }: MapShellProps) {
         Skip to main content
       </a>
 
-      {/* Top bar — spans both columns */}
-      <div style={{ gridColumn: '1 / -1', gridRow: '1' }}>
+      {/* Top bar — spans both columns on desktop */}
+      <div className="shrink-0 lg:col-span-2">
         {topBar}
       </div>
 
-      {/* Sidebar — column 1, row 2 */}
-      <div style={{ gridColumn: '1', gridRow: '2' }}>
+      {/* Sidebar — hidden on mobile (bottom bar rendered separately), visible on lg: */}
+      <div className="hidden lg:block lg:overflow-y-auto">
         {sidebar}
       </div>
 
-      {/* Main content — column 2, row 2 */}
+      {/* Main content */}
       <main
         id="main-content"
-        className="overflow-y-auto"
-        style={{ gridColumn: '2', gridRow: '2', padding: '28px 36px 40px' }}
+        className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-9 lg:py-7 pb-20 lg:pb-7"
       >
         {children}
       </main>
+
+      {/* Mobile bottom bar — sidebar renders this via a separate export or we show it here */}
+      <div className="lg:hidden shrink-0">
+        {sidebar}
+      </div>
     </div>
   );
 }

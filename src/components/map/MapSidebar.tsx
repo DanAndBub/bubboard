@@ -21,6 +21,19 @@ function scoreColor(score: number): string {
   return '#f87171';
 }
 
+// ── Mobile bottom tab item ───────────────────────────────────────────────────
+
+const TABS: { view: View; icon: string; label: string }[] = [
+  { view: 'overview', icon: '◉', label: 'Overview' },
+  { view: 'agents', icon: '⬡', label: 'Agents' },
+  { view: 'files', icon: '▤', label: 'Files' },
+  { view: 'costs', icon: '◎', label: 'Costs' },
+  { view: 'review', icon: '⚑', label: 'Config' },
+  { view: 'drift', icon: '↔', label: 'Drift' },
+];
+
+// ── Desktop sidebar components ───────────────────────────────────────────────
+
 interface NavItemProps {
   icon: string;
   label: string;
@@ -141,6 +154,8 @@ function Divider() {
   );
 }
 
+// ── Main component ───────────────────────────────────────────────────────────
+
 export default function MapSidebar({
   activeView,
   onViewChange,
@@ -154,75 +169,113 @@ export default function MapSidebar({
   onDownloadNotes,
 }: MapSidebarProps) {
   return (
-    <nav
-      aria-label="Main navigation"
-      className="flex flex-col overflow-y-auto h-full"
-      style={{
-        background: '#080c14',
-        borderRight: '1px solid #3a4e63',
-        padding: '16px 0',
-      }}
-    >
-      {/* Setup Score card */}
-      <div
-        className="text-center rounded-[10px]"
+    <>
+      {/* ── Mobile bottom tab bar ── */}
+      <nav
+        aria-label="Main navigation"
+        className="lg:hidden flex items-center justify-around border-t"
         style={{
-          margin: '0 12px 16px',
-          padding: '18px 16px',
-          background: '#111827',
-          border: '1px solid #3a4e63',
+          background: '#080c14',
+          borderTopColor: '#3a4e63',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
+        {TABS.map(({ view, icon, label }) => {
+          const active = activeView === view;
+          return (
+            <button
+              key={view}
+              onClick={() => onViewChange(view)}
+              aria-current={active ? 'page' : undefined}
+              className="flex flex-col items-center gap-0.5 py-2 px-1 min-w-0 transition-colors"
+              style={{ color: active ? '#7db8fc' : '#7a8a9b' }}
+            >
+              <span className="text-[15px] leading-none">{icon}</span>
+              <span className="text-[10px] font-medium truncate max-w-[52px]">
+                {label}
+              </span>
+              {view === 'review' && hasFindings && (
+                <span
+                  className="absolute top-1.5 right-0 rounded-full animate-pulse"
+                  style={{ width: 5, height: 5, background: '#f87171' }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* ── Desktop vertical sidebar ── */}
+      <nav
+        aria-label="Main navigation"
+        className="hidden lg:flex flex-col overflow-y-auto h-full"
+        style={{
+          background: '#080c14',
+          borderRight: '1px solid #3a4e63',
+          padding: '16px 0',
+        }}
+      >
+        {/* Setup Score card */}
         <div
-          className="font-bold leading-none"
+          className="text-center rounded-[10px]"
           style={{
-            fontSize: 34,
-            letterSpacing: '-1.5px',
-            color: scoreColor(setupScore),
+            margin: '0 12px 16px',
+            padding: '18px 16px',
+            background: '#111827',
+            border: '1px solid #3a4e63',
           }}
         >
-          {setupScore}
-          <span style={{ fontSize: 16, color: '#7a8a9b', fontWeight: 400 }}>
-            /{maxScore}
-          </span>
+          <div
+            className="font-bold leading-none"
+            style={{
+              fontSize: 34,
+              letterSpacing: '-1.5px',
+              color: scoreColor(setupScore),
+            }}
+          >
+            {setupScore}
+            <span style={{ fontSize: 16, color: '#7a8a9b', fontWeight: 400 }}>
+              /{maxScore}
+            </span>
+          </div>
+          <div
+            className="font-medium uppercase mt-1.5"
+            style={{ fontSize: 11, letterSpacing: '1.5px', color: '#7a8a9b' }}
+          >
+            Setup Score
+          </div>
         </div>
-        <div
-          className="font-medium uppercase mt-1.5"
-          style={{ fontSize: 11, letterSpacing: '1.5px', color: '#7a8a9b' }}
-        >
-          Setup Score
+
+        {/* Views section */}
+        <div style={{ padding: '0 12px', marginBottom: 20 }}>
+          <SectionLabel>Views</SectionLabel>
+          <NavItem icon="◉" label="Overview" active={activeView === 'overview'} onClick={() => onViewChange('overview')} />
+          <NavItem icon="⬡" label="Agents" active={activeView === 'agents'} badge={agentCount} onClick={() => onViewChange('agents')} />
+          <NavItem icon="▤" label="Files" active={activeView === 'files'} badge={fileCount} onClick={() => onViewChange('files')} />
+          <NavItem icon="◎" label="Cost Tracking" active={activeView === 'costs'} onClick={() => onViewChange('costs')} />
         </div>
-      </div>
 
-      {/* Views section */}
-      <div style={{ padding: '0 12px', marginBottom: 20 }}>
-        <SectionLabel>Views</SectionLabel>
-        <NavItem icon="◉" label="Overview" active={activeView === 'overview'} onClick={() => onViewChange('overview')} />
-        <NavItem icon="⬡" label="Agents" active={activeView === 'agents'} badge={agentCount} onClick={() => onViewChange('agents')} />
-        <NavItem icon="▤" label="Files" active={activeView === 'files'} badge={fileCount} onClick={() => onViewChange('files')} />
-        <NavItem icon="◎" label="Cost Tracking" active={activeView === 'costs'} onClick={() => onViewChange('costs')} />
-      </div>
+        <Divider />
 
-      <Divider />
+        {/* Intelligence section */}
+        <div style={{ padding: '0 12px', marginBottom: 20 }}>
+          <SectionLabel>Intelligence</SectionLabel>
+          <NavItem icon="⚑" label="Config Review" active={activeView === 'review'} alertDot={hasFindings} onClick={() => onViewChange('review')} />
+          <NavItem icon="↔" label="Drift Report" active={activeView === 'drift'} onClick={() => onViewChange('drift')} />
+        </div>
 
-      {/* Intelligence section */}
-      <div style={{ padding: '0 12px', marginBottom: 20 }}>
-        <SectionLabel>Intelligence</SectionLabel>
-        <NavItem icon="⚑" label="Config Review" active={activeView === 'review'} alertDot={hasFindings} onClick={() => onViewChange('review')} />
-        <NavItem icon="↔" label="Drift Report" active={activeView === 'drift'} onClick={() => onViewChange('drift')} />
-      </div>
+        {/* Spacer */}
+        <div className="flex-1" />
 
-      {/* Spacer */}
-      <div className="flex-1" />
+        <Divider />
 
-      <Divider />
-
-      {/* Actions section */}
-      <div style={{ padding: '0 12px' }}>
-        <ActionButton icon="📥" label="Download Snapshot" onClick={onDownloadSnapshot} />
-        <ActionButton icon="📤" label="Upload Snapshot" onClick={onUploadSnapshot} />
-        <ActionButton icon="📝" label="Session Notes" onClick={onDownloadNotes} />
-      </div>
-    </nav>
+        {/* Actions section */}
+        <div style={{ padding: '0 12px' }}>
+          <ActionButton icon="📥" label="Download Snapshot" onClick={onDownloadSnapshot} />
+          <ActionButton icon="📤" label="Upload Snapshot" onClick={onUploadSnapshot} />
+          <ActionButton icon="📝" label="Session Notes" onClick={onDownloadNotes} />
+        </div>
+      </nav>
+    </>
   );
 }

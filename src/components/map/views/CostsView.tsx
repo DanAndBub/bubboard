@@ -323,7 +323,9 @@ export default function CostsView() {
             </p>
           </div>
           <div className="flex gap-2 items-center">
-            <ImportStaging onImport={handleImportFiles} loading={loading} />
+            <div className="hidden md:block">
+              <ImportStaging onImport={handleImportFiles} loading={loading} />
+            </div>
             {/* Export */}
             <button onClick={handleExportJSON} title="Export JSON" className="border border-[#506880] bg-[#111827] p-2 rounded-lg text-[#b0bec9] hover:text-[#f1f5f9] transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -392,7 +394,7 @@ export default function CostsView() {
               recordCount={recordCount}
             />
 
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <CostTimeline data={timelineData} />
               </div>

@@ -124,7 +124,7 @@ export default function OverviewView({
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-[14px]" style={{ marginBottom: 24 }}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-[14px]" style={{ marginBottom: 24 }}>
         {([
           { label: 'Total Files',     value: stats.totalFiles,     color: '#7db8fc' },
           { label: 'Agents',          value: stats.agentCount,     color: '#a78bfa' },
@@ -145,7 +145,7 @@ export default function OverviewView({
       </div>
 
       {/* Overview grid */}
-      <div className="grid grid-cols-2 gap-[14px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px]">
         {/* Agent Fleet */}
         <SummaryCard onClick={() => onNavigate('agents')} aria-label="View all agents">
           <CardHeader title="Agent Fleet" action="View all →" />
