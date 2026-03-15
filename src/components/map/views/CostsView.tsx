@@ -369,12 +369,14 @@ export default function CostsView() {
               recordCount={recordCount}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <CostTimeline data={timelineData} />
-              </div>
-              <div>
-                <ModelBreakdown data={filteredModelBreakdown} />
+            <div className="@container">
+              <div className="grid grid-cols-1 @[900px]:grid-cols-2 gap-6">
+                <div>
+                  <CostTimeline data={timelineData} />
+                </div>
+                <div>
+                  <ModelBreakdown data={filteredModelBreakdown} />
+                </div>
               </div>
             </div>
 
