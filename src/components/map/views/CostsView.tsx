@@ -370,7 +370,7 @@ export default function CostsView() {
             />
 
             <div className="@container">
-              <div className="grid grid-cols-1 @[900px]:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 @[1140px]:grid-cols-2 gap-6">
                 <div>
                   <CostTimeline data={timelineData} />
                 </div>
