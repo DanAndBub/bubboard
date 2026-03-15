@@ -27,7 +27,7 @@ const MODEL_COLORS: [string, { main: string; glow: string }][] = [
   ['o1',                 { main: '#f97316', glow: 'rgba(249,115,22,0.35)' }],
 ];
 
-function getModelColor(model: string): { main: string; glow: string } {
+export function getModelColor(model: string): { main: string; glow: string } {
   const match = MODEL_COLORS.find(([k]) => model.includes(k));
   return match ? match[1] : { main: '#6b7280', glow: 'rgba(107,114,128,0.35)' };
 }

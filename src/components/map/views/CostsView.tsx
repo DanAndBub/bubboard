@@ -22,6 +22,7 @@ import RequestLog from '@/components/cost-tracking/RequestLog'
 import InsightsPanel from '@/components/cost-tracking/InsightsPanel'
 import EmptyState from '@/components/cost-tracking/EmptyState'
 import ImportStaging from '@/components/cost-tracking/ImportStaging'
+import ModelFilterDropdown from '@/components/cost-tracking/ModelFilterDropdown'
 import { detectAllAnomalies } from '@/lib/cost-tracking/analytics/anomalies'
 import { forecastCosts } from '@/lib/cost-tracking/analytics/forecast'
 import { UsageRecord } from '@/lib/cost-tracking/types'
@@ -345,39 +346,13 @@ export default function CostsView() {
           endDate={dateRange[1]}
           onChange={(start, end) => setDateRange([start, end])}
         />
-        {/* Model filter chips */}
+        {/* Model filter dropdown */}
         {modelBreakdown.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-[#7a8a9b] mr-1">Models:</span>
-            <button
-              onClick={() => setSelectedModels(new Set())}
-              className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
-                selectedModels.size === 0
-                  ? 'bg-[#7db8fc]/20 text-[#7db8fc] border border-[#7db8fc]/30'
-                  : 'text-[#7a8a9b] border border-[#506880] hover:text-[#b0bec9]'
-              }`}
-            >
-              All
-            </button>
-            {modelBreakdown.map((m) => (
-              <button
-                key={m.model}
-                onClick={() => {
-                  const next = new Set(selectedModels)
-                  if (next.has(m.model)) next.delete(m.model)
-                  else next.add(m.model)
-                  setSelectedModels(next)
-                }}
-                className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
-                  selectedModels.has(m.model)
-                    ? 'bg-[#7db8fc]/20 text-[#7db8fc] border border-[#7db8fc]/30'
-                    : 'text-[#7a8a9b] border border-[#506880] hover:text-[#b0bec9]'
-                }`}
-              >
-                {m.model}
-              </button>
-            ))}
-          </div>
+          <ModelFilterDropdown
+            models={modelBreakdown}
+            selectedModels={selectedModels}
+            onSelectionChange={setSelectedModels}
+          />
         )}
       </div>
 
