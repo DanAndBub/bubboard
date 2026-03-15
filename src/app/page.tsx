@@ -2,25 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import OverviewView from '@/components/map/views/OverviewView';
+import Image from 'next/image';
 import CompactDemo from '@/components/CompactDemo';
-import { getDemoAgentMap } from '@/lib/demo-data';
-import { DEMO_REVIEW_RESULT, DEMO_BUDGET } from '@/lib/phase3-demo-data';
 import WaitlistForm from '@/components/WaitlistForm';
 import Footer from '@/components/Footer';
-import type { StatsData } from '@/lib/types';
 
 
 export default function HomePage() {
-  const demoMap = getDemoAgentMap();
-  const demoStats: StatsData = {
-    totalFiles: demoMap.workspace.coreFiles.length + demoMap.workspace.memoryFiles.length + demoMap.workspace.customFiles.length,
-    agentCount: demoMap.agents.length,
-    memoryEntries: demoMap.workspace.memoryFiles.length,
-    skillCount: 0,
-    score: DEMO_REVIEW_RESULT.healthScore,
-    maxScore: 100,
-  };
+
 
   return (
     <main className="min-h-screen bg-[#0a0e17]">
@@ -84,7 +73,7 @@ export default function HomePage() {
               className="absolute -top-3 right-8 z-10 text-white text-xs font-semibold px-3 py-1 rounded-full"
               style={{ background: 'linear-gradient(135deg, #3b82f6, #a78bfa)' }}
             >
-              ✦ Interactive demo
+              ✦ Demo
             </div>
 
             {/* Map container */}
@@ -100,51 +89,16 @@ export default function HomePage() {
                 <span className="ml-3 font-mono text-xs text-[#7a8a9b]">bubbuilds.com/map</span>
               </div>
 
-              {/* Overview content — full on desktop, compact on mobile */}
-              <div className="hidden md:grid overflow-hidden pointer-events-none" style={{ gridTemplateColumns: '252px 1fr', maxHeight: 720 }}>
-                {/* Static sidebar preview */}
-                <div className="border-r border-[#506880] bg-[#0a0e17] px-3 py-4 flex flex-col gap-1">
-                  <div className="px-3 py-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg border border-[#7db8fc]/30 bg-[#7db8fc]/10 flex items-center justify-center">
-                        <svg className="w-3.5 h-3.5 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
-                      </div>
-                      <span className="text-sm font-bold text-[#f1f5f9]">Driftwatch</span>
-                    </div>
-                  </div>
-                  {[
-                    { icon: '◈', label: 'Overview', active: true },
-                    { icon: '⬡', label: 'Agents', active: false },
-                    { icon: '◇', label: 'Files', active: false },
-                    { icon: '⊙', label: 'Cost Tracking', active: false },
-                    { icon: '⚙', label: 'Config Review', active: false },
-                    { icon: '↕', label: 'Drift Report', active: false },
-                  ].map((item) => (
-                    <div
-                      key={item.label}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs ${
-                        item.active
-                          ? 'bg-[#7db8fc]/10 text-[#7db8fc] font-medium'
-                          : 'text-[#7a8a9b]'
-                      }`}
-                    >
-                      <span className="text-sm w-5 text-center">{item.icon}</span>
-                      {item.label}
-                    </div>
-                  ))}
-                </div>
-                {/* Overview content */}
-                <div className="overflow-hidden">
-                  <OverviewView
-                    agentMap={demoMap}
-                    stats={demoStats}
-                    reviewFindings={DEMO_REVIEW_RESULT.findings}
-                    healthScore={DEMO_REVIEW_RESULT.healthScore}
-                    budget={DEMO_BUDGET}
-                    onNavigate={() => {}}
-                    isDemo
-                  />
-                </div>
+              {/* Hero screenshot — full on desktop, compact on mobile */}
+              <div className="hidden md:block">
+                <Image
+                  src="/hero-overview.png"
+                  alt="Driftwatch Overview — agent architecture map with config review, drift detection, and cost tracking"
+                  width={1920}
+                  height={1080}
+                  className="w-full h-auto"
+                  priority
+                />
               </div>
               <div className="md:hidden p-4 overflow-hidden">
                 <CompactDemo />
