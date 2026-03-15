@@ -101,16 +101,50 @@ export default function HomePage() {
               </div>
 
               {/* Overview content — full on desktop, compact on mobile */}
-              <div className="hidden md:block overflow-hidden pointer-events-none">
-                <OverviewView
-                  agentMap={demoMap}
-                  stats={demoStats}
-                  reviewFindings={DEMO_REVIEW_RESULT.findings}
-                  healthScore={DEMO_REVIEW_RESULT.healthScore}
-                  budget={DEMO_BUDGET}
-                  onNavigate={() => {}}
-                  isDemo
-                />
+              <div className="hidden md:grid overflow-hidden pointer-events-none" style={{ gridTemplateColumns: '252px 1fr', maxHeight: 720 }}>
+                {/* Static sidebar preview */}
+                <div className="border-r border-[#506880] bg-[#0a0e17] px-3 py-4 flex flex-col gap-1">
+                  <div className="px-3 py-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg border border-[#7db8fc]/30 bg-[#7db8fc]/10 flex items-center justify-center">
+                        <svg className="w-3.5 h-3.5 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                      </div>
+                      <span className="text-sm font-bold text-[#f1f5f9]">Driftwatch</span>
+                    </div>
+                  </div>
+                  {[
+                    { icon: '◈', label: 'Overview', active: true },
+                    { icon: '⬡', label: 'Agents', active: false },
+                    { icon: '◇', label: 'Files', active: false },
+                    { icon: '⊙', label: 'Cost Tracking', active: false },
+                    { icon: '⚙', label: 'Config Review', active: false },
+                    { icon: '↕', label: 'Drift Report', active: false },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs ${
+                        item.active
+                          ? 'bg-[#7db8fc]/10 text-[#7db8fc] font-medium'
+                          : 'text-[#7a8a9b]'
+                      }`}
+                    >
+                      <span className="text-sm w-5 text-center">{item.icon}</span>
+                      {item.label}
+                    </div>
+                  ))}
+                </div>
+                {/* Overview content */}
+                <div className="overflow-hidden">
+                  <OverviewView
+                    agentMap={demoMap}
+                    stats={demoStats}
+                    reviewFindings={DEMO_REVIEW_RESULT.findings}
+                    healthScore={DEMO_REVIEW_RESULT.healthScore}
+                    budget={DEMO_BUDGET}
+                    onNavigate={() => {}}
+                    isDemo
+                  />
+                </div>
               </div>
               <div className="md:hidden p-4 overflow-hidden">
                 <CompactDemo />
