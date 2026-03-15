@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import LandingDemo from '@/components/LandingDemo';
 import CompactDemo from '@/components/CompactDemo';
 import WaitlistForm from '@/components/WaitlistForm';
 import Footer from '@/components/Footer';
@@ -65,7 +65,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* LIVE MAP SECTION */}
+        {/* INTERACTIVE DEMO */}
         <div className="px-6 pb-12">
           <div className="max-w-6xl mx-auto relative">
             {/* Floating badge */}
@@ -73,35 +73,15 @@ export default function HomePage() {
               className="absolute -top-3 right-8 z-10 text-white text-xs font-semibold px-3 py-1 rounded-full"
               style={{ background: 'linear-gradient(135deg, #3b82f6, #a78bfa)' }}
             >
-              ✦ Demo
+              ✦ Interactive Demo
             </div>
 
-            {/* Map container */}
-            <div
-              className="rounded-2xl border border-[#506880] bg-[#111827] overflow-hidden"
-              style={{ boxShadow: '0 0 80px rgba(59,130,246,0.08), 0 8px 40px rgba(0,0,0,0.6)' }}
-            >
-              {/* Browser chrome */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-[#506880] bg-[#0d1520]">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
-                <span className="ml-3 font-mono text-xs text-[#7a8a9b]">bubbuilds.com/map</span>
-              </div>
-
-              {/* Hero screenshot — full on desktop, compact on mobile */}
-              <div className="hidden md:block">
-                <Image
-                  src="/hero-overview.png"
-                  alt="Driftwatch Overview — agent architecture map with config review, drift detection, and cost tracking"
-                  width={1920}
-                  height={1080}
-                  className="w-full h-auto"
-                  priority
-                  unoptimized
-                />
-              </div>
-              <div className="md:hidden p-4 overflow-hidden">
+            {/* Live demo — full app on desktop, compact on mobile */}
+            <div className="hidden md:block">
+              <LandingDemo />
+            </div>
+            <div className="md:hidden">
+              <div className="rounded-2xl border border-[#506880] bg-[#111827] overflow-hidden p-4" style={{ boxShadow: '0 0 80px rgba(59,130,246,0.08), 0 8px 40px rgba(0,0,0,0.6)' }}>
                 <CompactDemo />
               </div>
             </div>
