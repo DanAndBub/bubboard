@@ -96,7 +96,7 @@ export default function OverviewView({
   const memoryFileCount = agentMap.workspace.memoryFiles.length;
 
   return (
-    <div style={{ padding: '28px 32px', maxWidth: 900 }}>
+    <div className="min-h-full" style={{ padding: '28px 32px', maxWidth: 900 }}>
       {/* Page header */}
       <div className="flex items-center justify-between" style={{ marginBottom: 24 }}>
         <div className="flex items-center gap-[10px]">
