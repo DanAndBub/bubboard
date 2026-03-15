@@ -2,24 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import AgentMap from '@/components/AgentMap';
+import OverviewView from '@/components/map/views/OverviewView';
 import CompactDemo from '@/components/CompactDemo';
 import { getDemoAgentMap } from '@/lib/demo-data';
+import { DEMO_REVIEW_RESULT, DEMO_BUDGET } from '@/lib/phase3-demo-data';
 import WaitlistForm from '@/components/WaitlistForm';
 import Footer from '@/components/Footer';
+import type { StatsData } from '@/lib/types';
 
-const demoFileContents: Record<string, string> = {
-  'SOUL.md': 'Voice: Direct and efficient. Genuinely helpful, not performatively helpful. Opinionated when it matters. Concise by default, thorough when it counts.',
-  'HEARTBEAT.md': 'Background task runner. Checks email, calendar, weather 2-4x daily. Uses HEARTBEAT_OK for quiet periods. Monitors open loops across channels.',
-  'AGENTS.md': 'Orchestration hierarchy: Bub (Opus) delegates to Sonnet (engineering lead), who manages Coder (DeepSeek). Analyst reports directly to Bub. Two-tier QA on all code.',
-  'MEMORY.md': 'Curated long-term memory. Critical rules, architecture decisions, lessons learned. Updated weekly, trimmed monthly. Target size under 1500 tokens.',
-  'TOOLS.md': 'GitHub CLI, Google Workspace (gog), Brave Search, web fetch, Claude Code CLI for heavy coding. Airtable for storage. Telegram for comms.',
-  'USER.md': 'Dan — PST timezone, direct communicator, values efficiency. Business partner.',
-  'IDENTITY.md': 'Bub — AI Business Partner and Operations Director. Orchestrate, automate, ship.',
-};
 
 export default function HomePage() {
   const demoMap = getDemoAgentMap();
+  const demoStats: StatsData = {
+    totalFiles: demoMap.workspace.coreFiles.length + demoMap.workspace.memoryFiles.length + demoMap.workspace.customFiles.length,
+    agentCount: demoMap.agents.length,
+    memoryEntries: demoMap.workspace.memoryFiles.length,
+    skillCount: 0,
+    score: DEMO_REVIEW_RESULT.healthScore,
+    maxScore: 100,
+  };
 
   return (
     <main className="min-h-screen bg-[#0a0e17]">
@@ -99,9 +100,17 @@ export default function HomePage() {
                 <span className="ml-3 font-mono text-xs text-[#7a8a9b]">bubbuilds.com/map</span>
               </div>
 
-              {/* Map content — full on desktop, compact on mobile */}
-              <div className="hidden md:block p-6 overflow-hidden">
-                <AgentMap map={demoMap} fileContents={demoFileContents} />
+              {/* Overview content — full on desktop, compact on mobile */}
+              <div className="hidden md:block overflow-hidden pointer-events-none">
+                <OverviewView
+                  agentMap={demoMap}
+                  stats={demoStats}
+                  reviewFindings={DEMO_REVIEW_RESULT.findings}
+                  healthScore={DEMO_REVIEW_RESULT.healthScore}
+                  budget={DEMO_BUDGET}
+                  onNavigate={() => {}}
+                  isDemo
+                />
               </div>
               <div className="md:hidden p-4 overflow-hidden">
                 <CompactDemo />
