@@ -137,7 +137,7 @@ export default function AgentsView({ agents }: AgentsViewProps) {
             key={agent.id}
             className="grid items-center rounded-[10px] transition-colors"
             style={{
-              gridTemplateColumns: '140px 1fr 120px 100px',
+              gridTemplateColumns: '140px 1fr 120px',
               background: '#111827',
               border: '1px solid #3a4e63',
               padding: '14px 20px',
@@ -172,14 +172,7 @@ export default function AgentsView({ agents }: AgentsViewProps) {
               <ProviderBadge model={agent.model} />
             </div>
 
-            {/* Col 4: reports-to */}
-            <div className="text-right text-[12px]">
-              {agent.reportsTo ? (
-                <span style={{ color: '#7a8a9b' }}>→ {agent.reportsTo}</span>
-              ) : (
-                <span style={{ color: '#34d399' }}>root</span>
-              )}
-            </div>
+
           </div>
         ))}
 

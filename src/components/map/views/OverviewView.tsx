@@ -118,9 +118,7 @@ export default function OverviewView({
             {agentCount} agent{agentCount !== 1 ? 's' : ''}
           </span>
         </div>
-        <span className="font-mono" style={{ fontSize: 11, color: '#7a8a9b' }}>
-          Generated in &lt;500ms
-        </span>
+
       </div>
 
       {/* Stats row */}

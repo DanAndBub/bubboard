@@ -148,10 +148,9 @@ function FileRow({
   );
 }
 
-function GroupHeader({ dotColor, label, topMargin = true }: { dotColor: string; label: string; topMargin?: boolean }) {
+function GroupHeader({ label, topMargin = true }: { dotColor?: string; label: string; topMargin?: boolean }) {
   return (
     <div className={`flex items-center gap-2 mb-2 ${topMargin ? 'mt-5' : ''}`}>
-      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: dotColor }} />
       <span className="uppercase text-[11px] tracking-widest font-medium" style={{ color: '#7a8a9b' }}>
         {label}
       </span>

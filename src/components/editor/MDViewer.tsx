@@ -131,7 +131,7 @@ export default function MDViewer({ path, content, onEdit, onClose }: MDViewerPro
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
+      <div className="flex-1 overflow-y-auto px-4 py-3 pb-8">
         {renderMarkdown(content)}
       </div>
     </div>

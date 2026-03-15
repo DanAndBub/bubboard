@@ -271,6 +271,16 @@ function MapPageContent() {
             </p>
           </div>
 
+          {/* Try Demo */}
+          <div className="text-center">
+            <a
+              href="/map?demo=true"
+              className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-lg border border-[#7db8fc]/30 text-[#7db8fc] hover:bg-[#7db8fc]/10 transition-colors"
+            >
+              ◈ Try Demo — see an example workspace
+            </a>
+          </div>
+
           {/* Primary: folder picker (hidden when browser is unsupported) */}
           {!browserUnsupported && (
             <DirectoryScanner
@@ -357,14 +367,6 @@ function MapPageContent() {
               Tip: For the richest map, toggle on file content reading. Your files never leave your browser.
             </p>
 
-            <div className="text-center pt-2">
-              <a
-                href="/map?demo=true"
-                className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-lg border border-[#7db8fc]/30 text-[#7db8fc] hover:bg-[#7db8fc]/10 transition-colors"
-              >
-                ◈ Try Demo — see an example workspace
-              </a>
-            </div>
           </div>
         </div>
       ) : (

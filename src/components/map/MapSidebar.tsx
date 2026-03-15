@@ -82,18 +82,7 @@ function NavItem({ icon, label, active, badge, alertDot, onClick }: NavItemProps
           {badge}
         </span>
       )}
-      {alertDot && (
-        <span
-          className="ml-auto rounded-full shrink-0 animate-pulse"
-          style={{
-            width: 7,
-            height: 7,
-            background: '#f87171',
-            boxShadow: '0 0 6px rgba(248,113,113,0.5)',
-          }}
-          aria-label="has findings"
-        />
-      )}
+
     </button>
   );
 }
@@ -194,12 +183,7 @@ export default function MapSidebar({
               <span className="text-[10px] font-medium truncate max-w-[52px]">
                 {label}
               </span>
-              {view === 'review' && hasFindings && (
-                <span
-                  className="absolute top-1.5 right-0 rounded-full animate-pulse"
-                  style={{ width: 5, height: 5, background: '#f87171' }}
-                />
-              )}
+
             </button>
           );
         })}

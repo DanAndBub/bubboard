@@ -127,15 +127,10 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`font-mono text-lg font-bold ${scoreColor(result.healthScore)}`}>
-            {result.healthScore}
-          </span>
-          <span className="text-[10px] text-[#7a8a9b]">/ 100</span>
-        </div>
+        {/* Health score hidden — preserved for potential future use */}
       </div>
 
-      {/* Health Score Bar */}
+      {/* Health Score Bar — hidden per Dan's review. Code preserved for potential future use.
       <div className="px-5 py-3 border-b border-[#506880]">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] uppercase tracking-wider text-[#7a8a9b] font-medium">Config Health</span>
@@ -151,6 +146,7 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
         </div>
         <p className="text-[10px] text-[#7a8a9b] mt-1.5">Score = 100 minus penalties (critical: −15, warning: −5)</p>
       </div>
+      */}
 
       {/* Bootstrap Budget Bar */}
       <div className="px-5 py-3 border-b border-[#506880]">
@@ -228,14 +224,6 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
                 >
                   <span className="text-[10px] text-[#7a8a9b]">{isExpanded ? '▾' : '▸'}</span>
                   <span className="text-xs font-mono text-[#f1f5f9] flex-1 truncate">{file}</span>
-                  {fileAnalysis && (
-                    <span className="text-[10px] font-mono text-[#7a8a9b]">
-                      {fileAnalysis.charCount.toLocaleString()} chars
-                    </span>
-                  )}
-                  <span className="text-[10px] text-[#7a8a9b]">
-                    {findings.length} finding{findings.length !== 1 ? 's' : ''}
-                  </span>
                   {critCount > 0 && <span className="text-[10px]">🔴 {critCount}</span>}
                   {warnCount > 0 && <span className="text-[10px]">🟡 {warnCount}</span>}
                   {findings.filter(f => f.severity === 'info').length > 0 && <span className="text-[10px]">🔵 {findings.filter(f => f.severity === 'info').length}</span>}
@@ -259,9 +247,9 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
                             className={`w-full text-left px-3 py-2 rounded-lg border ${SEVERITY_COLORS[finding.severity]} hover:brightness-110 transition-all`}
                           >
                             <div className="flex items-start gap-2">
+                              <span className="text-[10px] text-[#7a8a9b] shrink-0 mt-0.5">{isOpen ? '▾' : '▸'}</span>
                               <span className="text-xs shrink-0">{SEVERITY_ICON[finding.severity]}</span>
                               <span className="text-xs text-[#b0bec9] leading-relaxed flex-1">{finding.message}</span>
-                              <span className="text-[10px] text-[#7a8a9b] shrink-0 mt-0.5">{isOpen ? '▾' : '▸'}</span>
                             </div>
                           </button>
                           {isOpen && (

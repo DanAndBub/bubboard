@@ -41,7 +41,7 @@ function SaveDialog({ onConfirm, onCancel }: SaveDialogProps) {
       <div className="bg-[#111827] border border-[#506880] rounded-xl shadow-2xl w-full max-w-sm mx-4 p-5">
         <h2 className="text-sm font-semibold text-[#f1f5f9] mb-2">Save Changes?</h2>
         <p className="text-xs text-[#7a8a9b] mb-5">
-          Remember: Driftwatch edits are local. Copy this content and paste it into your actual file for changes to take effect.
+          Remember: Driftwatch edits are only in browser. Copy this content and paste it into your local file for changes to take effect.
         </p>
         <div className="flex justify-end gap-2">
           <button
@@ -143,50 +143,52 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#506880] shrink-0">
+      {/* Header — title row */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#506880]/50 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-xs font-mono text-[#f1f5f9] truncate">{path}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#7db8fc]/10 text-[#7db8fc] border border-[#7db8fc]/20">
             editing
           </span>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <button onClick={onCancel} className="text-xs px-2 py-1 text-[#7a8a9b] hover:text-[#b0bec9] transition-colors shrink-0">
+          ✕
+        </button>
+      </div>
+
+      {/* Action buttons row */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-[#506880] shrink-0">
+        <button
+          onClick={handleRevert}
+          disabled={value === backup}
+          className="text-xs px-2.5 py-1 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] disabled:opacity-30 transition-all"
+        >
+          Revert
+        </button>
+        <button
+          onClick={handleCopyToClipboard}
+          className="text-xs px-2.5 py-1 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] transition-all"
+        >
+          Copy
+        </button>
+        {canSaveToFS ? (
           <button
-            onClick={handleRevert}
-            disabled={value === backup}
-            className="text-xs px-2.5 py-1 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] disabled:opacity-30 transition-all"
+            onClick={handleSaveRequest}
+            disabled={saving || value === content}
+            className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 disabled:opacity-30 transition-all"
           >
-            Revert
+            {saving ? 'Saving…' : 'Save to File'}
           </button>
+        ) : (
           <button
-            onClick={handleCopyToClipboard}
-            className="text-xs px-2.5 py-1 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] transition-all"
+            onClick={handleApplyRequest}
+            disabled={value === content}
+            className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 disabled:opacity-30 transition-all"
+            title="File System Access not available — saves to session only"
           >
-            Copy
+            Apply Changes
           </button>
-          {canSaveToFS ? (
-            <button
-              onClick={handleSaveRequest}
-              disabled={saving || value === content}
-              className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 disabled:opacity-30 transition-all"
-            >
-              {saving ? 'Saving…' : 'Save to File'}
-            </button>
-          ) : (
-            <button
-              onClick={handleApplyRequest}
-              disabled={value === content}
-              className="text-xs px-2.5 py-1 rounded border border-green-500/30 bg-green-500/10 text-[#34d399] hover:bg-green-500/20 disabled:opacity-30 transition-all"
-              title="File System Access not available — saves to session only"
-            >
-              Apply Changes
-            </button>
-          )}
-          <button onClick={onCancel} className="text-xs px-2 py-1 text-[#7a8a9b] hover:text-[#b0bec9] transition-colors">
-            ✕
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Status bar */}
