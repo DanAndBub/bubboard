@@ -98,7 +98,7 @@ export default function LandingDemo() {
   }
 
   return (
-    <div className="rounded-2xl border border-[#506880] overflow-hidden" style={{ height: 640, boxShadow: '0 0 80px rgba(59,130,246,0.08), 0 8px 40px rgba(0,0,0,0.6)' }}>
+    <div className="rounded-2xl border border-[#506880] overflow-hidden" style={{ height: 780, boxShadow: '0 0 80px rgba(59,130,246,0.08), 0 8px 40px rgba(0,0,0,0.6)' }}>
       <MapShell
         topBar={
           <MapTopBar
