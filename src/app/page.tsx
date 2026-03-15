@@ -98,6 +98,7 @@ export default function HomePage() {
                   height={1080}
                   className="w-full h-auto"
                   priority
+                  unoptimized
                 />
               </div>
               <div className="md:hidden p-4 overflow-hidden">
