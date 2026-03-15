@@ -92,9 +92,9 @@ export default function HomePage() {
         <div className="px-6 pb-10">
           <div className="max-w-2xl mx-auto rounded-xl border border-[#7db8fc]/30 bg-[#7db8fc]/5 px-8 py-6">
             <p className="text-[#7db8fc] text-base leading-relaxed text-center">
-              &ldquo;OpenClaw cuts the middle of oversized files &mdash; your agent sees a marker,
+              OpenClaw cuts the middle of oversized files &mdash; your agent sees a marker,
               but you get no warning about what was lost. We show you exactly which
-              lines your agent can&rsquo;t see.&rdquo;
+              lines your agent can&rsquo;t see.
             </p>
           </div>
         </div>
