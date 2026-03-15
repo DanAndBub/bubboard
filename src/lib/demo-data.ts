@@ -1,5 +1,6 @@
 import type { AgentMap } from './types';
 import { parseAgentTree } from './parser';
+import { AGENTS_CONTENT } from './phase3-demo-data';
 
 export const DEMO_TREE = `~/.openclaw/
 ├── openclaw.json
@@ -114,20 +115,7 @@ export function getDemoAgentMap(): AgentMap {
 
 export function getDemoFileContents(): Record<string, string> {
   return {
-    'AGENTS.md': `# Bub's Operating Manual
-
-## Delegation Rules
-- Use sonnet for complex engineering tasks and code review
-- Use coder for routine development and implementation
-- Use analyst for data analysis, research, and reporting
-- Delegate to local for local system tasks and file operations
-
-## Skills
-Skills: github, gog, weather, tmux, coding-agent, deploy, monitor
-
-## Communication
-Primary channel: Telegram
-`,
+    'AGENTS.md': AGENTS_CONTENT,
     'openclaw.json': JSON.stringify({
       models: {
         providers: {

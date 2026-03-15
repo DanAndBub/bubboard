@@ -5,7 +5,7 @@ import type { Snapshot, DriftReport } from '@/lib/drift/types';
 // Each string's .length MUST equal the charCount in its FileAnalysis.
 // Verified with node -e assertions before commit.
 
-const AGENTS_CONTENT = `# AGENTS.md — Operating Manual
+export const AGENTS_CONTENT = `# AGENTS.md — Operating Manual
 
 ## Role
 I orchestrate. I do not execute. Decisions = me. Execution = team.
