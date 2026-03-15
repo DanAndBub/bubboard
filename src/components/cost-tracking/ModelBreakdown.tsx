@@ -92,7 +92,7 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
   return (
     <div className="flex h-full flex-col rounded-xl border border-[#506880] bg-[#111827] p-6">
       <p className="mb-4 text-sm font-semibold text-[#f1f5f9]">Cost by Model</p>
-      <div className="flex flex-1 flex-col items-center gap-6 xl:flex-row overflow-hidden">
+      <div className="flex flex-1 flex-col items-center gap-6 2xl:flex-row overflow-hidden">
         {/* Donut */}
         <div className="relative flex-1 flex items-center justify-center min-h-[280px]">
           <svg width="100%" viewBox={`0 0 ${size} ${size}`} style={{ maxWidth: size }} className="drop-shadow-lg">
@@ -169,7 +169,7 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
         </div>
 
         {/* Legend */}
-        <div className="w-full shrink-0 xl:w-52 xl:max-h-[280px] overflow-y-auto">
+        <div className="w-full shrink-0 2xl:w-52 2xl:max-h-[280px] overflow-y-auto">
           {filtered.map((entry, index) => {
             const color = getModelColor(entry.model);
             const isActive = hovered === index;
