@@ -65,13 +65,13 @@ export default function HomePage() {
         {/* MINI BANNER */}
         <div className="text-center py-10 px-6">
           <h1 className="text-3xl md:text-4xl font-bold text-[#f1f5f9]">
-            See inside your{' '}
+            Your agents edit their own configs.{' '}
             <span className="bg-gradient-to-r from-blue-400 via-blue-300 to-cyan-400 bg-clip-text text-transparent">
-              OpenClaw agent
+              Do you know what they changed?
             </span>
           </h1>
           <p className="text-[#b0bec9] text-base max-w-lg mx-auto mt-3">
-            This is a real architecture map. Click around — then scan your own.
+            Scan your OpenClaw workspace. See config drift, find truncation risks, track costs — all in your browser.
           </p>
         </div>
 
@@ -110,6 +110,16 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* TRUNCATION CALLOUT */}
+        <div className="px-6 pb-10">
+          <div className="max-w-2xl mx-auto rounded-xl border border-[#7db8fc]/30 bg-[#7db8fc]/5 px-8 py-6">
+            <p className="text-[#7db8fc] text-base leading-relaxed text-center">
+              &ldquo;When files exceed OpenClaw&rsquo;s limits, the middle disappears silently.
+              We show you exactly which lines your agent can&rsquo;t see.&rdquo;
+            </p>
+          </div>
+        </div>
+
         {/* CTA SECTION */}
         <div className="py-12 px-6 text-center">
           <p className="text-[#b0bec9] text-lg mb-6">That was a demo. Now see yours.</p>
@@ -135,12 +145,18 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ROADMAP STRIP */}
+        {/* FEATURES STRIP */}
         <div className="py-8 px-6">
           <div className="max-w-3xl mx-auto text-center">
-            <p className="text-xs text-[#7a8a9b] uppercase tracking-widest mb-4">Coming in Phase 2</p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              {['💰 Cost Tracking', '🔔 Optimization Alerts', '📈 Drift Analysis', '👥 Team Dashboards'].map((pill) => (
+            <p className="text-xs text-[#7a8a9b] uppercase tracking-widest mb-4">What&rsquo;s available now</p>
+            <div className="flex flex-wrap gap-3 justify-center mb-6">
+              {[
+                '🗺 Architecture map',
+                '🔍 Config review',
+                '📊 Drift detection',
+                '💰 Cost tracking',
+                '✏️ In-browser editor',
+              ].map((pill) => (
                 <span
                   key={pill}
                   className="px-4 py-2 rounded-full border border-[#506880] bg-[#111827] text-sm text-[#b0bec9]"
@@ -149,6 +165,15 @@ export default function HomePage() {
                 </span>
               ))}
             </div>
+            <p className="text-sm text-[#7a8a9b] font-mono">
+              <span className="text-[#7db8fc]">Scan</span>
+              {' → '}
+              <span className="text-[#7db8fc]">Review</span>
+              {' → '}
+              <span className="text-[#7db8fc]">Fix</span>
+              {' → '}
+              <span className="text-[#7db8fc]">Track</span>
+            </p>
           </div>
         </div>
 

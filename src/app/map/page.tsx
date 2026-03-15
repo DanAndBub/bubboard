@@ -6,6 +6,7 @@ import { parseAgentTree } from '@/lib/parser';
 import { pathsToTree } from '@/lib/pathsToTree';
 import { analyzeAgentsMd, analyzeOpenClawConfig, analyzeHeartbeat } from '@/lib/analyzer';
 import { getDemoAgentMap, getDemoFileContents } from '@/lib/demo-data';
+import { DEMO_DRIFT_REPORT, DEMO_SNAPSHOT, DEMO_BUDGET } from '@/lib/phase3-demo-data';
 import type { AgentMap } from '@/lib/types';
 import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
 import { runReview, type ReviewResult } from '@/lib/config-review/runner';
@@ -90,6 +91,10 @@ function MapPageContent() {
         setAnalyzedFiles(analyzed);
         setReviewResult(runReview(analyzed));
       }
+      // Load pre-built Phase 3 demo data for full experience
+      setCurrentSnapshot(DEMO_SNAPSHOT);
+      setDriftReport(DEMO_DRIFT_REPORT);
+      setBudget(DEMO_BUDGET);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
