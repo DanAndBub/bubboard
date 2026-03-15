@@ -65,9 +65,9 @@ export default function HomePage() {
         {/* MINI BANNER */}
         <div className="text-center py-10 px-6">
           <h1 className="text-3xl md:text-4xl font-bold text-[#f1f5f9]">
-            Your agents edit their own configs.{' '}
+            Agent configs drift.{' '}
             <span className="bg-gradient-to-r from-blue-400 via-blue-300 to-cyan-400 bg-clip-text text-transparent">
-              Do you know what they changed?
+              Now you can see exactly where.
             </span>
           </h1>
           <p className="text-[#b0bec9] text-base max-w-lg mx-auto mt-3">
@@ -114,8 +114,9 @@ export default function HomePage() {
         <div className="px-6 pb-10">
           <div className="max-w-2xl mx-auto rounded-xl border border-[#7db8fc]/30 bg-[#7db8fc]/5 px-8 py-6">
             <p className="text-[#7db8fc] text-base leading-relaxed text-center">
-              &ldquo;When files exceed OpenClaw&rsquo;s limits, the middle disappears silently.
-              We show you exactly which lines your agent can&rsquo;t see.&rdquo;
+              &ldquo;OpenClaw cuts the middle of oversized files &mdash; your agent sees a marker,
+              but you get no warning about what was lost. We show you exactly which
+              lines your agent can&rsquo;t see.&rdquo;
             </p>
           </div>
         </div>
