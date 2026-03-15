@@ -5,20 +5,12 @@ type View = 'overview' | 'agents' | 'files' | 'costs' | 'review' | 'drift';
 interface MapSidebarProps {
   activeView: View;
   onViewChange: (view: View) => void;
-  setupScore: number;
-  maxScore: number;
   agentCount: number;
   fileCount: number;
   hasFindings: boolean;
   onDownloadSnapshot: () => void;
   onUploadSnapshot: () => void;
   onDownloadNotes: () => void;
-}
-
-function scoreColor(score: number): string {
-  if (score >= 8) return '#34d399';
-  if (score >= 5) return '#fbbf24';
-  return '#f87171';
 }
 
 // ── Mobile bottom tab item ───────────────────────────────────────────────────
@@ -148,8 +140,6 @@ function Divider() {
 export default function MapSidebar({
   activeView,
   onViewChange,
-  setupScore,
-  maxScore,
   agentCount,
   fileCount,
   hasFindings,
@@ -199,37 +189,6 @@ export default function MapSidebar({
           padding: '16px 0',
         }}
       >
-        {/* Setup Score card */}
-        <div
-          className="text-center rounded-[10px]"
-          style={{
-            margin: '0 12px 16px',
-            padding: '18px 16px',
-            background: '#111827',
-            border: '1px solid #3a4e63',
-          }}
-        >
-          <div
-            className="font-bold leading-none"
-            style={{
-              fontSize: 34,
-              letterSpacing: '-1.5px',
-              color: scoreColor(setupScore),
-            }}
-          >
-            {setupScore}
-            <span style={{ fontSize: 16, color: '#7a8a9b', fontWeight: 400 }}>
-              /{maxScore}
-            </span>
-          </div>
-          <div
-            className="font-medium uppercase mt-1.5"
-            style={{ fontSize: 11, letterSpacing: '1.5px', color: '#7a8a9b' }}
-          >
-            Setup Score
-          </div>
-        </div>
-
         {/* Views section */}
         <div style={{ padding: '0 12px', marginBottom: 20 }}>
           <SectionLabel>Views</SectionLabel>

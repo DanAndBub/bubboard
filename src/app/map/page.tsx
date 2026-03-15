@@ -453,8 +453,7 @@ function MapPageContent() {
           <MapSidebar
             activeView={activeView}
             onViewChange={setActiveView}
-            setupScore={health.score}
-            maxScore={health.maxScore}
+
             agentCount={agentMap.agents.length}
             fileCount={totalFileCount}
             hasFindings={(reviewResult?.findings.length ?? 0) > 0}

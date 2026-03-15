@@ -70,7 +70,7 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto relative">
             {/* Floating badge */}
             <div
-              className="absolute -top-10 left-1/2 -translate-x-1/2 z-10 text-white text-xs font-semibold px-3 py-1 rounded-full"
+              className="absolute -top-5 right-8 z-10 text-white text-xs font-semibold px-3 py-1 rounded-full"
               style={{ background: 'linear-gradient(135deg, #3b82f6, #a78bfa)' }}
             >
               ✦ Interactive Demo

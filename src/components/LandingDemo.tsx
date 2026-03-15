@@ -98,7 +98,7 @@ export default function LandingDemo() {
   }
 
   return (
-    <div className="rounded-2xl border border-[#506880] overflow-hidden" style={{ height: 820, boxShadow: '0 0 80px rgba(59,130,246,0.08), 0 8px 40px rgba(0,0,0,0.6)' }}>
+    <div className="rounded-2xl border border-[#506880] overflow-hidden" style={{ height: 640, boxShadow: '0 0 80px rgba(59,130,246,0.08), 0 8px 40px rgba(0,0,0,0.6)' }}>
       <MapShell
         topBar={
           <MapTopBar
@@ -113,8 +113,7 @@ export default function LandingDemo() {
           <MapSidebar
             activeView={activeView}
             onViewChange={setActiveView}
-            setupScore={stats.score}
-            maxScore={stats.maxScore}
+
             agentCount={stats.agentCount}
             fileCount={totalFileCount}
             hasFindings={reviewResult.findings.length > 0}
