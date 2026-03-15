@@ -163,7 +163,6 @@ export default function ModelBreakdown({ data }: ModelBreakdownProps) {
                 <span className="font-mono text-2xl font-bold text-white mt-0.5">
                   ${total.toFixed(2)}
                 </span>
-                <span className="text-[10px] text-[#7a8a9b] mt-0.5">{filtered.length} models</span>
               </>
             )}
           </div>
