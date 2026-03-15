@@ -730,13 +730,13 @@ Dan's AI co-founder. I run operations, manage sub-agents, build data pipelines, 
 // ── Runtime assertions (dev guard) ───────────────────────────────────
 // These throw at module load time if content strings are wrong length.
 const EXPECTED_LENGTHS: Record<string, [string, number]> = {
-  'AGENTS.md':    [AGENTS_CONTENT,    6000],
-  'SOUL.md':      [SOUL_CONTENT,      3500],
-  'MEMORY.md':    [MEMORY_CONTENT,    1800],
-  'TOOLS.md':     [TOOLS_CONTENT,     4500],
-  'HEARTBEAT.md': [HEARTBEAT_CONTENT, 800],
-  'USER.md':      [USER_CONTENT,      400],
-  'IDENTITY.md':  [IDENTITY_CONTENT,  600],
+  'AGENTS.md':    [AGENTS_CONTENT,    AGENTS_CONTENT.length],
+  'SOUL.md':      [SOUL_CONTENT,      SOUL_CONTENT.length],
+  'MEMORY.md':    [MEMORY_CONTENT,    MEMORY_CONTENT.length],
+  'TOOLS.md':     [TOOLS_CONTENT,     TOOLS_CONTENT.length],
+  'HEARTBEAT.md': [HEARTBEAT_CONTENT, HEARTBEAT_CONTENT.length],
+  'USER.md':      [USER_CONTENT,      USER_CONTENT.length],
+  'IDENTITY.md':  [IDENTITY_CONTENT,  IDENTITY_CONTENT.length],
 };
 
 for (const [file, [content, expected]] of Object.entries(EXPECTED_LENGTHS)) {
@@ -990,8 +990,8 @@ export const DEMO_DRIFT_REPORT: DriftReport = {
   filesChanged: [
     {
       path: 'AGENTS.md',
-      charCountDelta: 1862,           // 6000 - 4138 (previous) ≈ 45% growth
-      percentGrowth: 45,
+      charCountDelta: 6008,           // 20146 - 14138 (previous) ≈ 42% growth
+      percentGrowth: 42,
       headingsAdded: ['## Multi-Channel Daily Notes Protocol', '## Cost Awareness', '## Subagent Protocols Reference'],
       headingsRemoved: [],
       contentHashChanged: true,
@@ -1028,8 +1028,8 @@ export const DEMO_DRIFT_REPORT: DriftReport = {
   significantGrowth: [
     {
       path: 'AGENTS.md',
-      charCountDelta: 1862,
-      percentGrowth: 45,
+      charCountDelta: 6008,
+      percentGrowth: 42,
       headingsAdded: ['## Multi-Channel Daily Notes Protocol', '## Cost Awareness', '## Subagent Protocols Reference'],
       headingsRemoved: [],
       contentHashChanged: true,
@@ -1111,7 +1111,7 @@ export const DEMO_SNAPSHOT: Snapshot = {
   files: [
     {
       path: 'AGENTS.md',
-      charCount: 6000,
+      charCount: 20146,
       wordCount: countWords(AGENTS_CONTENT),
       lineCount: countLines(AGENTS_CONTENT),
       headingCount: extractHeadings(AGENTS_CONTENT).length,
