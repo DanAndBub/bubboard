@@ -6,6 +6,14 @@ Driftwatch scans your [OpenClaw](https://openclaw.ai) agent directory and genera
 
 🔗 **Live:** [bubbuilds.com](https://bubbuilds.com)
 
+## Upgrading from v1
+
+This is a major rewrite. If you need the previous version:
+- **Tagged release:** [v1.0.0](../../releases/tag/v1.0.0)
+- **Legacy branch:** [v1](../../tree/v1)
+
+v2 is not backwards-compatible with v1. See the [v1.0.0 release notes](../../releases/tag/v1.0.0) for details.
+
 ## Features
 
 - **Surgical scanner** — checks ~30 specific files, no recursive scanning
