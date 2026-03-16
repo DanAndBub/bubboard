@@ -1,3 +1,5 @@
+> **⚠️ Major Update Incoming:** v2 is a significant rewrite of this project. If you're using the current version, you can pin to the [`v1.0.0` release](../../releases/tag/v1.0.0) or track the [`v1` branch](../../tree/v1). See the [release notes](../../releases/tag/v1.0.0) for details.
+
 # Driftwatch
 
 **See inside your AI agent in 30 seconds.**
