@@ -54,6 +54,9 @@ export const PRICING_TABLE = new Map<string, ModelPricing>([
   ['claude-sonnet-4-20250514', sonnet4],
   ['claude-haiku-4-5-20251001', haiku45],
   ['claude-haiku-3-5-20241022', haiku35],
+  // Anthropic short aliases (without date suffix)
+  ['claude-haiku-4-5', haiku45],
+  ['claude-haiku-3-5', haiku35],
   // Anthropic aliases — 3.5 Sonnet had the same $3/$15 rates as Sonnet 4
   ['claude-3-5-sonnet-20241022', sonnet4],
   ['claude-3-5-haiku-20241022', haiku35],

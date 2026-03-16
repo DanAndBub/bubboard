@@ -40,16 +40,16 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   const seriesConfig: Record<string, { label: string; color: string }> = {
     Total: { label: 'Total', color: '#3b82f6' },
     Anthropic: { label: 'Anthropic', color: '#06b6d4' },
-    OpenAI: { label: 'OpenAI', color: '#10b981' },
-    DeepSeek: { label: 'DeepSeek', color: '#f59e0b' },
+    OpenAI: { label: 'OpenAI', color: '#34d399' },
+    DeepSeek: { label: 'DeepSeek', color: '#fbbf24' },
   };
 
   return (
     <div
-      style={{ backgroundColor: '#0a0e17', border: '1px solid #1e293b' }}
+      style={{ backgroundColor: '#0a0e17', border: '1px solid #506880' }}
       className="rounded-lg p-3"
     >
-      <p className="text-xs text-[#94a3b8] mb-2">{label}</p>
+      <p className="text-xs text-[#b0bec9] mb-2">{label}</p>
       {payload.map((entry) => {
         const config = seriesConfig[entry.name] ?? { label: entry.name, color: entry.color };
         return (
@@ -58,8 +58,8 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
               className="inline-block w-2 h-2 rounded-full flex-shrink-0"
               style={{ backgroundColor: config.color }}
             />
-            <span className="text-[#94a3b8]">{config.label}</span>
-            <span className="text-[#e2e8f0] ml-auto pl-3">${entry.value.toFixed(2)}</span>
+            <span className="text-[#b0bec9]">{config.label}</span>
+            <span className="text-[#f1f5f9] ml-auto pl-3">${entry.value.toFixed(2)}</span>
           </div>
         );
       })}
@@ -74,24 +74,24 @@ function formatDate(dateStr: string): string {
 
 export default function CostTimeline({ data }: CostTimelineProps) {
   return (
-    <div className="flex h-full flex-col rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+    <div className="flex h-full flex-col rounded-xl border border-[#506880] bg-[#111827] p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
-        <span className="text-sm font-semibold text-[#e2e8f0] shrink-0">Cost Over Time</span>
+        <span className="text-sm font-semibold text-[#f1f5f9] shrink-0">Cost Over Time</span>
         <div className="flex flex-wrap gap-3">
-          <span className="flex items-center gap-1.5 text-xs text-[#475569]">
+          <span className="flex items-center gap-1.5 text-xs text-[#7a8a9b]">
             <span className="inline-block w-2 h-2 rounded-full bg-[#3b82f6]" />
             Total
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-[#475569]">
+          <span className="flex items-center gap-1.5 text-xs text-[#7a8a9b]">
             <span className="inline-block w-2 h-2 rounded-full bg-[#06b6d4]" />
             Anthropic
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-[#475569]">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#10b981]" />
+          <span className="flex items-center gap-1.5 text-xs text-[#7a8a9b]">
+            <span className="inline-block w-2 h-2 rounded-full bg-[#34d399]" />
             OpenAI
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-[#475569]">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#f59e0b]" />
+          <span className="flex items-center gap-1.5 text-xs text-[#7a8a9b]">
+            <span className="inline-block w-2 h-2 rounded-full bg-[#fbbf24]" />
             DeepSeek
           </span>
         </div>
@@ -99,16 +99,16 @@ export default function CostTimeline({ data }: CostTimelineProps) {
 
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#3a4e63" />
           <XAxis
             dataKey="date"
-            tick={{ fill: '#475569', fontSize: 11 }}
+            tick={{ fill: '#7a8a9b', fontSize: 11 }}
             tickLine={false}
-            axisLine={{ stroke: '#1e293b' }}
+            axisLine={{ stroke: '#3a4e63' }}
             tickFormatter={formatDate}
           />
           <YAxis
-            tick={{ fill: '#475569', fontSize: 11 }}
+            tick={{ fill: '#7a8a9b', fontSize: 11 }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(v: number) => `$${v}`}
@@ -133,7 +133,7 @@ export default function CostTimeline({ data }: CostTimelineProps) {
           />
           <Area
             dataKey="openai_cost"
-            stroke="#10b981"
+            stroke="#34d399"
             fill="none"
             strokeWidth={1.5}
             strokeDasharray="4 4"
@@ -141,7 +141,7 @@ export default function CostTimeline({ data }: CostTimelineProps) {
           />
           <Area
             dataKey="deepseek_cost"
-            stroke="#f59e0b"
+            stroke="#fbbf24"
             fill="none"
             strokeWidth={1.5}
             strokeDasharray="4 4"

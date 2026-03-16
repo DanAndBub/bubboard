@@ -164,7 +164,7 @@ export default function AgentMap({ map, fileContents = {} }: AgentMapProps) {
 
               {/* Operations */}
               {opsCards.length > 0 && (
-                <FileGroup label="Operations" color="#8b5cf6">
+                <FileGroup label="Operations" color="#a78bfa">
                   {opsCards.map(f => (
                     <FileCard
                       key={f.name}
@@ -191,32 +191,32 @@ export default function AgentMap({ map, fileContents = {} }: AgentMapProps) {
               {/* Memory */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  <span className="text-xs text-[#475569] uppercase tracking-widest font-medium">Memory</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
+                  <span className="text-xs text-[#7a8a9b] uppercase tracking-widest font-medium">Memory</span>
                 </div>
                 <div
                   className="flex items-center gap-3 px-4 py-3 rounded-lg border card-hover cursor-default"
                   style={{
-                    borderColor: enrichedMap.workspace.memoryFiles.length > 0 ? 'rgba(16, 185, 129, 0.3)' : '#1e293b',
+                    borderColor: enrichedMap.workspace.memoryFiles.length > 0 ? 'rgba(16, 185, 129, 0.3)' : '#506880',
                     backgroundColor: enrichedMap.workspace.memoryFiles.length > 0 ? 'rgba(16, 185, 129, 0.05)' : '#111827',
                   }}
                 >
                   {enrichedMap.workspace.memoryFiles.length > 0 ? (
                     <>
-                      <span className="text-green-400 text-sm">✓</span>
+                      <span className="text-[#34d399] text-sm">✓</span>
                       <div>
-                        <div className="text-xs font-medium text-[#e2e8f0]">
+                        <div className="text-xs font-medium text-[#f1f5f9]">
                           {enrichedMap.workspace.memoryFiles.length} memory file{enrichedMap.workspace.memoryFiles.length !== 1 ? 's' : ''}
                         </div>
                         {memoryRange && (
-                          <div className="text-xs font-mono text-[#475569] mt-0.5">{memoryRange}</div>
+                          <div className="text-xs font-mono text-[#7a8a9b] mt-0.5">{memoryRange}</div>
                         )}
                       </div>
                     </>
                   ) : (
                     <>
-                      <span className="text-amber-400 text-sm">⚠</span>
-                      <span className="text-xs text-[#475569]">No memory files found</span>
+                      <span className="text-[#fbbf24] text-sm">⚠</span>
+                      <span className="text-xs text-[#7a8a9b]">No memory files found</span>
                     </>
                   )}
                 </div>
@@ -224,7 +224,7 @@ export default function AgentMap({ map, fileContents = {} }: AgentMapProps) {
 
               {/* Subagent protocols */}
               {enrichedMap.workspace.subagentProtocols.length > 0 && (
-                <FileGroup label="Protocols" color="#f59e0b">
+                <FileGroup label="Protocols" color="#fbbf24">
                   {enrichedMap.workspace.subagentProtocols.slice(0, 8).map(p => (
                     <FileCard
                       key={p}
@@ -233,7 +233,7 @@ export default function AgentMap({ map, fileContents = {} }: AgentMapProps) {
                     />
                   ))}
                   {enrichedMap.workspace.subagentProtocols.length > 8 && (
-                    <div className="col-span-full text-xs text-[#475569] px-3 py-2">
+                    <div className="col-span-full text-xs text-[#7a8a9b] px-3 py-2">
                       +{enrichedMap.workspace.subagentProtocols.length - 8} more protocol files
                     </div>
                   )}
@@ -246,13 +246,13 @@ export default function AgentMap({ map, fileContents = {} }: AgentMapProps) {
                   {enrichedMap.workspace.projectDirs.map(dir => (
                     <div
                       key={dir}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#1e293b] bg-[#111827]"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#506880] bg-[#111827]"
                     >
-                      <svg className="w-3.5 h-3.5 text-[#475569]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-3.5 h-3.5 text-[#7a8a9b]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                           d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                       </svg>
-                      <span className="font-mono text-xs text-[#94a3b8]">{dir}</span>
+                      <span className="font-mono text-xs text-[#b0bec9]">{dir}</span>
                     </div>
                   ))}
                 </FileGroup>
@@ -294,11 +294,11 @@ function SectionHeader({
 }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <div className="w-7 h-7 rounded-lg border border-[#1e293b] bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+      <div className="w-7 h-7 rounded-lg border border-[#506880] bg-[#7db8fc]/10 text-[#7db8fc] flex items-center justify-center shrink-0">
         {icon}
       </div>
-      <h2 className="font-semibold text-[#e2e8f0] text-sm">{title}</h2>
-      <span className="ml-auto font-mono text-xs text-[#475569] px-2 py-0.5 rounded border border-[#1e293b] bg-[#0d1520]">
+      <h2 className="font-semibold text-[#f1f5f9] text-sm">{title}</h2>
+      <span className="ml-auto font-mono text-xs text-[#7a8a9b] px-2 py-0.5 rounded border border-[#506880] bg-[#0d1520]">
         {count}
       </span>
     </div>
@@ -318,7 +318,7 @@ function FileGroup({
     <div>
       <div className="flex items-center gap-2 mb-2">
         <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-        <span className="text-xs text-[#475569] uppercase tracking-widest font-medium">{label}</span>
+        <span className="text-xs text-[#7a8a9b] uppercase tracking-widest font-medium">{label}</span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
         {children}
@@ -329,7 +329,7 @@ function FileGroup({
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="flex items-center justify-center py-8 text-sm text-[#475569] border border-dashed border-[#1e293b] rounded-xl">
+    <div className="flex items-center justify-center py-8 text-sm text-[#7a8a9b] border border-dashed border-[#506880] rounded-xl">
       {text}
     </div>
   );

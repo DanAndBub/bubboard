@@ -1,12 +1,6 @@
 import { CostBreakdown, ModelPricing, UsageRecord } from './types';
 import { lookupPricing } from './pricing';
 
-/**
- * Set to track unknown models we've already logged,
- * to avoid spam logging the same model multiple times
- */
-const loggedUnknownModels = new Set<string>();
-
 export function calculateCostWithPricing(usage: UsageRecord, pricing: ModelPricing): CostBreakdown {
   const uncachedInput = Math.max(0, usage.input_tokens - usage.cached_input_tokens);
   const cachedInput = usage.cached_input_tokens;
@@ -27,16 +21,6 @@ export function calculateCostWithPricing(usage: UsageRecord, pricing: ModelPrici
 
 export function calculateCost(usage: UsageRecord): CostBreakdown | null {
   const pricing = lookupPricing(usage.model);
-  if (!pricing) {
-    // Log unknown models only once per session to avoid spam
-    if (!loggedUnknownModels.has(usage.model)) {
-      console.warn(
-        `Cost calculation: Unknown model "${usage.model}". ` +
-        `Pricing data may be missing. Please update pricing.ts with this model's rates.`
-      );
-      loggedUnknownModels.add(usage.model);
-    }
-    return null;
-  }
+  if (!pricing) return null;
   return calculateCostWithPricing(usage, pricing);
 }

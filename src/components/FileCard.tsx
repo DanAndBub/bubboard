@@ -43,9 +43,9 @@ const CATEGORY_ICONS: Record<FileCardData['category'], React.ReactNode> = {
 
 const CATEGORY_COLORS: Record<FileCardData['category'], string> = {
   core: '#3b82f6',
-  operations: '#8b5cf6',
-  protocols: '#f59e0b',
-  memory: '#10b981',
+  operations: '#a78bfa',
+  protocols: '#fbbf24',
+  memory: '#34d399',
   custom: '#6b7280',
 };
 
@@ -56,7 +56,7 @@ export default function FileCard({ file, onClick }: FileCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left p-3 rounded-lg border border-[#1e293b] bg-[#111827] card-hover relative overflow-hidden group"
+      className="w-full text-left p-3 rounded-lg border border-[#506880] bg-[#111827] card-hover relative overflow-hidden group"
       style={file.present ? {} : { opacity: 0.5 }}
     >
       {/* Present/absent indicator */}
@@ -64,25 +64,25 @@ export default function FileCard({ file, onClick }: FileCardProps) {
         <div
           className="mt-0.5 w-5 h-5 rounded flex items-center justify-center shrink-0"
           style={{
-            color: file.present ? color : '#475569',
+            color: file.present ? color : '#7a8a9b',
             backgroundColor: file.present ? `${color}18` : 'transparent',
-            border: `1px solid ${file.present ? `${color}30` : '#1e293b'}`,
+            border: `1px solid ${file.present ? `${color}30` : '#506880'}`,
           }}
         >
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-mono text-xs font-medium text-[#e2e8f0] truncate leading-tight">
+          <div className="font-mono text-xs font-medium text-[#f1f5f9] truncate leading-tight">
             {file.name}
           </div>
           <div className="flex items-center gap-1 mt-1">
             {file.present ? (
-              <span className="text-xs text-green-400">✓ found</span>
+              <span className="text-xs text-[#34d399]">✓ found</span>
             ) : (
-              <span className="text-xs text-red-400">✗ missing</span>
+              <span className="text-xs text-[#f87171]">✗ missing</span>
             )}
             {file.content && (
-              <span className="text-xs text-[#475569] ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs text-[#7a8a9b] ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 · click to view
               </span>
             )}

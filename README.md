@@ -1,5 +1,3 @@
-> **⚠️ Major Update Incoming:** v2 is a significant rewrite of this project. If you're using the current version, you can pin to the [`v1.0.0` release](../../releases/tag/v1.0.0) or track the [`v1` branch](../../tree/v1). See the [release notes](../../releases/tag/v1.0.0) for details.
-
 # Driftwatch
 
 **See inside your AI agent in 30 seconds.**
@@ -7,6 +5,14 @@
 Driftwatch scans your [OpenClaw](https://openclaw.ai) agent directory and generates an interactive architecture map — agents, workspace files, health score, delegation hierarchy, and relationships. All in your browser, nothing uploaded.
 
 🔗 **Live:** [bubbuilds.com](https://bubbuilds.com)
+
+## Upgrading from v1
+
+This is a major rewrite. If you need the previous version:
+- **Tagged release:** [v1.0.0](../../releases/tag/v1.0.0)
+- **Legacy branch:** [v1](../../tree/v1)
+
+v2 is not backwards-compatible with v1. See the [v1.0.0 release notes](../../releases/tag/v1.0.0) for details.
 
 ## Features
 

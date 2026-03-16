@@ -6,15 +6,15 @@ interface AgentCardProps {
 
 const MODEL_COLORS: Record<string, string> = {
   'claude-opus': '#3b82f6',
-  'claude-sonnet': '#8b5cf6',
+  'claude-sonnet': '#a78bfa',
   'claude-haiku': '#06b6d4',
-  'deepseek': '#10b981',
-  'gpt': '#f59e0b',
-  'gemini': '#ef4444',
+  'deepseek': '#34d399',
+  'gpt': '#fbbf24',
+  'gemini': '#f87171',
 };
 
 function getModelColor(model?: string): string {
-  if (!model || typeof model !== 'string') return '#475569';
+  if (!model || typeof model !== 'string') return '#7a8a9b';
   const modelLower = model.toLowerCase();
   for (const [key, color] of Object.entries(MODEL_COLORS)) {
     if (modelLower.includes(key)) return color;
@@ -40,7 +40,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
 
   return (
     <div
-      className="relative flex flex-col p-4 rounded-xl border border-[#1e293b] bg-[#111827] card-hover overflow-hidden"
+      className="relative flex flex-col p-4 rounded-xl border border-[#506880] bg-[#111827] card-hover overflow-hidden"
     >
       {/* Color accent line */}
       <div
@@ -58,15 +58,15 @@ export default function AgentCard({ agent }: AgentCardProps) {
               boxShadow: `0 0 8px ${color}60`,
             }}
           />
-          <span className="font-semibold text-[#e2e8f0] text-sm truncate">{agent.name}</span>
+          <span className="font-semibold text-[#f1f5f9] text-sm truncate">{agent.name}</span>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {agent.hasProtocol ? (
-            <span className="text-xs px-2 py-0.5 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 whitespace-nowrap">
+            <span className="text-xs px-2 py-0.5 rounded-full border border-green-500/30 bg-green-500/10 text-[#34d399] whitespace-nowrap">
               ✓ Protocol
             </span>
           ) : (
-            <span className="text-xs px-2 py-0.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 whitespace-nowrap">
+            <span className="text-xs px-2 py-0.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-[#fbbf24] whitespace-nowrap">
               ⚠ No protocol
             </span>
           )}
@@ -86,19 +86,19 @@ export default function AgentCard({ agent }: AgentCardProps) {
           >
             {badge}
           </span>
-          <span className="font-mono text-xs text-[#475569] truncate">{agent.model}</span>
+          <span className="font-mono text-xs text-[#7a8a9b] truncate">{agent.model}</span>
         </div>
       )}
 
       {/* Role */}
       {agent.role && (
         <div className="mt-auto pt-2">
-          <span className="text-xs text-[#94a3b8]">{agent.role}</span>
+          <span className="text-xs text-[#b0bec9]">{agent.role}</span>
         </div>
       )}
 
       {/* Agent ID */}
-      <div className="mt-2 font-mono text-xs text-[#475569]">
+      <div className="mt-2 font-mono text-xs text-[#7a8a9b]">
         ID: {agent.id}
       </div>
     </div>

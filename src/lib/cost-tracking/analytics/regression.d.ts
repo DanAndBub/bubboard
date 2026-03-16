@@ -6,9 +6,8 @@ declare module 'regression' {
     points: [number, number][];
     string: string;
   }
-  function linear(data: [number, number][], options?: { precision?: number }): Result;
-  function exponential(data: [number, number][], options?: { precision?: number }): Result;
+  type RegressionFn = (data: [number, number][], options?: { precision?: number }) => Result;
 
-  const regression: { linear: typeof linear; exponential: typeof exponential };
+  const regression: { linear: RegressionFn; exponential: RegressionFn };
   export default regression;
 }
