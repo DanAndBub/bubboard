@@ -280,6 +280,8 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   const [pasteText, setPasteText] = useState('');
   const [includeContents, setIncludeContents] = useState(false);
   const [copied, setCopied] = useState(false);
+  const localScanEnabled = process.env.NEXT_PUBLIC_ENABLE_LOCAL_SCAN === 'true';
+  const [localScanAvailable, setLocalScanAvailable] = useState<boolean>(localScanEnabled);
 
   const supportsDirectoryPicker =
     typeof window !== 'undefined' && 'showDirectoryPicker' in window;
@@ -299,6 +301,35 @@ export default function DirectoryScanner({ onConfirm }: Props) {
       setScanState('idle');
       if (e instanceof Error && e.name !== 'AbortError') {
         setError(e.message);
+      }
+    }
+  }
+
+  async function handleLocalServerScan() {
+    setError(null);
+    setScanState('scanning');
+    setProgressMsg('Scanning local OpenClaw directory (server-side)…');
+    try {
+      const res = await fetch('/api/local-scan', { method: 'GET' });
+      if (!res.ok) {
+        throw new Error(`Local scan failed (HTTP ${res.status})`);
+      }
+      const data = await res.json() as {
+        items: ScannedItem[];
+        fileContents: Record<string, string>;
+      };
+      setItems(data.items || []);
+      setFileContents(data.fileContents || {});
+      // Local scan can safely default to includeContents=true since contents are already provided.
+      setIncludeContents(true);
+      setScanState('review');
+    } catch (e: unknown) {
+      setScanState('idle');
+      setLocalScanAvailable(false);
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError('Local scan failed.');
       }
     }
   }
@@ -339,7 +370,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
         if (fileContents[path] !== undefined) filteredContents[path] = fileContents[path];
       }
     }
-    onConfirm(paths, { manifestVersion: '3.0', fileContents: filteredContents });
+    onConfirm(paths, { manifestVersion: localScanAvailable ? '3.1-local' : '3.0', fileContents: filteredContents });
   }
 
   // ── Grouped buckets ────────────────────────────────────────────────────────
@@ -377,6 +408,19 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             Only known locations are checked — no full crawl.
           </p>
 
+          {localScanAvailable && (
+            <button
+              onClick={handleLocalServerScan}
+              className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+            >
+              <span className="text-base leading-none">🖥️</span>
+              Scan local OpenClaw on server
+              <span className="ml-auto text-xs font-normal text-emerald-100">
+                remote-friendly
+              </span>
+            </button>
+          )}
+
           <button
             onClick={supportsDirectoryPicker ? handleDirectoryPicker : undefined}
             disabled={!supportsDirectoryPicker}
@@ -407,7 +451,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
           </button>
 
           <p className="text-xs text-[#475569] text-center pl-1 mt-1">
-            🔒 Your files stay in your browser. No API keys, tokens, or sensitive data are uploaded to any server.
+            Browser scan stays in your browser. Server scan reads the host OpenClaw directory locally on this machine.
           </p>
         </div>
       )}
