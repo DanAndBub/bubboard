@@ -26,13 +26,13 @@ const SEVERITY_COLORS: Record<string, string> = {
   info: 'border-[#7db8fc]/20 bg-[#7db8fc]/5',
 };
 
-function scoreColor(score: number): string {
+function _scoreColor(score: number): string {
   if (score >= 90) return 'text-[#34d399]';
   if (score >= 70) return 'text-[#fbbf24]';
   return 'text-[#f87171]';
 }
 
-function scoreBarColor(score: number): string {
+function _scoreBarColor(score: number): string {
   if (score >= 90) return 'bg-green-500';
   if (score >= 70) return 'bg-amber-500';
   return 'bg-red-500';
@@ -211,7 +211,7 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
         ) : (
           [...filteredGrouped.entries()].map(([file, findings]) => {
             const isExpanded = expandedFiles.has(file);
-            const fileAnalysis = files.find(f => f.path === file);
+            const _fileAnalysis = files.find(f => f.path === file);
             const critCount = findings.filter(f => f.severity === 'critical').length;
             const warnCount = findings.filter(f => f.severity === 'warning').length;
 

@@ -56,10 +56,9 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
     return () => document.removeEventListener('keydown', handleKey);
   }, [open, onClose]);
 
-  // Reset checkboxes when opening
-  useEffect(() => {
-    if (open) { setClearCosts(false); setClearSnapshots(false); }
-  }, [open]);
+  // Reset checkboxes when dialog opens — use key-based reset instead
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { if (open) { setClearCosts(false); setClearSnapshots(false); } }, [open]);
 
   if (!open || !pos) return null;
 

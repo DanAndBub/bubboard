@@ -1,4 +1,4 @@
-import { ReviewRule, ReviewFinding, FileAnalysis } from '../types';
+import { ReviewRule, ReviewFinding } from '../types';
 
 /**
  * Heuristics for detecting agent-authored edits in config files.

@@ -1,4 +1,5 @@
 import { describe, test, expect } from 'vitest';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { analyzeFile, analyzeFiles } from '../analyze-file';
 import { calculateTruncation } from '../truncation';
 import { calculateBudget } from '../budget';
