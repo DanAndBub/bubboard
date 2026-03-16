@@ -53,7 +53,7 @@ export default function FeedbackWidget() {
       <button
         onClick={handleOpen}
         aria-label="Open feedback"
-        className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 flex items-center justify-center shadow-lg transition-colors"
+        className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-[#7db8fc] hover:bg-blue-600 flex items-center justify-center shadow-lg transition-colors"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
           <path d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 0 0-1.032-.211 50.89 50.89 0 0 0-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 0 0 2.433 3.984L7.28 21.53A.75.75 0 0 1 6 21v-4.03a48.527 48.527 0 0 1-1.087-.128C2.905 16.58 1.5 14.833 1.5 12.862V6.638c0-1.97 1.405-3.718 3.413-3.979Z" />
@@ -67,7 +67,7 @@ export default function FeedbackWidget() {
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" onClick={handleClose} />
 
-          <div className="relative w-full max-w-sm bg-[#111827] border border-[#1e293b] rounded-xl shadow-xl p-5 flex flex-col gap-4">
+          <div className="relative w-full max-w-sm bg-[#111827] border border-[#506880] rounded-xl shadow-xl p-5 flex flex-col gap-4">
             {/* Header */}
             <div className="flex items-center justify-between">
               <span className="text-white font-semibold text-sm">Send Feedback</span>
@@ -83,7 +83,7 @@ export default function FeedbackWidget() {
             </div>
 
             {status === 'success' ? (
-              <div className="flex flex-col items-center justify-center py-6 gap-2 text-green-400">
+              <div className="flex flex-col items-center justify-center py-6 gap-2 text-[#34d399]">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
                   <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clipRule="evenodd" />
                 </svg>
@@ -99,8 +99,8 @@ export default function FeedbackWidget() {
                       onClick={() => setType(t)}
                       className={`flex-1 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                         type === t
-                          ? 'bg-blue-500 border-blue-500 text-white'
-                          : 'bg-transparent border-[#1e293b] text-gray-400 hover:border-blue-500 hover:text-white'
+                          ? 'bg-[#7db8fc] border-[#7db8fc] text-white'
+                          : 'bg-transparent border-[#506880] text-gray-400 hover:border-[#7db8fc] hover:text-white'
                       }`}
                     >
                       {t}
@@ -114,7 +114,7 @@ export default function FeedbackWidget() {
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Tell us what you think..."
                   rows={4}
-                  className="w-full bg-[#0a0e17] border border-[#1e293b] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 resize-none focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-[#0a0e17] border border-[#506880] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 resize-none focus:outline-none focus:border-[#7db8fc] transition-colors"
                 />
 
                 {/* Email */}
@@ -123,19 +123,19 @@ export default function FeedbackWidget() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email (optional)"
-                  className="w-full bg-[#0a0e17] border border-[#1e293b] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-[#0a0e17] border border-[#506880] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#7db8fc] transition-colors"
                 />
 
                 {/* Error */}
                 {status === 'error' && (
-                  <p className="text-red-400 text-xs">{errorText}</p>
+                  <p className="text-[#f87171] text-xs">{errorText}</p>
                 )}
 
                 {/* Submit */}
                 <button
                   onClick={handleSubmit}
                   disabled={!message.trim() || status === 'loading'}
-                  className="w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
+                  className="w-full py-2 rounded-lg bg-[#7db8fc] hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
                 >
                   {status === 'loading' ? 'Sending...' : 'Send Feedback'}
                 </button>

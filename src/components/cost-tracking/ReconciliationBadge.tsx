@@ -22,27 +22,27 @@ export default function ReconciliationBadge({
 
   const config = {
     matched: {
-      classes: 'border-green-500/30 bg-green-500/10 text-green-400',
+      classes: 'border-green-500/30 bg-green-500/10 text-[#34d399]',
       icon: <span>✓</span>,
       label: localTotal !== undefined ? `Verified ${fmt(localTotal)}` : 'Verified',
     },
     minor_discrepancy: {
-      classes: 'border-amber-500/30 bg-amber-500/10 text-amber-400',
+      classes: 'border-amber-500/30 bg-amber-500/10 text-[#fbbf24]',
       icon: <span>⚠</span>,
       label: `Minor gap (${differencePct !== undefined ? pct(differencePct) : '?'})`,
     },
     major_discrepancy: {
-      classes: 'border-red-500/30 bg-red-500/10 text-red-400',
+      classes: 'border-red-500/30 bg-red-500/10 text-[#f87171]',
       icon: <span>✗</span>,
       label: `Discrepancy (${differencePct !== undefined ? pct(differencePct) : '?'})`,
     },
     no_admin_data: {
-      classes: 'border-[#1e293b] bg-[#111827] text-[#475569]',
+      classes: 'border-[#506880] bg-[#111827] text-[#7a8a9b]',
       icon: <span>—</span>,
       label: 'No admin key',
     },
     loading: {
-      classes: 'border-[#1e293b] bg-[#111827] text-[#475569]',
+      classes: 'border-[#506880] bg-[#111827] text-[#7a8a9b]',
       icon: (
         <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -78,9 +78,9 @@ export default function ReconciliationBadge({
       </span>
 
       {hovered && hasTooltip && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 whitespace-nowrap rounded-md border border-[#1e293b] bg-[#0a0e17] px-2.5 py-1.5 text-xs text-[#94a3b8] shadow-lg pointer-events-none">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 whitespace-nowrap rounded-md border border-[#506880] bg-[#0a0e17] px-2.5 py-1.5 text-xs text-[#b0bec9] shadow-lg pointer-events-none">
           {tooltipParts.join(' / ')}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1e293b]" />
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#506880]" />
         </div>
       )}
     </div>

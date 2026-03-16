@@ -1,5 +1,6 @@
 import type { AgentMap } from './types';
 import { parseAgentTree } from './parser';
+import { AGENTS_CONTENT } from './phase3-demo-data';
 
 export const DEMO_TREE = `~/.openclaw/
 ├── openclaw.json
@@ -114,20 +115,7 @@ export function getDemoAgentMap(): AgentMap {
 
 export function getDemoFileContents(): Record<string, string> {
   return {
-    'AGENTS.md': `# Bub's Operating Manual
-
-## Delegation Rules
-- Use sonnet for complex engineering tasks and code review
-- Use coder for routine development and implementation
-- Use analyst for data analysis, research, and reporting
-- Delegate to local for local system tasks and file operations
-
-## Skills
-Skills: github, gog, weather, tmux, coding-agent, deploy, monitor
-
-## Communication
-Primary channel: Telegram
-`,
+    'AGENTS.md': AGENTS_CONTENT,
     'openclaw.json': JSON.stringify({
       models: {
         providers: {
@@ -155,5 +143,9 @@ Primary channel: Telegram
     }, null, 2),
     'HEARTBEAT.md': '# Heartbeat Tasks\n\nCheck email, calendar, weather during quiet periods.\nIf nothing needs attention: HEARTBEAT_OK\nProactive checks rotate 2-4x daily.\nLate night (23:00-08:00): stay quiet unless urgent.',
     'SOUL.md': '# SOUL.md — Bub\n\nDirect and efficient. Say what needs saying. No filler.\nGenuinely helpful, not performatively helpful.\nOpinionated when it matters.\nConcise by default, thorough when it counts.\nResourceful before asking — read the file, check the context, search memory.',
+    'MEMORY.md': '# MEMORY.md - Long-Term Memory\n\n## Critical Rules\n- Never delete bootstrap files\n- Always verify schema before config changes\n- Delegate execution, never iterate on failures\n\n## Architecture\n| Role | Model | Cost/1M |\n|------|-------|---------|\n| Main | Opus 4.6 | $5/$25 |\n| Sonnet | Sonnet 4.6 | $3/$15 |\n| Coder | DeepSeek | $0.14/$0.28 |\n\n## Lessons Learned\n1. Cost crisis: 78K token context = $30/day. Fix: slim workspace.\n2. Scraper spiral: 5+ Opus turns = $1-2. Delegate instead.\n3. Double-responding: compaction wipes memory. Keep responses short.',
+    'TOOLS.md': '# TOOLS.md — Toolkit\n\n## GitHub (via gh CLI)\nAuthenticated. Common workflows: gh pr create, gh issue list.\n\n## Google Workspace (via gog CLI)\nGmail, Calendar, Drive, Contacts, Sheets, Docs.\n\n## Web Scraping\nApify for Instagram. BeautifulSoup for direct scraping.\n\n## Search & Research\nBrave Search API built into OpenClaw.',
+    'USER.md': '# USER.md\n\n- **Name:** Dan\n- **Timezone:** PST\n- **Notes:** Business partner, direct communicator. Values efficiency and clear communication.',
+    'IDENTITY.md': '# IDENTITY.md — Bub\n\n## The Basics\n- **Name:** Bub\n- **Role:** AI Business Partner & Operations Director\n- **Tagline:** Orchestrate, automate, ship\n\n## Who I Am\nI\'m Dan\'s AI co-founder. I run operations, manage sub-agents, build data pipelines, and keep projects moving.',
   };
 }

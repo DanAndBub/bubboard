@@ -14,8 +14,8 @@ export async function addUsageRecord(
 }
 
 export async function addUsageRecords(
-  records: Omit<UsageRecord, 'id' | 'cost_usd'>[]
-): Promise<{ added: number; skipped: number }> {
+  records: (Omit<UsageRecord, 'id' | 'cost_usd'> & { cost_usd?: number })[]
+): Promise<{ added: number; skipped: number; models: string[] }> {
   // Check for existing request_ids to avoid duplicates
   const requestIds = records.map(r => r.request_id).filter(Boolean);
   const existing = new Set<string>();
@@ -25,39 +25,30 @@ export async function addUsageRecords(
   }
 
   const newRecords: UsageRecord[] = [];
+  const modelsFound = new Set<string>();
   let skipped = 0;
-  let failedCostCalculations = 0;
-  
   for (const record of records) {
     if (record.request_id && existing.has(record.request_id)) {
       skipped++;
       continue;
     }
     const id = crypto.randomUUID();
-    const breakdown = calculateCost({ ...record, id, cost_usd: 0 });
-    const cost_usd = breakdown ? breakdown.total_cost : 0;
-    
-    // Track records with failed cost calculations (missing pricing data)
-    if (!breakdown) {
-      failedCostCalculations++;
+    // Prefer source cost_usd if provided and non-zero; otherwise recalculate
+    let cost_usd: number;
+    if (record.cost_usd !== undefined && record.cost_usd > 0) {
+      cost_usd = record.cost_usd;
+    } else {
+      const breakdown = calculateCost({ ...record, id, cost_usd: 0 });
+      cost_usd = breakdown ? breakdown.total_cost : 0;
     }
-    
+    modelsFound.add(record.model);
     newRecords.push({ ...record, id, cost_usd });
   }
 
   if (newRecords.length > 0) {
     await db.usage.bulkPut(newRecords);
   }
-  
-  // Log summary if there were cost calculation failures
-  if (failedCostCalculations > 0) {
-    console.warn(
-      `Import summary: ${failedCostCalculations}/${newRecords.length} records could not be priced. ` +
-      `Missing pricing data for these models. Check browser console for details.`
-    );
-  }
-  
-  return { added: newRecords.length, skipped };
+  return { added: newRecords.length, skipped, models: [...modelsFound] };
 }
 
 export async function getUsageByDateRange(start: Date, end: Date): Promise<UsageRecord[]> {

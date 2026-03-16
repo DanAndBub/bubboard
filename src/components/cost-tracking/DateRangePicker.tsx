@@ -13,11 +13,14 @@ type Preset = '7d' | '30d' | '90d' | 'All' | null
 const MIN_DATE = '2026-01-01'
 
 function todayStr(): string {
-  return new Date().toISOString().slice(0, 10)
+  return toInputValue(new Date())
 }
 
 function toInputValue(date: Date): string {
-  return date.toISOString().slice(0, 10)
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
 function startOfDay(date: Date): Date {
@@ -121,7 +124,7 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
   }, [startDate, onChange])
 
   const baseInput =
-    'bg-[#0a0e17] border border-[#1e293b] rounded-lg px-3 py-1 text-xs font-mono text-[#e2e8f0] [color-scheme:dark] outline-none focus:border-blue-500/50'
+    'bg-[#0a0e17] border border-[#506880] rounded-lg px-3 py-1 text-xs font-mono text-[#f1f5f9] [color-scheme:dark] outline-none focus:border-[#7db8fc]/50'
 
   return (
     <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -133,8 +136,8 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
             onClick={() => handlePreset(preset)}
             className={
               isActive
-                ? 'px-3 py-1 rounded-lg text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                : 'px-3 py-1 rounded-lg text-xs font-medium text-[#475569] border border-[#1e293b] hover:text-[#94a3b8]'
+                ? 'px-3 py-1 rounded-lg text-xs font-medium bg-[#7db8fc]/20 text-[#7db8fc] border border-[#7db8fc]/30'
+                : 'px-3 py-1 rounded-lg text-xs font-medium text-[#7a8a9b] border border-[#506880] hover:text-[#b0bec9]'
             }
           >
             {preset}
@@ -142,7 +145,7 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
         )
       })}
 
-      <div className="w-px h-4 bg-[#1e293b]" />
+      <div className="w-px h-4 bg-[#3a4e63]" />
 
       <input
         type="date"

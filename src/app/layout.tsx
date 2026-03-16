@@ -10,15 +10,14 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Driftwatch — See Inside Your OpenClaw Agent',
-  description:
-    'Interactive architecture map for your OpenClaw agents. Scan your workspace, visualize your agent fleet, and spot config drift — all client-side, open source.',
-  keywords: ['OpenClaw', 'AI agent', 'architecture map', 'agent monitoring', 'LLM', 'cost tracking', 'ops dashboard'],
+  title: 'Driftwatch — Config Intelligence for OpenClaw Agents',
+  description: 'Scan your OpenClaw workspace to find config drift, truncation risks, cost anomalies, and contradictions. All client-side, open source.',
+  keywords: ['OpenClaw', 'AI agent', 'config drift', 'architecture map', 'agent monitoring', 'LLM cost tracking', 'truncation detection'],
   openGraph: {
-    title: 'Driftwatch — See Inside Your OpenClaw Agent',
-    description:
-      'Interactive architecture map for your OpenClaw agents. Scan your workspace, visualize your agent fleet, and spot config drift — all client-side, open source.',
+    title: 'Driftwatch — Config Intelligence for OpenClaw Agents',
+    description: 'Find what changed in your agent configs before it costs you. Scan → Review → Fix → Track.',
     type: 'website',
+    url: 'https://bubbuilds.com',
   },
 };
 

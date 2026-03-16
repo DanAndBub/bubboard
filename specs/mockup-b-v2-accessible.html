@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driftwatch — Mockup B v2: Accessible Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════════════
+     WCAG 2.1 AA COMPLIANT COLOR SYSTEM
+     All text ≥ 4.5:1 on their respective backgrounds
+     All UI components ≥ 3:1 against adjacent colors
+     All interactive elements have visible focus states
+     ═══════════════════════════════════════════════════ */
+  :root {
+    /* Backgrounds */
+    --bg-deep: #050810;
+    --bg-page: #0a0e17;
+    --bg-sidebar: #080c14;
+    --bg-card: #111827;
+    --bg-card-hover: #172033;
+    --bg-elevated: #1c2637;
+
+    /* Borders — #506880 passes 3:1 on both bg-page and bg-card */
+    --border: #506880;
+    --border-subtle: #3a4e63;
+    --border-focus: #7db8fc;
+
+    /* Text — all pass 4.5:1 AA on bg-card (#111827) */
+    --text-primary: #f1f5f9;    /* 16.19:1 on card */
+    --text-secondary: #b0bec9;  /* 9.34:1 on card  */
+    --text-muted: #7a8a9b;      /* 5.01:1 on card  */
+
+    /* Semantic — all pass 4.5:1 AA on bg-card */
+    --accent: #7db8fc;          /* 8.56:1 on card */
+    --accent-glow: rgba(125, 184, 252, 0.10);
+    --critical: #f87171;        /* 6.41:1 on card */
+    --critical-bg: rgba(248, 113, 113, 0.10);
+    --warning: #fbbf24;         /* 10.63:1 on card */
+    --warning-bg: rgba(251, 191, 36, 0.10);
+    --success: #34d399;         /* 9.23:1 on card */
+    --success-bg: rgba(52, 211, 153, 0.10);
+    --purple: #a78bfa;          /* 6.52:1 on card */
+    --purple-bg: rgba(167, 139, 250, 0.10);
+
+    /* Typography */
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ═══ FOCUS STYLES (WCAG 2.4.7) ═══ */
+  *:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  button:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+
+  body {
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    height: 100vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 252px 1fr;
+    grid-template-rows: 52px 1fr;
+  }
+
+  /* ═══ SKIP LINK (WCAG 2.4.1) ═══ */
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    background: var(--accent);
+    color: var(--bg-deep);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    z-index: 1000;
+    text-decoration: none;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 8px; }
+
+  /* ═══ TOP BAR ═══ */
+  .topbar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: rgba(8, 12, 20, 0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+    z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo {
+    width: 26px; height: 26px;
+    border: 1.5px solid var(--accent);
+    border-radius: 5px;
+    display: grid; place-items: center;
+    font-size: 13px; color: var(--accent);
+  }
+  .topbar-name { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+  .topbar-sep { color: var(--text-muted); margin: 0 2px; }
+  .topbar-page { color: var(--text-secondary); font-size: 13px; }
+  .topbar-right { display: flex; gap: 8px; }
+  .btn-top {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-top:hover { border-color: var(--accent); color: var(--text-primary); }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar {
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-subtle);
+    padding: 16px 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Score card */
+  .sidebar-score {
+    margin: 0 12px 16px;
+    padding: 18px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    text-align: center;
+  }
+  .sidebar-score-num {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    color: var(--success);
+    line-height: 1;
+  }
+  .sidebar-score-num span {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .sidebar-score-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* Sidebar nav */
+  .sidebar-section { padding: 0 12px; margin-bottom: 20px; }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding: 0 12px;
+    margin-bottom: 6px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.12s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-body);
+  }
+  .sidebar-item:hover { background: rgba(125, 184, 252, 0.06); color: var(--text-primary); }
+  .sidebar-item.active {
+    background: var(--accent-glow);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .sidebar-item .si-icon {
+    width: 18px; text-align: center;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .sidebar-item .si-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    padding: 2px 8px;
+    border-radius: 8px;
+  }
+  .sidebar-item.active .si-badge {
+    color: var(--accent);
+    background: rgba(125, 184, 252, 0.12);
+  }
+  .sidebar-item .si-alert {
+    margin-left: auto;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--critical);
+    box-shadow: 0 0 6px rgba(248, 113, 113, 0.5);
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 4px 24px 16px;
+  }
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-actions { padding: 0 12px; }
+  .sidebar-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.12s;
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    width: 100%;
+    text-align: left;
+  }
+  .sidebar-action:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
+  .sidebar-action .sa-icon { font-size: 13px; width: 18px; text-align: center; }
+
+  /* ═══ MAIN CONTENT ═══ */
+  .main {
+    overflow-y: auto;
+    padding: 28px 36px 40px;
+  }
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-track { background: transparent; }
+  .main::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
+
+  /* Page header */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .page-title-row { display: flex; align-items: center; gap: 10px; }
+  .page-title { font-size: 21px; font-weight: 700; letter-spacing: -0.5px; }
+  .page-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+  .page-pulse {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 6px rgba(52, 211, 153, 0.4);
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .page-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  /* ═══ STATS ROW ═══ */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 18px 20px;
+    transition: border-color 0.15s;
+  }
+  .stat:hover { border-color: var(--border); }
+  .stat-val {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  .stat-val.blue { color: var(--accent); }
+  .stat-val.purple { color: var(--purple); }
+  .stat-val.green { color: var(--success); }
+  .stat-val.amber { color: var(--warning); }
+  .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+  /* ═══ OVERVIEW GRID ═══ */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 22px;
+    transition: border-color 0.15s;
+    cursor: pointer;
+  }
+  .summary-card:hover { border-color: var(--border); }
+  .sc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .sc-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+  }
+  .sc-action {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Agent mini */
+  .agent-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(58, 78, 99, 0.4);
+    font-size: 13px;
+  }
+  .agent-mini:last-child { border-bottom: none; }
+  .am-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--purple); flex-shrink: 0; }
+  .am-name { font-weight: 500; flex: 1; color: var(--text-primary); }
+  .am-model { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+  /* Finding mini */
+  .finding-mini {
+    display: flex;
+    align-items: start;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(58, 78, 99, 0.4);
+    font-size: 13px;
+  }
+  .finding-mini:last-child { border-bottom: none; }
+  .fm-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .fm-dot.crit { background: var(--critical); box-shadow: 0 0 5px rgba(248,113,113,0.4); }
+  .fm-dot.warn { background: var(--warning); }
+  .fm-file { font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); font-weight: 500; }
+  .fm-msg { color: var(--text-secondary); font-size: 12px; line-height: 1.4; margin-top: 2px; }
+
+  /* Budget bar */
+  .budget-mini { margin-top: 6px; }
+  .bm-bar-bg {
+    height: 7px;
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    /* 3:1 border for the track */
+    border: 1px solid var(--border-subtle);
+  }
+  .bm-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--success) 0%, var(--accent) 100%);
+    width: 72%;
+  }
+  .bm-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+  }
+
+  /* File health */
+  .fh-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(58, 78, 99, 0.3);
+  }
+  .fh-row:last-child { border-bottom: none; }
+  .fh-name { font-family: var(--font-mono); color: var(--text-secondary); }
+  .fh-ok { color: var(--success); font-weight: 600; }
+
+  /* Memory mini */
+  .mem-mini {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+  }
+  .mem-range { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); }
+  .mem-ok { font-size: 12px; color: var(--success); display: flex; align-items: center; gap: 4px; }
+
+  /* ═══ COST TRACKING VIEW ═══ */
+  .cost-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .cost-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cost-period-btn {
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border-subtle);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all 0.15s;
+  }
+  .cost-period-btn.active {
+    background: var(--accent-glow);
+    border-color: rgba(125, 184, 252, 0.3);
+    color: var(--accent);
+  }
+  .cost-period-btn:hover:not(.active) { border-color: var(--border); color: var(--text-secondary); }
+
+  .cost-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .cost-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .cost-stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .cost-stat-val {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .cost-stat-val.green { color: var(--success); }
+  .cost-stat-val.blue { color: var(--accent); }
+  .cost-stat-val.amber { color: var(--warning); }
+
+  .cost-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* Chart placeholder */
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 22px;
+    min-height: 220px;
+  }
+  .chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .chart-placeholder {
+    height: 160px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(125, 184, 252, 0.04) 0%, transparent 100%);
+    border: 1px dashed var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Fake chart lines */
+  .chart-placeholder::before {
+    content: '';
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: linear-gradient(90deg,
+      var(--accent) 0%, var(--accent) 15%,
+      var(--success) 15%, var(--success) 35%,
+      var(--accent) 35%, var(--accent) 55%,
+      var(--warning) 55%, var(--warning) 70%,
+      var(--accent) 70%, var(--accent) 100%
+    );
+    border-radius: 1px;
+    opacity: 0.3;
+  }
+
+  /* Donut placeholder */
+  .donut-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto;
+    background: conic-gradient(
+      var(--accent) 0deg 180deg,
+      var(--purple) 180deg 252deg,
+      var(--success) 252deg 306deg,
+      var(--warning) 306deg 342deg,
+      var(--text-muted) 342deg 360deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .donut-placeholder::after {
+    content: '';
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--bg-card);
+  }
+  .donut-center {
+    position: absolute;
+    text-align: center;
+    z-index: 1;
+  }
+  .donut-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+  }
+  .donut-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Model legend */
+  .model-legend { margin-top: 16px; }
+  .model-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+  }
+  .model-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .model-name { color: var(--text-secondary); flex: 1; }
+  .model-cost { font-family: var(--font-mono); color: var(--text-muted); font-size: 11px; }
+
+  /* Insights */
+  .insights-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 24px;
+  }
+  .insight-row {
+    display: flex;
+    align-items: start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(58, 78, 99, 0.3);
+    font-size: 13px;
+  }
+  .insight-row:last-child { border-bottom: none; }
+  .insight-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+    background: var(--warning);
+  }
+  .insight-text { color: var(--text-secondary); line-height: 1.5; }
+
+  /* Request log */
+  .log-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .log-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(28, 38, 55, 0.5);
+  }
+  .log-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(58, 78, 99, 0.2);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .log-table tr:hover td { background: rgba(125, 184, 252, 0.03); }
+  .log-table .provider-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-weight: 500;
+  }
+  .log-table .provider-badge.anthropic {
+    background: var(--accent-glow);
+    color: var(--accent);
+  }
+  .log-table .provider-badge.ollama {
+    background: var(--success-bg);
+    color: var(--success);
+  }
+  .log-cost { color: var(--accent); }
+
+  /* ═══ PANELS ═══ */
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeUp 0.2s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* ═══ AGENTS VIEW ═══ */
+  .agent-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 120px 100px;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .agent-row:hover { border-color: var(--border); background: var(--bg-card-hover); }
+  .ar-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .ar-name .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); }
+  .ar-model { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); }
+  .ar-provider {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 16px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    font-weight: 500;
+    width: fit-content;
+  }
+  .ar-reports { font-size: 12px; color: var(--text-muted); text-align: right; }
+
+  /* Hierarchy */
+  .hierarchy-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 22px;
+    margin-top: 14px;
+  }
+  .tree-root {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tree-root .td { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+  .tree-children { padding-left: 24px; border-left: 1px solid var(--border-subtle); margin-left: 3px; }
+  .tree-child {
+    padding: 4px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+  }
+  .tree-child::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 50%;
+    width: 18px;
+    height: 1px;
+    background: var(--border-subtle);
+  }
+  .tree-child .td { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* ═══ FILES VIEW ═══ */
+  .file-group { margin-bottom: 20px; }
+  .file-group-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+  }
+  .fg-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .fg-dot.green { background: var(--success); }
+  .fg-dot.blue { background: var(--accent); }
+  .fg-dot.gray { background: var(--text-muted); }
+
+  .file-row {
+    display: grid;
+    grid-template-columns: 1fr 100px 80px;
+    align-items: center;
+    padding: 9px 16px;
+    background: var(--bg-card);
+    border: 1px solid rgba(58, 78, 99, 0.3);
+    border-radius: 7px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-size: 13px;
+  }
+  .file-row:hover { border-color: var(--border); background: var(--bg-card-hover); }
+  .fr-name { font-family: var(--font-mono); font-weight: 500; color: var(--text-primary); font-size: 13px; }
+  .fr-size { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-align: right; }
+  .fr-status { display: flex; justify-content: flex-end; }
+  .fr-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .fr-badge.ok { background: var(--success-bg); color: var(--success); }
+  .fr-badge.warn { background: var(--warning-bg); color: var(--warning); }
+  .fr-badge.crit { background: var(--critical-bg); color: var(--critical); }
+
+  /* ═══ CONFIG REVIEW VIEW ═══ */
+  .review-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .review-score-row { display: flex; align-items: baseline; gap: 6px; }
+  .rs-num { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; }
+  .rs-num.warn { color: var(--warning); }
+  .rs-max { font-size: 15px; color: var(--text-muted); }
+  .review-filters { display: flex; gap: 6px; }
+  .rf-btn {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border-subtle);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all 0.15s;
+  }
+  .rf-btn.crit { background: var(--critical-bg); border-color: rgba(248,113,113,0.3); color: var(--critical); }
+  .rf-btn.warn-active { background: var(--warning-bg); border-color: rgba(251,191,36,0.3); color: var(--warning); }
+  .rf-btn.info { background: var(--accent-glow); border-color: rgba(125,184,252,0.3); color: var(--accent); }
+
+  .finding-row {
+    display: grid;
+    grid-template-columns: 10px 1fr auto;
+    gap: 14px;
+    align-items: start;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+  }
+  .finding-row:hover { border-color: var(--border); }
+  .fd-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+  }
+  .fd-dot.crit { background: var(--critical); box-shadow: 0 0 6px rgba(248,113,113,0.4); }
+  .fd-dot.warn { background: var(--warning); }
+  .fd-dot.info { background: var(--accent); }
+  .fd-file { font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); font-weight: 500; margin-bottom: 3px; display: block; }
+  .fd-text { font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+  .fd-fix {
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(125,184,252,0.25);
+    padding: 5px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: var(--font-body);
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .fd-fix:hover { background: rgba(125,184,252,0.18); }
+
+  /* ═══ DRIFT VIEW ═══ */
+  .empty-state {
+    text-align: center;
+    padding: 56px 20px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+  }
+  .empty-icon { font-size: 30px; margin-bottom: 14px; opacity: 0.25; }
+  .empty-title { font-size: 15px; color: var(--text-secondary); margin-bottom: 6px; }
+  .empty-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 340px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ═══ ACCESSIBILITY INFO ═══ */
+  .a11y-badge {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 999;
+  }
+  .a11y-badge span {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 14px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+  .a11y-badge .tag-mockup { background: var(--accent); color: var(--bg-deep); }
+  .a11y-badge .tag-aa { background: var(--success); color: var(--bg-deep); }
+
+  /* Visually hidden but accessible (WCAG) */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- TOP BAR -->
+<header class="topbar" role="banner">
+  <div class="topbar-left">
+    <div class="topbar-logo" aria-hidden="true">◈</div>
+    <span class="topbar-name">Driftwatch</span>
+    <span class="topbar-sep" aria-hidden="true">/</span>
+    <span class="topbar-page">Agent Map</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-top" aria-label="Create new map">New map</button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" role="navigation" aria-label="Main navigation">
+  <div class="sidebar-score" role="status" aria-label="Setup score: 18 out of 18">
+    <div class="sidebar-score-num">18<span>/18</span></div>
+    <div class="sidebar-score-label">Setup Score</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label" id="views-label">Views</div>
+    <div role="group" aria-labelledby="views-label">
+      <button class="sidebar-item active" onclick="switchView('overview', this)" aria-current="page">
+        <span class="si-icon" aria-hidden="true">◉</span> Overview
+      </button>
+      <button class="sidebar-item" onclick="switchView('agents', this)">
+        <span class="si-icon" aria-hidden="true">⬡</span> Agents
+        <span class="si-badge" aria-label="5 agents">5</span>
+      </button>
+      <button class="sidebar-item" onclick="switchView('files', this)">
+        <span class="si-icon" aria-hidden="true">▤</span> Files
+        <span class="si-badge" aria-label="51 files">51</span>
+      </button>
+      <button class="sidebar-item" onclick="switchView('costs', this)">
+        <span class="si-icon" aria-hidden="true">◎</span> Cost Tracking
+      </button>
+    </div>
+  </div>
+
+  <div class="sidebar-divider" role="separator"></div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label" id="intel-label">Intelligence</div>
+    <div role="group" aria-labelledby="intel-label">
+      <button class="sidebar-item" onclick="switchView('review', this)">
+        <span class="si-icon" aria-hidden="true">⚑</span> Config Review
+        <span class="si-alert" role="status" aria-label="Issues found"></span>
+      </button>
+      <button class="sidebar-item" onclick="switchView('drift', this)">
+        <span class="si-icon" aria-hidden="true">↔</span> Drift Report
+      </button>
+    </div>
+  </div>
+
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-divider" role="separator"></div>
+
+  <div class="sidebar-actions" aria-label="Actions">
+    <button class="sidebar-action"><span class="sa-icon" aria-hidden="true">📥</span> Download Snapshot</button>
+    <button class="sidebar-action"><span class="sa-icon" aria-hidden="true">📤</span> Upload Snapshot</button>
+    <button class="sidebar-action"><span class="sa-icon" aria-hidden="true">📝</span> Session Notes</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main" id="main-content">
+
+  <!-- ═══ OVERVIEW ═══ -->
+  <div class="panel active" id="view-overview" role="region" aria-label="Overview">
+    <div class="page-header">
+      <div class="page-title-row">
+        <span class="page-pulse" aria-hidden="true"></span>
+        <h1 class="page-title">Bub's Agent Architecture</h1>
+      </div>
+      <span class="page-meta">5 agents · Generated in &lt;500ms</span>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val blue">51</div><div class="stat-label">Total Files</div></div>
+      <div class="stat"><div class="stat-val purple">5</div><div class="stat-label">Agents</div></div>
+      <div class="stat"><div class="stat-val green">23</div><div class="stat-label">Memory Entries</div></div>
+      <div class="stat"><div class="stat-val amber">5+</div><div class="stat-label">Skills</div></div>
+    </div>
+
+    <div class="overview-grid">
+      <!-- Agents summary -->
+      <div class="summary-card" onclick="document.querySelectorAll('.sidebar-item')[1].click()" role="link" tabindex="0" aria-label="View all agents">
+        <div class="sc-header">
+          <span class="sc-title">Agent Fleet</span>
+          <span class="sc-action">View all →</span>
+        </div>
+        <div class="agent-mini"><span class="am-dot" aria-hidden="true"></span><span class="am-name">main</span><span class="am-model">opus-4-6</span></div>
+        <div class="agent-mini"><span class="am-dot" aria-hidden="true"></span><span class="am-name">analyst</span><span class="am-model">sonnet-4-6</span></div>
+        <div class="agent-mini"><span class="am-dot" aria-hidden="true"></span><span class="am-name">coder</span><span class="am-model">sonnet-4-6</span></div>
+        <div class="agent-mini"><span class="am-dot" aria-hidden="true"></span><span class="am-name">sonnet</span><span class="am-model">sonnet-4-6</span></div>
+        <div class="agent-mini"><span class="am-dot" aria-hidden="true"></span><span class="am-name">local</span><span class="am-model">deepseek-r1</span></div>
+      </div>
+
+      <!-- Config review summary -->
+      <div class="summary-card" onclick="document.querySelectorAll('.sidebar-item')[4].click()" role="link" tabindex="0" aria-label="View config review">
+        <div class="sc-header">
+          <span class="sc-title">Config Review</span>
+          <span class="sc-action">View all →</span>
+        </div>
+        <div class="finding-mini"><span class="fm-dot crit" aria-label="Critical"></span><div><div class="fm-file">AGENTS.md</div><div class="fm-msg">Exceeds critical 5,120 char threshold</div></div></div>
+        <div class="finding-mini"><span class="fm-dot warn" aria-label="Warning"></span><div><div class="fm-file">SOUL.md</div><div class="fm-msg">Approaching recommended limit</div></div></div>
+        <div class="finding-mini"><span class="fm-dot warn" aria-label="Warning"></span><div><div class="fm-file">MEMORY.md</div><div class="fm-msg">Agent-written entries detected</div></div></div>
+      </div>
+
+      <!-- Budget -->
+      <div class="summary-card" role="region" aria-label="Bootstrap budget">
+        <div class="sc-header"><span class="sc-title">Bootstrap Budget</span></div>
+        <div class="budget-mini">
+          <div class="bm-bar-bg" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="72% of bootstrap budget used"><div class="bm-bar-fill"></div></div>
+          <div class="bm-meta"><span>14,340 / 20,000 chars</span><span>72%</span></div>
+        </div>
+        <div style="margin-top: 14px;">
+          <div class="fh-row"><span class="fh-name">AGENTS.md</span><span style="font-family:var(--font-mono);font-size:11px;color:var(--warning);">6,020</span></div>
+          <div class="fh-row"><span class="fh-name">SOUL.md</span><span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">2,840</span></div>
+          <div class="fh-row"><span class="fh-name">MEMORY.md</span><span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">4,800</span></div>
+        </div>
+      </div>
+
+      <!-- Health + Memory -->
+      <div class="summary-card" onclick="document.querySelectorAll('.sidebar-item')[2].click()" role="link" tabindex="0" aria-label="View workspace files">
+        <div class="sc-header"><span class="sc-title">File Health</span><span class="sc-action">View all →</span></div>
+        <div class="fh-row"><span class="fh-name">SOUL.md</span><span class="fh-ok" aria-label="Present">✓</span></div>
+        <div class="fh-row"><span class="fh-name">IDENTITY.md</span><span class="fh-ok" aria-label="Present">✓</span></div>
+        <div class="fh-row"><span class="fh-name">USER.md</span><span class="fh-ok" aria-label="Present">✓</span></div>
+        <div class="fh-row"><span class="fh-name">AGENTS.md</span><span class="fh-ok" aria-label="Present">✓</span></div>
+        <div class="fh-row"><span class="fh-name">TOOLS.md</span><span class="fh-ok" aria-label="Present">✓</span></div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(58,78,99,0.3);">
+          <div class="sc-title" style="font-size:11px;margin-bottom:6px;">Memory</div>
+          <div class="mem-mini"><span class="mem-range">Feb 15 → Mar 09</span><span class="mem-ok">✓ 23 entries</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AGENTS ═══ -->
+  <div class="panel" id="view-agents" role="region" aria-label="Agents">
+    <div class="page-header">
+      <div class="page-title-row"><h1 class="page-title">Agents</h1><span class="page-count">5 detected</span></div>
+    </div>
+    <div class="agent-row"><div class="ar-name"><span class="dot" aria-hidden="true"></span>main</div><div class="ar-model">claude-opus-4-6</div><div class="ar-provider">Anthropic</div><div class="ar-reports" style="color:var(--success);">root</div></div>
+    <div class="agent-row"><div class="ar-name"><span class="dot" aria-hidden="true"></span>analyst</div><div class="ar-model">claude-sonnet-4-6</div><div class="ar-provider">Anthropic</div><div class="ar-reports">→ main</div></div>
+    <div class="agent-row"><div class="ar-name"><span class="dot" aria-hidden="true"></span>coder</div><div class="ar-model">claude-sonnet-4-6</div><div class="ar-provider">Anthropic</div><div class="ar-reports">→ main</div></div>
+    <div class="agent-row"><div class="ar-name"><span class="dot" aria-hidden="true"></span>sonnet</div><div class="ar-model">claude-sonnet-4-6</div><div class="ar-provider">Anthropic</div><div class="ar-reports">→ main</div></div>
+    <div class="agent-row"><div class="ar-name"><span class="dot" aria-hidden="true"></span>local</div><div class="ar-model">deepseek-r1</div><div class="ar-provider" style="background:var(--success-bg);color:var(--success);">Ollama</div><div class="ar-reports">→ main</div></div>
+
+    <div class="hierarchy-card">
+      <div class="sc-title" style="font-size:12px;margin-bottom:14px;">Hierarchy</div>
+      <div class="tree-root"><span class="td" aria-hidden="true"></span> main</div>
+      <div class="tree-children">
+        <div class="tree-child"><span class="td" aria-hidden="true"></span> analyst</div>
+        <div class="tree-child"><span class="td" aria-hidden="true"></span> coder</div>
+        <div class="tree-child"><span class="td" aria-hidden="true"></span> sonnet</div>
+        <div class="tree-child"><span class="td" aria-hidden="true"></span> local</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FILES ═══ -->
+  <div class="panel" id="view-files" role="region" aria-label="Workspace files">
+    <div class="page-header">
+      <div class="page-title-row"><h1 class="page-title">Workspace Files</h1><span class="page-count">51 files</span></div>
+    </div>
+    <div class="file-group">
+      <div class="file-group-header"><span class="fg-dot green" aria-hidden="true"></span> Core Identity</div>
+      <div class="file-row"><span class="fr-name">SOUL.md</span><span class="fr-size">2,840</span><span class="fr-status"><span class="fr-badge ok">✓ OK</span></span></div>
+      <div class="file-row"><span class="fr-name">IDENTITY.md</span><span class="fr-size">680</span><span class="fr-status"><span class="fr-badge ok">✓ OK</span></span></div>
+      <div class="file-row"><span class="fr-name">USER.md</span><span class="fr-size">1,120</span><span class="fr-status"><span class="fr-badge ok">✓ OK</span></span></div>
+    </div>
+    <div class="file-group">
+      <div class="file-group-header"><span class="fg-dot blue" aria-hidden="true"></span> Operations</div>
+      <div class="file-row"><span class="fr-name">AGENTS.md</span><span class="fr-size">6,020</span><span class="fr-status"><span class="fr-badge crit">⚠ Over</span></span></div>
+      <div class="file-row"><span class="fr-name">HEARTBEAT.md</span><span class="fr-size">3,200</span><span class="fr-status"><span class="fr-badge ok">✓ OK</span></span></div>
+      <div class="file-row"><span class="fr-name">TOOLS.md</span><span class="fr-size">480</span><span class="fr-status"><span class="fr-badge ok">✓ OK</span></span></div>
+      <div class="file-row"><span class="fr-name">MEMORY.md</span><span class="fr-size">4,800</span><span class="fr-status"><span class="fr-badge warn">~ Watch</span></span></div>
+    </div>
+    <div class="file-group">
+      <div class="file-group-header"><span class="fg-dot gray" aria-hidden="true"></span> Memory Logs</div>
+      <div style="padding:12px 16px;background:var(--bg-card);border:1px solid rgba(58,78,99,0.3);border-radius:7px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);">2026-02-15 → 2026-03-09</span>
+        <span style="font-size:12px;color:var(--success);">✓ 23 entries</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ COST TRACKING ═══ -->
+  <div class="panel" id="view-costs" role="region" aria-label="Cost tracking">
+    <div class="page-header">
+      <div class="page-title-row"><h1 class="page-title">Cost Tracking</h1></div>
+      <div class="cost-controls">
+        <button class="cost-period-btn active">7d</button>
+        <button class="cost-period-btn">30d</button>
+        <button class="cost-period-btn">90d</button>
+        <button class="cost-period-btn">All</button>
+      </div>
+    </div>
+
+    <div class="cost-stats">
+      <div class="cost-stat">
+        <div class="cost-stat-label">Today</div>
+        <div class="cost-stat-val green">$0.00</div>
+      </div>
+      <div class="cost-stat">
+        <div class="cost-stat-label">This Session</div>
+        <div class="cost-stat-val blue">$0.94</div>
+      </div>
+      <div class="cost-stat">
+        <div class="cost-stat-label">Past 7 Days</div>
+        <div class="cost-stat-val amber">$5.26</div>
+      </div>
+      <div class="cost-stat">
+        <div class="cost-stat-label">Total Requests</div>
+        <div class="cost-stat-val" style="color:var(--text-primary);">1,107</div>
+      </div>
+    </div>
+
+    <div class="cost-grid">
+      <!-- Chart -->
+      <div class="chart-card">
+        <div class="chart-title">Cost Over Time</div>
+        <div class="chart-placeholder">
+          <span style="z-index:1;">Recharts line chart</span>
+        </div>
+      </div>
+
+      <!-- Donut -->
+      <div class="chart-card">
+        <div class="chart-title">Cost by Model</div>
+        <div style="display:flex;align-items:center;justify-content:center;padding:8px 0;">
+          <div class="donut-placeholder">
+            <div class="donut-center">
+              <div class="donut-val">$22.47</div>
+              <div class="donut-label">Total</div>
+            </div>
+          </div>
+        </div>
+        <div class="model-legend">
+          <div class="model-row"><span class="model-dot" style="background:var(--accent);"></span><span class="model-name">claude-opus-4-6</span><span class="model-cost">$22.42</span></div>
+          <div class="model-row"><span class="model-dot" style="background:var(--purple);"></span><span class="model-name">claude-sonnet-4-6</span><span class="model-cost">$0.29</span></div>
+          <div class="model-row"><span class="model-dot" style="background:var(--success);"></span><span class="model-name">gpt-4.1</span><span class="model-cost">$0.77</span></div>
+          <div class="model-row"><span class="model-dot" style="background:var(--warning);"></span><span class="model-name">deepseek-chat</span><span class="model-cost">$0.30</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="insights-card">
+      <div class="sc-header"><span class="sc-title">Insights</span></div>
+      <div class="insight-row">
+        <span class="insight-dot" aria-hidden="true"></span>
+        <span class="insight-text">Cost $3.48 is 54% above 7-day rolling average ($2.17)</span>
+      </div>
+      <div class="insight-row">
+        <span class="insight-dot" aria-hidden="true"></span>
+        <span class="insight-text">Cost $3.54 is 52% above 7-day rolling average ($2.17)</span>
+      </div>
+      <div class="insight-row">
+        <span class="insight-dot" aria-hidden="true"></span>
+        <span class="insight-text">Cost $3.10 is 43% above 7-day rolling average ($2.17)</span>
+      </div>
+    </div>
+
+    <!-- Request log -->
+    <div class="log-card">
+      <div class="log-header">
+        <span class="sc-title">Request Log<span style="font-family:var(--font-mono);color:var(--text-muted);margin-left:8px;font-size:11px;font-weight:400;">224</span></span>
+        <button class="btn-top" style="font-size:11px;padding:4px 10px;">Export CSV</button>
+      </div>
+      <table class="log-table" aria-label="Recent API requests">
+        <thead>
+          <tr>
+            <th scope="col">Time</th>
+            <th scope="col">Provider</th>
+            <th scope="col">Model</th>
+            <th scope="col">Tokens</th>
+            <th scope="col">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mar 10, 03:08</td>
+            <td><span class="provider-badge anthropic">anthropic</span></td>
+            <td>claude-opus-4-6</td>
+            <td>4,468</td>
+            <td class="log-cost">$0.073</td>
+          </tr>
+          <tr>
+            <td>Mar 10, 03:05</td>
+            <td><span class="provider-badge anthropic">anthropic</span></td>
+            <td>claude-sonnet-4-6</td>
+            <td>31,917</td>
+            <td class="log-cost">$0.048</td>
+          </tr>
+          <tr>
+            <td>Mar 10, 02:58</td>
+            <td><span class="provider-badge ollama">ollama</span></td>
+            <td>deepseek-r1</td>
+            <td>2,200</td>
+            <td class="log-cost">$0.000</td>
+          </tr>
+          <tr>
+            <td>Mar 10, 02:41</td>
+            <td><span class="provider-badge anthropic">anthropic</span></td>
+            <td>claude-opus-4-6</td>
+            <td>4,323</td>
+            <td class="log-cost">$0.068</td>
+          </tr>
+          <tr>
+            <td>Mar 10, 02:22</td>
+            <td><span class="provider-badge anthropic">anthropic</span></td>
+            <td>claude-sonnet-4-6</td>
+            <td>51,486</td>
+            <td class="log-cost">$0.071</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ CONFIG REVIEW ═══ -->
+  <div class="panel" id="view-review" role="region" aria-label="Configuration review">
+    <div class="page-header">
+      <div class="page-title-row"><h1 class="page-title">Config Review</h1></div>
+    </div>
+    <div class="review-bar">
+      <div class="review-score-row">
+        <span class="rs-num warn">25</span>
+        <span class="rs-max">/ 100</span>
+      </div>
+      <div class="review-filters" role="group" aria-label="Filter by severity">
+        <button class="rf-btn crit" aria-pressed="true">Critical · 2</button>
+        <button class="rf-btn warn-active" aria-pressed="true">Warning · 3</button>
+        <button class="rf-btn info" aria-pressed="true">Info · 1</button>
+      </div>
+    </div>
+
+    <div class="finding-row"><span class="fd-dot crit" aria-label="Critical"></span><div><span class="fd-file">AGENTS.md</span><span class="fd-text">Exceeds 5,120 char critical threshold at 6,020 chars. Truncation will hide middle content from agents.</span></div><button class="fd-fix" aria-label="Fix AGENTS.md issue">Fix →</button></div>
+    <div class="finding-row"><span class="fd-dot crit" aria-label="Critical"></span><div><span class="fd-file">analyst-context.md</span><span class="fd-text">File exceeds 20,000 char hard limit. Agent cannot see 4,200 chars in the middle of this file.</span></div><button class="fd-fix" aria-label="Fix analyst-context.md issue">Fix →</button></div>
+    <div class="finding-row"><span class="fd-dot warn" aria-label="Warning"></span><div><span class="fd-file">SOUL.md</span><span class="fd-text">Approaching recommended 3,072 char limit at 2,840 chars. Consider trimming before next growth cycle.</span></div><button class="fd-fix" aria-label="Fix SOUL.md issue">Fix →</button></div>
+    <div class="finding-row"><span class="fd-dot warn" aria-label="Warning"></span><div><span class="fd-file">MEMORY.md</span><span class="fd-text">Contains patterns suggesting agent-written entries. Review for accuracy and relevance.</span></div><button class="fd-fix" aria-label="Fix MEMORY.md issue">Fix →</button></div>
+    <div class="finding-row"><span class="fd-dot info" aria-label="Info"></span><div><span class="fd-file">Workspace</span><span class="fd-text">Bootstrap budget at 72%. Healthy, but monitor growth — 6 more files would exceed recommended 15K cap.</span></div><div></div></div>
+  </div>
+
+  <!-- ═══ DRIFT REPORT ═══ -->
+  <div class="panel" id="view-drift" role="region" aria-label="Drift report">
+    <div class="page-header">
+      <div class="page-title-row"><h1 class="page-title">Drift Report</h1></div>
+    </div>
+    <div class="empty-state">
+      <div class="empty-icon" aria-hidden="true">◈</div>
+      <div class="empty-title">No previous snapshot loaded</div>
+      <div class="empty-desc">Download today's snapshot, come back later, and upload it to see exactly what changed in your workspace.</div>
+    </div>
+  </div>
+
+</main>
+
+<div class="a11y-badge">
+  <span class="tag-mockup">Mockup B v2</span>
+  <span class="tag-aa">WCAG AA</span>
+</div>
+
+<script>
+function switchView(name, btn) {
+  document.querySelectorAll('.sidebar-item').forEach(i => {
+    i.classList.remove('active');
+    i.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  if (btn) {
+    btn.classList.add('active');
+    btn.setAttribute('aria-current', 'page');
+  }
+  document.getElementById('view-' + name).classList.add('active');
+  // Focus management for screen readers
+  document.getElementById('view-' + name).querySelector('h1')?.focus();
+}
+
+// Cost period toggle
+document.querySelectorAll('.cost-period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cost-period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Keyboard support for summary cards
+document.querySelectorAll('.summary-card[role="link"]').forEach(card => {
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      card.click();
+    }
+  });
+});
+</script>
+
+</body>
+</html>
