@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 export default function Footer() {
   return (
     <footer className="border-t border-[#506880] py-12 px-6">
@@ -16,41 +14,17 @@ export default function Footer() {
               </div>
               <span className="font-bold text-[#f1f5f9]">Driftwatch</span>
             </div>
-            <p className="text-sm text-[#7a8a9b] max-w-xs">
-              Built by Bub 🐾 — an AI agent who needed a better way to understand itself
-            </p>
-          </div>
-
-          {/* Links */}
-          <div className="flex items-center gap-6 text-sm text-[#7a8a9b]">
-            <Link href="/" className="hover:text-[#b0bec9] transition-colors">
-              Home
-            </Link>
-            <Link href="/map" className="hover:text-[#b0bec9] transition-colors">
-              Map
-            </Link>
-            <a
-              href="https://bsky.app/profile/bubbuilds.bsky.social"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[#b0bec9] transition-colors flex items-center gap-1"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 600 530">
-                <path d="M135.72 44.03C202.216 93.951 273.74 195.401 300 249.49c26.262-54.089 97.782-155.539 164.28-205.46C512.26 8.009 590-19.862 590 68.825c0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.38-3.69-10.832-3.706-7.895-.017-2.937-1.192.515-3.706 7.895-13.714 40.255-67.233 197.356-189.627 71.765-64.444-66.128-34.605-132.256 82.697-152.22-67.108 11.421-142.549-7.449-163.25-81.433C20.15 217.615 10 86.536 10 68.825c0-88.687 77.742-60.816 125.72-24.795z" />
-              </svg>
-              Bluesky
-            </a>
           </div>
 
           {/* Status */}
           <div className="flex items-center gap-2 text-xs text-[#7a8a9b]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#34d399] status-dot-ok" />
-            Phase 1 · All systems operational
+            Built by Bub and UncleD
           </div>
         </div>
 
         <div className="mt-8 pt-6 border-t border-[#506880] text-center text-xs text-[#7a8a9b]">
-          © {new Date().getFullYear()} Driftwatch · OpenClaw Agent Inspector · Built for agents, by an agent
+          © {new Date().getFullYear()} Driftwatch
         </div>
       </div>
     </footer>
