@@ -52,21 +52,24 @@ export default function WaitlistForm() {
             More is coming
           </h2>
           <p className="text-[#b0bec9] mb-8 leading-relaxed">
-            Driftwatch Pro is in development. Get early access to multi-agent monitoring,
-            cost analytics, security alerts, and real-time agent health dashboards.
+            Driftwatch Pro will show you what your config is actually costing you — and how to fix it.
           </p>
 
           {/* Feature list */}
-          <ul className="space-y-2 mb-8">
+          <ul className="space-y-5 mb-8">
             {[
-              'Multi-agent monitoring across environments',
-              'Cost analytics per agent and task',
-              'Security alerts for unusual patterns',
-              'Real-time health dashboards',
-            ].map(feature => (
-              <li key={feature} className="flex items-center gap-3 text-sm text-[#b0bec9]">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                {feature}
+              { q: 'Why does my agent forget instructions?', a: 'See exactly which rules survive long conversations and which ones vanish silently.' },
+              { q: 'Where are my tokens going?', a: 'Your config files get re-injected every message. We\u2019ll show you the per-message cost and where to cut.' },
+              { q: 'Why do my subagents behave differently?', a: 'Three of your eight config files are invisible to subagents. We\u2019ll show you which ones.' },
+              { q: 'Which files are starving which?', a: 'OpenClaw loads your files in a fixed order. The last file gets whatever budget is left. We\u2019ll show the cascade.' },
+            ].map(({ q, a }) => (
+              <li key={q} className="flex gap-3 text-sm">
+                <span className="w-1.5 h-1.5 mt-2 rounded-full bg-blue-400 shrink-0" />
+                <div>
+                  <span className="font-semibold text-[#f1f5f9]">{q}</span>
+                  <br />
+                  <span className="text-[#b0bec9]">{a}</span>
+                </div>
               </li>
             ))}
           </ul>
