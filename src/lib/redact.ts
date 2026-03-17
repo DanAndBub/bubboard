@@ -1,4 +1,13 @@
-const SENSITIVE_KEYS = /^(key|token|secret|password|apikey|api_key)$/i;
+/**
+ * Matches sensitive key names including:
+ * - Exact matches: key, token, secret, password, api_key, apikey
+ * - Compound keys: OPENAI_API_KEY, ANTHROPIC_API_KEY, GITHUB_TOKEN, webhook_secret, etc.
+ */
+const SENSITIVE_KEYS_REGEX = /^(key|token|secret|password|apikey|api_key|.*_key|.*_token|.*_secret|.*_password)$/i;
+
+function isSensitiveKey(key: string): boolean {
+  return SENSITIVE_KEYS_REGEX.test(key);
+}
 
 function redactObject(value: unknown): unknown {
   if (Array.isArray(value)) {
@@ -7,7 +16,7 @@ function redactObject(value: unknown): unknown {
   if (value !== null && typeof value === 'object') {
     const result: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      result[k] = SENSITIVE_KEYS.test(k) ? '[REDACTED]' : redactObject(v);
+      result[k] = isSensitiveKey(k) ? '[REDACTED]' : redactObject(v);
     }
     return result;
   }

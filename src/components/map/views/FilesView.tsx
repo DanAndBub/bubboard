@@ -158,6 +158,7 @@ function GroupHeader({ label, topMargin = true }: { dotColor?: string; label: st
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function FilesView({ workspace, fileContents: _fileContents, analyzedFiles, budget, onNavigateToReview }: FilesViewProps) {
   const coreFileNames = new Set(workspace.coreFiles.map(basename));
   const customFileNames = new Set(workspace.customFiles.map(basename));

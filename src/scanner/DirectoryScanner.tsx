@@ -251,7 +251,7 @@ function parsePastedOutput(text: string): ScannedItem[] {
   const seen = new Set<string>();
   const items: ScannedItem[] = [];
   for (const line of text.split('\n')) {
-    let rel = line.trim()
+    const rel = line.trim()
       .replace(/^\.\//, '')
       // Strip absolute paths to ~/.openclaw/
       .replace(/^.*?\.openclaw\//, '');
@@ -342,7 +342,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   function handleConfirm() {
     const selected = items.filter(i => i.selected);
     const paths = selected.map(i => i.path);
-    let filteredContents: Record<string, string> = {};
+    const filteredContents: Record<string, string> = {};
     if (includeContents) {
       for (const path of paths) {
         if (fileContents[path] !== undefined) filteredContents[path] = fileContents[path];
@@ -503,7 +503,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             <>
               <p className="text-xs text-slate-400">
                 Found <span className="text-[#7db8fc] font-medium">{items.length}</span> items.
-                Deselect anything you'd rather exclude.
+                Deselect anything you&apos;d rather exclude.
               </p>
 
               {/* Contents toggle */}

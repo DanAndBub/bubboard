@@ -73,7 +73,7 @@ interface NavItemProps {
   onClick: () => void;
 }
 
-function NavItem({ icon, label, active, badge, alertDot, onClick }: NavItemProps) {
+function NavItem({ icon, label, active, badge, alertDot: _alertDot, onClick }: NavItemProps) {
   return (
     <button
       onClick={onClick}

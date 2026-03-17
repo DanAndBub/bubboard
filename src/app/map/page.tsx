@@ -41,7 +41,7 @@ function MapPageContent() {
 
   const [agentMap, setAgentMap] = useState<AgentMap | null>(() => isDemo ? getDemoAgentMap() : null);
   const [fileContents, setFileContents] = useState<Record<string, string>>(() => isDemo ? getDemoFileContents() : {});
-  const [inputCollapsed, setInputCollapsed] = useState(() => isDemo);
+  const [_inputCollapsed, setInputCollapsed] = useState(() => isDemo);
   const [isLoading, setIsLoading] = useState(false);
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
   const [analyzedFiles, setAnalyzedFiles] = useState<ReturnType<typeof analyzeFile>[]>([]);
@@ -200,12 +200,6 @@ function MapPageContent() {
     buildMapFromTree(tree, normalizedContents);
   };
 
-  // Called by DirectoryScanner when webkitdirectory is not supported
-  const handleUnsupported = () => {
-    setBrowserUnsupported(true);
-    setTextFallbackOpen(true);
-  };
-
   // Called by TreeInput (text fallback)
   const handleTreeSubmit = (tree: string) => {
     buildMapFromTree(tree);
@@ -230,18 +224,6 @@ function MapPageContent() {
       setPreviousSnapshot(null);
       setDriftReport(null);
     }
-  }
-
-  function handleEditInput() {
-    setInputCollapsed(false);
-    setAgentMap(null);
-    setFileContents({});
-    setReviewResult(null);
-    setCurrentSnapshot(null);
-    setPreviousSnapshot(null);
-    setDriftReport(null);
-    setBudget(null);
-    setActiveView('overview');
   }
 
   // Derived values for sidebar and views (only when agentMap is set)

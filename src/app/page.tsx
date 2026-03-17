@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import LandingDemo from '@/components/LandingDemo';
 import CompactDemo from '@/components/CompactDemo';

@@ -32,19 +32,19 @@ export default function LandingDemo() {
     maxScore: 100,
   }), [demoMap]);
 
-  const reviewResult = useMemo(() => {
+  const reviewResult = (() => {
     const mdFiles = Object.entries(fileContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
     if (mdFiles.length > 0) {
       const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
       return runReview(analyzed);
     }
     return { findings: DEMO_REVIEW_RESULT.findings, healthScore: DEMO_REVIEW_RESULT.healthScore, rulesExecuted: 0, filesAnalyzed: 0, criticalCount: 0, warningCount: 0, infoCount: 0 };
-  }, [fileContents]);
+  })();
 
-  const analyzedFiles = useMemo(() => {
+  const analyzedFiles = (() => {
     const mdFiles = Object.entries(fileContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
     return mdFiles.length > 0 ? analyzeFiles(Object.fromEntries(mdFiles)) : DEMO_FILE_ANALYSES;
-  }, [fileContents]);
+  })();
 
   const totalFileCount = demoMap.workspace.coreFiles.length + demoMap.workspace.memoryFiles.length + demoMap.workspace.customFiles.length;
 

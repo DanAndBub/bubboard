@@ -246,7 +246,8 @@ export default function CostsView() {
   }, [filteredRecords, dailyCosts])
 
   // Compute task breakdown from records
-  const taskBreakdown = useMemo<TaskRow[]>(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _taskBreakdown = useMemo<TaskRow[]>(() => {
     const acc: Record<string, { count: number; total_cost: number; models: string[] }> = {}
     for (const r of records) {
       if (!r.task_id) continue
