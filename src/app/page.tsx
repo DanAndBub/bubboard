@@ -27,12 +27,6 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link
-              href="/cost-tracking"
-              className="text-sm text-[#7a8a9b] hover:text-[#b0bec9] transition-colors"
-            >
-              Cost Tracking
-            </Link>
             <a
               href="https://github.com/DanAndBub/bubboard"
               target="_blank"
