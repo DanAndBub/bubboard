@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
   }
 
   const searchParams = request.nextUrl.searchParams
-  const startTime = searchParams.get('start_time') || new Date(Date.now() - 30*24*60*60*1000).toISOString()
-  const endTime = searchParams.get('end_time') || new Date().toISOString()
+  const startTime = searchParams.get('start_time') || new Date(Date.now() - 30*24*60*60*1000).toISOString().slice(0, 10)
+  const endTime = searchParams.get('end_time') || new Date().toISOString().slice(0, 10)
   const bucketWidth = searchParams.get('bucket_width') || '1d'
 
   try {
@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
     const usageRes = await fetch(
       'https://api.anthropic.com/v1/organizations/usage_report/messages?' + new URLSearchParams({
         bucket_width: bucketWidth,
-        start_time: startTime,
-        end_time: endTime,
-        group_by: 'model',
+        starting_at: startTime,
+        ending_at: endTime,
+        'group_by[]': 'model',
       }),
       {
         headers: {
@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
     // Fetch cost report (USD amounts)
     const costRes = await fetch(
       'https://api.anthropic.com/v1/organizations/cost_report?' + new URLSearchParams({
-        start_time: startTime,
-        end_time: endTime,
+        starting_at: startTime,
+        ending_at: endTime,
       }),
       {
         headers: {

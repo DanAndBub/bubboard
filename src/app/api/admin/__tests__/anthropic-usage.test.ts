@@ -139,7 +139,7 @@ describe('GET /api/admin/anthropic/usage', () => {
         end_time: '2024-01-31T00:00:00Z',
         bucket_width: '7d',
       }));
-      expect(capturedUrl).toContain('start_time=2024-01-01');
+      expect(capturedUrl).toContain('starting_at=2024-01-01');
       expect(capturedUrl).toContain('bucket_width=7d');
     });
 

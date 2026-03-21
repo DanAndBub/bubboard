@@ -1,0 +1,59 @@
+# .github/workflows/smoke.yml
+# Runs smoke tests nightly against real external APIs (Anthropic, OpenAI, Airtable).
+# Also triggerable manually from the Actions UI — useful after a key rotation or deploy.
+#
+# Smoke tests are NOT part of the regular CI run (ci.yml). They require real
+# credentials and are designed to detect live integration issues, not code bugs.
+#
+# Prerequisites: add the following to GitHub repo secrets
+# (Settings → Secrets and variables → Actions):
+#   DRIFTWATCH_ADMIN_SECRET
+#   ANTHROPIC_ADMIN_KEY
+#   OPENAI_ADMIN_KEY
+#   AIRTABLE_BASE_ID
+#   AIRTABLE_API_KEY
+
+name: Smoke Tests
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Nightly at 06:00 UTC
+  workflow_dispatch:      # Manual trigger — e.g. after a key rotation
+
+jobs:
+  smoke:
+    name: Smoke Tests (real APIs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      SMOKE: 'true'
+      SMOKE_BASE_URL: 'http://localhost:3000'
+      DRIFTWATCH_ADMIN_SECRET: ${{ secrets.DRIFTWATCH_ADMIN_SECRET }}
+      ANTHROPIC_ADMIN_KEY: ${{ secrets.ANTHROPIC_ADMIN_KEY }}
+      OPENAI_ADMIN_KEY: ${{ secrets.OPENAI_ADMIN_KEY }}
+      AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+      AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Start Next.js dev server
+        run: npm run dev &
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run smoke tests
+        run: npm run test:smoke
+
+      - name: Stop dev server
+        if: always()
+        run: kill $(lsof -t -i:3000) || true
