@@ -1,7 +1,22 @@
+/**
+ * Tests for POST /api/feedback
+ *
+ * The feedback route accepts a `type` ("bug" | "suggestion" | "review"),
+ * a required `message` (max 2000 chars), and an optional `email` string.
+ * Valid submissions are forwarded to an Airtable "Feedback" table.
+ * It requires AIRTABLE_BASE_ID and AIRTABLE_API_KEY to be set.
+ *
+ * Test strategy:
+ * - Airtable is never called for real — `fetch` is stubbed via `vi.stubGlobal`.
+ * - Env vars are set/torn down around each test via beforeEach/afterEach.
+ * - Payload inspection tests use a `mockImplementation` that captures call args
+ *   directly, since Next.js passes `(url, init)` to the underlying fetch.
+ */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST } from '../route';
 
+/** Builds a NextRequest with a JSON body for the feedback endpoint. */
 function makeRequest(body: unknown): NextRequest {
   return new NextRequest('http://localhost/api/feedback', {
     method: 'POST',
@@ -10,6 +25,11 @@ function makeRequest(body: unknown): NextRequest {
   });
 }
 
+/**
+ * Returns a vi mock that resolves to a minimal fetch-like response.
+ * Use this when the test only cares about the route's response, not the
+ * payload sent to Airtable.
+ */
 function mockFetch(status: number, body: unknown = {}) {
   return vi.fn().mockResolvedValue({
     ok: status >= 200 && status < 300,
