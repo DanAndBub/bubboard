@@ -1,6 +1,7 @@
 'use client';
 
 import { AgentInfo } from '@/lib/types';
+import ViewContextHeader from '@/components/guidance/ViewContextHeader';
 
 interface AgentsViewProps {
   agents: AgentInfo[];
@@ -122,6 +123,11 @@ export default function AgentsView({ agents }: AgentsViewProps) {
 
   return (
     <div>
+      <ViewContextHeader
+        viewId="agents"
+        oneLiner="How your agents are configured and connected."
+        expandedDetail="This view maps the agent hierarchy from AGENTS.md: which agents exist, their model assignments, reporting chains, and delegation patterns. It does not show runtime behavior — only what the config files declare."
+      />
       {/* Page header */}
       <div className="flex items-center gap-3 mb-5">
         <h1 className="text-[22px] font-semibold text-white">Agents</h1>

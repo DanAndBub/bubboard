@@ -2,6 +2,7 @@
 
 import type { DriftReport } from '@/lib/drift/types';
 import DriftReportPanel from '@/components/drift/DriftReport';
+import ViewContextHeader from '@/components/guidance/ViewContextHeader';
 
 interface DriftViewProps {
   driftReport: DriftReport | null;
@@ -10,6 +11,11 @@ interface DriftViewProps {
 export default function DriftView({ driftReport }: DriftViewProps) {
   return (
     <div>
+      <ViewContextHeader
+        viewId="drift"
+        oneLiner="What changed since your last scan."
+        expandedDetail="Take a snapshot of your workspace, then compare it to a previous one. Drift detection shows added, removed, and modified files with line-level diffs. Useful for catching unintended changes from agent edits or for auditing what evolved between reviews."
+      />
       <h1 className="text-xl font-semibold text-[#f1f5f9] mb-6">Drift Report</h1>
 
       {driftReport === null ? (

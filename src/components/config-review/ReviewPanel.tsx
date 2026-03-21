@@ -7,6 +7,16 @@ import { calculateTruncation } from '@/lib/config-review/truncation';
 import { calculateBudget } from '@/lib/config-review/budget';
 import type { FileAnalysis } from '@/lib/config-review/types';
 import TruncationDiagram from './TruncationDiagram';
+import FindingTooltip from '@/components/guidance/FindingTooltip';
+
+const CATEGORY_EXPLANATIONS: Record<string, string> = {
+  size: 'Size findings flag files approaching or exceeding the 20K character per-file limit. Oversized files get their middle section truncated by OpenClaw, which means your agent silently loses instructions.',
+  truncation: 'Truncation findings identify files where OpenClaw is actively cutting content. The middle section is replaced with a marker — your agent sees the start and end but loses everything between.',
+  structure: 'Structure findings catch organizational issues — missing headings, inconsistent formatting, or sections that could be split into separate files for better maintainability.',
+  contradiction: 'Contradiction findings detect when two files give conflicting instructions. Your agent sees both and has to guess which one to follow.',
+  duplication: 'Duplication findings catch repeated content across files. Duplicated instructions waste bootstrap budget and can drift out of sync over time.',
+  'agent-edit': 'Agent edit findings detect signs that an AI agent modified this file without human review — date stamps, repetitive additions, or markup artifacts that accumulate over time.',
+};
 
 interface ReviewPanelProps {
   result: ReviewResult;
@@ -242,16 +252,23 @@ export default function ReviewPanel({ result, files, onOpenFile }: ReviewPanelPr
 
                       return (
                         <div key={fId}>
-                          <button
-                            onClick={() => toggleFinding(fId)}
-                            className={`w-full text-left px-3 py-2 rounded-lg border ${SEVERITY_COLORS[finding.severity]} hover:brightness-110 transition-all`}
-                          >
-                            <div className="flex items-start gap-2">
-                              <span className="text-[10px] text-[#7a8a9b] shrink-0 mt-0.5">{isOpen ? '▾' : '▸'}</span>
-                              <span className="text-xs shrink-0">{SEVERITY_ICON[finding.severity]}</span>
-                              <span className="text-xs text-[#b0bec9] leading-relaxed flex-1">{finding.message}</span>
-                            </div>
-                          </button>
+                          <div className={`flex items-center rounded-lg border ${SEVERITY_COLORS[finding.severity]} hover:brightness-110 transition-all`}>
+                            <button
+                              onClick={() => toggleFinding(fId)}
+                              className="flex-1 text-left px-3 py-2"
+                            >
+                              <div className="flex items-start gap-2">
+                                <span className="text-[10px] text-[#7a8a9b] shrink-0 mt-0.5">{isOpen ? '▾' : '▸'}</span>
+                                <span className="text-xs shrink-0">{SEVERITY_ICON[finding.severity]}</span>
+                                <span className="text-xs text-[#b0bec9] leading-relaxed">{finding.message}</span>
+                              </div>
+                            </button>
+                            {CATEGORY_EXPLANATIONS[finding.category] && (
+                              <span className="pr-3 shrink-0">
+                                <FindingTooltip findingType={finding.category} explanation={CATEGORY_EXPLANATIONS[finding.category]} />
+                              </span>
+                            )}
+                          </div>
                           {isOpen && (
                             <div className="ml-7 mt-1.5 mb-1 px-3 py-2 rounded-lg bg-[#0a0e17] border border-[#506880]/50">
                               <p className="text-xs text-[#f1f5f9]">{finding.recommendation}</p>
