@@ -21,33 +21,20 @@ interface AdminResponse {
   costs?: unknown;
 }
 
-async function fetchAnthropicAdmin(start: Date, end: Date): Promise<AdminResponse> {
+async function fetchAdminData(
+  start: Date,
+  end: Date,
+): Promise<{ anthropic: AdminResponse; openai: AdminResponse }> {
   try {
     const params = new URLSearchParams({
       start_time: start.toISOString(),
       end_time: end.toISOString(),
     });
-    const res = await fetch(`/api/admin/anthropic/usage?${params}`, {
-      headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_SECRET}` },
-    });
+    const res = await fetch(`/api/admin/reconcile?${params}`);
+    if (!res.ok) return { anthropic: { available: false }, openai: { available: false } };
     return await res.json();
   } catch {
-    return { available: false };
-  }
-}
-
-async function fetchOpenAIAdmin(start: Date, end: Date): Promise<AdminResponse> {
-  try {
-    const params = new URLSearchParams({
-      start_time: String(Math.floor(start.getTime() / 1000)),
-      end_time: String(Math.floor(end.getTime() / 1000)),
-    });
-    const res = await fetch(`/api/admin/openai/usage?${params}`, {
-      headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_SECRET}` },
-    });
-    return await res.json();
-  } catch {
-    return { available: false };
+    return { anthropic: { available: false }, openai: { available: false } };
   }
 }
 
@@ -112,12 +99,12 @@ function extractPerModelCosts(response: AdminResponse): Map<string, number> {
 export async function reconcile(dateRange: [Date, Date]): Promise<ReconciliationResult> {
   const [start, end] = dateRange;
 
-  const [localTotal, localBreakdown, anthropicData, openaiData] = await Promise.all([
+  const [localTotal, localBreakdown, adminData] = await Promise.all([
     getTotalCost(dateRange),
     getModelCostBreakdown(dateRange),
-    fetchAnthropicAdmin(start, end),
-    fetchOpenAIAdmin(start, end),
+    fetchAdminData(start, end),
   ]);
+  const { anthropic: anthropicData, openai: openaiData } = adminData;
 
   const neitherAvailable = !anthropicData.available && !openaiData.available;
   if (neitherAvailable) {
@@ -186,12 +173,11 @@ export async function checkAdminAvailability(): Promise<{
   anthropic: boolean;
   openai: boolean;
 }> {
-  const [anthropicData, openaiData] = await Promise.all([
-    fetchAnthropicAdmin(new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()),
-    fetchOpenAIAdmin(new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()),
-  ]);
+  const now = new Date();
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const { anthropic, openai } = await fetchAdminData(yesterday, now);
   return {
-    anthropic: anthropicData.available,
-    openai: openaiData.available,
+    anthropic: anthropic.available,
+    openai: openai.available,
   };
 }
