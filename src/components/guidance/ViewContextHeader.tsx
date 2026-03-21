@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface ViewContextHeaderProps {
   viewId: string;
@@ -10,14 +10,11 @@ interface ViewContextHeaderProps {
 
 export default function ViewContextHeader({ viewId, oneLiner, expandedDetail }: ViewContextHeaderProps) {
   const storageKey = `dw-hint-${viewId}-dismissed`;
-  const [dismissed, setDismissed] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-
-  useEffect(() => {
-    const isDismissed = localStorage.getItem(storageKey) === 'true';
-    setDismissed(isDismissed);
-    setExpanded(!isDismissed);
-  }, [storageKey]);
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(storageKey) === 'true';
+  });
+  const [expanded, setExpanded] = useState(() => !dismissed);
 
   function handleDismiss() {
     localStorage.setItem(storageKey, 'true');

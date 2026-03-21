@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 
 interface DemoBannerProps {
@@ -8,13 +8,11 @@ interface DemoBannerProps {
 }
 
 export default function DemoBanner({ isDemo }: DemoBannerProps) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (!isDemo) return;
-    const dismissed = sessionStorage.getItem('dw-demo-banner-dismissed') === 'true';
-    setVisible(!dismissed);
-  }, [isDemo]);
+  const [visible, setVisible] = useState(() => {
+    if (!isDemo) return false;
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('dw-demo-banner-dismissed') !== 'true';
+  });
 
   if (!isDemo || !visible) return null;
 
