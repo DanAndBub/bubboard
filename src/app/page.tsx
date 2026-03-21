@@ -92,6 +92,29 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* WHY DRIFTWATCH SECTION */}
+        <div className="py-16 px-6">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#f1f5f9] text-center mb-12">
+              Built for the moment you realize something&rsquo;s off
+            </h2>
+            <div className="grid md:grid-cols-3 gap-10">
+              <div>
+                <h3 className="text-xl font-semibold text-[#f1f5f9] mb-4">Your agent forgets things</h3>
+                <p className="text-[#b0bec9] text-base leading-relaxed">OpenClaw config files control what your agent knows. When they get too long, the middle gets cut &mdash; silently. Your agent loses instructions you wrote and you get no warning.</p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-[#f1f5f9] mb-4">Changes pile up invisibly</h3>
+                <p className="text-[#b0bec9] text-base leading-relaxed">You edit AGENTS.md, tweak a heartbeat, add a skill. Six weeks later you can&rsquo;t remember what changed. Drift compounds. Bugs hide in the gap between what you wrote and what&rsquo;s actually loaded.</p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-[#f1f5f9] mb-4">Driftwatch makes it visible</h3>
+                <p className="text-[#b0bec9] text-base leading-relaxed">Scan your workspace. See which files are oversized, which sections get truncated, how costs are trending, and what changed since last time. Fix problems before they cost you.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* CTA SECTION */}
         <div className="py-12 px-6 text-center">
           <p className="text-[#b0bec9] text-lg mb-6">That was a demo. Now see yours.</p>

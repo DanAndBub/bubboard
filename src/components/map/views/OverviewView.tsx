@@ -2,6 +2,7 @@
 
 import { AgentMap, StatsData } from '@/lib/types';
 import { ReviewFinding, BootstrapBudget } from '@/lib/config-review/types';
+import ViewContextHeader from '@/components/guidance/ViewContextHeader';
 
 export interface OverviewViewProps {
   agentMap: AgentMap;
@@ -97,6 +98,11 @@ export default function OverviewView({
 
   return (
     <div className="min-h-full" style={{ padding: '28px 32px' }}>
+      <ViewContextHeader
+        viewId="overview"
+        oneLiner="A health check for your agent workspace."
+        expandedDetail="The overview aggregates findings from every module — file sizes, config review issues, drift status, and cost signals. The health score is a weighted composite: critical findings count more than warnings. Click any card to jump to the detailed view."
+      />
       {/* Page header */}
       <div className="flex items-center justify-between" style={{ marginBottom: 24 }}>
         <div className="flex items-center gap-[10px]">

@@ -249,6 +249,27 @@ function MapPageContent() {
     <>
       {!agentMap && activeView !== 'costs' ? (
         /* ── INPUT SECTION ─────────────────────────────────────────────── */
+        <>
+        {/* How Driftwatch works */}
+        <div className="max-w-2xl mx-auto px-4 pb-8">
+          <h2 className="text-xl font-semibold text-[#f1f5f9] mb-4">How Driftwatch works</h2>
+          <ol className="space-y-3 mb-5 list-none">
+            <li className="flex gap-3">
+              <span className="text-sm font-mono text-[#7a8a9b] shrink-0 w-5 pt-0.5">1.</span>
+              <span className="text-sm text-[#b0bec9] leading-relaxed">Point Driftwatch at your OpenClaw workspace directory. Everything stays in your browser — nothing is uploaded.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-sm font-mono text-[#7a8a9b] shrink-0 w-5 pt-0.5">2.</span>
+              <span className="text-sm text-[#b0bec9] leading-relaxed">Driftwatch reads your config files (<span className="font-mono text-[#f1f5f9]">AGENTS.md</span>, <span className="font-mono text-[#f1f5f9]">MEMORY.md</span>, <span className="font-mono text-[#f1f5f9]">SOUL.md</span>, <span className="font-mono text-[#f1f5f9]">HEARTBEAT.md</span>, <span className="font-mono text-[#f1f5f9]">TOOLS.md</span>, <span className="font-mono text-[#f1f5f9]">USER.md</span>, <span className="font-mono text-[#f1f5f9]">BOOTSTRAP.md</span>) and runs structural analysis.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-sm font-mono text-[#7a8a9b] shrink-0 w-5 pt-0.5">3.</span>
+              <span className="text-sm text-[#b0bec9] leading-relaxed">Review findings across six views: Overview, Agents, Files, Config Review, Drift Detection, and Cost Tracking.</span>
+            </li>
+          </ol>
+          <p className="text-sm text-[#7a8a9b]">No account required. No data leaves your machine. Works with any OpenClaw workspace.</p>
+        </div>
+
         <div className="max-w-2xl mx-auto space-y-4">
           {/* Header */}
           <div className="text-center mb-8">
@@ -356,6 +377,7 @@ function MapPageContent() {
 
           </div>
         </div>
+        </>
       ) : (
         /* ── VIEW-BASED LAYOUT ──────────────────────────────────────────── */
         <>
@@ -421,6 +443,7 @@ function MapPageContent() {
 
   return (
     <MapShell
+      isDemo={isDemo}
       topBar={
         <MapTopBar
           isDemo={isDemo}

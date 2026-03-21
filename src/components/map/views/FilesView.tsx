@@ -2,6 +2,7 @@
 
 import { WorkspaceFiles } from '@/lib/types';
 import { FileAnalysis, BootstrapBudget } from '@/lib/config-review/types';
+import ViewContextHeader from '@/components/guidance/ViewContextHeader';
 
 interface FilesViewProps {
   workspace: WorkspaceFiles;
@@ -192,6 +193,11 @@ export default function FilesView({ workspace, fileContents: _fileContents, anal
 
   return (
     <div>
+      <ViewContextHeader
+        viewId="files"
+        oneLiner="Every config file OpenClaw loads, and how big it is."
+        expandedDetail="OpenClaw loads these files into your agent context at startup. Each file consumes part of your 150K character bootstrap budget. Files exceeding 20K characters per file get truncated — the middle is cut and replaced with a marker. This view shows exactly where you stand."
+      />
       {/* Navigate to Config Review CTA */}
       {onNavigateToReview && (
         <button

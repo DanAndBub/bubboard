@@ -1,14 +1,16 @@
 'use client';
 
 import React from 'react';
+import DemoBanner from '@/components/guidance/DemoBanner';
 
 interface MapShellProps {
   topBar: React.ReactNode;
   sidebar: React.ReactNode;
   children: React.ReactNode;
+  isDemo?: boolean;
 }
 
-export default function MapShell({ topBar, sidebar, children }: MapShellProps) {
+export default function MapShell({ topBar, sidebar, children, isDemo = false }: MapShellProps) {
   return (
     <div className="bg-[#0a0e17] h-dvh flex flex-col lg:grid lg:grid-cols-[252px_1fr] lg:grid-rows-[52px_1fr] overflow-hidden">
       <a
@@ -33,6 +35,7 @@ export default function MapShell({ topBar, sidebar, children }: MapShellProps) {
         id="main-content"
         className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-9 lg:py-7 pb-20 lg:pb-7"
       >
+        <DemoBanner isDemo={isDemo} />
         {children}
       </main>
 

@@ -26,6 +26,7 @@ import ModelFilterDropdown from '@/components/cost-tracking/ModelFilterDropdown'
 import { detectAllAnomalies } from '@/lib/cost-tracking/analytics/anomalies'
 import { forecastCosts } from '@/lib/cost-tracking/analytics/forecast'
 import { UsageRecord } from '@/lib/cost-tracking/types'
+import ViewContextHeader from '@/components/guidance/ViewContextHeader'
 
 // Import db to ensure IndexedDB is initialized before store functions are called.
 // Dexie opens the database connection on module load; without this import the
@@ -309,6 +310,13 @@ export default function CostsView() {
 
   return (
     <div className="min-h-full overflow-x-hidden">
+      <div className="px-4 sm:px-6 pt-6">
+        <ViewContextHeader
+          viewId="costs"
+          oneLiner="Track what your agent setup actually costs."
+          expandedDetail="Import your API usage data to see cost trends over time, broken down by model and task. Driftwatch does not connect to any API — you provide the data. Useful for catching cost spikes from model misrouting or prompt bloat."
+        />
+      </div>
       {/* Page header */}
       <div className="px-4 sm:px-6 py-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
