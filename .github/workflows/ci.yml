@@ -1,6 +1,6 @@
 # .github/workflows/ci.yml
 # Runs on every PR targeting master and on pushes to master.
-# All three checks (lint, typecheck, build) must pass before a PR can merge.
+# All checks must pass before a PR can merge.
 
 name: CI
 
@@ -17,41 +17,51 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
-    name: Lint, Typecheck & Build
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Check out your repo code onto the runner
       - uses: actions/checkout@v4
-
-      # Step 2: Set up Node.js (matches your engine requirements)
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm          # Caches node_modules between runs for speed
-
-      # Step 3: Install dependencies
+          cache: npm
       - run: npm ci
-      # npm ci is like npm install but stricter:
-      # it uses the exact versions from package-lock.json
-      # and is faster in CI because it skips some checks.
+      - run: npm run lint
 
-      # Step 4: Lint
-      - name: Lint
-        run: npm run lint
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
 
-      # Step 5: Type check
-      - name: Typecheck
-        run: npx tsc --noEmit
-      # --noEmit means "check types but don't output files."
-      # This catches type errors that lint might miss.
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
 
-      # Step 6: Test
-      - name: Test
-        run: npm test
-
-      # Step 7: Build
-      - name: Build
-        run: npm run build
-      # This runs next build. If it fails, the PR is blocked.
+  build:
+    name: Build
+    needs: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
