@@ -47,7 +47,11 @@ jobs:
       # --noEmit means "check types but don't output files."
       # This catches type errors that lint might miss.
 
-      # Step 6: Build
+      # Step 6: Test
+      - name: Test
+        run: npm test
+
+      # Step 7: Build
       - name: Build
         run: npm run build
       # This runs next build. If it fails, the PR is blocked.
