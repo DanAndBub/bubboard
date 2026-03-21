@@ -4,18 +4,20 @@
  * Confirms the OpenAI Admin API integration is alive.
  *
  * Run with: npm run test:smoke
- * Requires: DRIFTWATCH_ADMIN_SECRET, OPENAI_ADMIN_KEY in .env.local
+ * Requires: DRIFTWATCH_ADMIN_SECRET in .env.local
+ * Optional: OPENAI_ADMIN_KEY — suite is skipped if not set
  */
 import { describe, it, expect, beforeAll } from 'vitest';
 import { requireEnv } from './helpers/env';
 import { adminGet } from './helpers/request';
 
-describe.skipIf(!process.env.SMOKE)('GET /api/admin/openai/usage [smoke]', () => {
+const skip = !process.env.SMOKE || !process.env.OPENAI_ADMIN_KEY;
+
+describe.skipIf(skip)('GET /api/admin/openai/usage [smoke]', () => {
   let adminSecret: string;
 
   beforeAll(() => {
     adminSecret = requireEnv('DRIFTWATCH_ADMIN_SECRET');
-    requireEnv('OPENAI_ADMIN_KEY');
   });
 
   it('returns HTTP 200', async () => {
