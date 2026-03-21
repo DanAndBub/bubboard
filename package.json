@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:smoke": "vitest run --config smoke/vitest.config.smoke.ts --env-file .env.local",
     "prepare": "husky"
   },
   "dependencies": {
