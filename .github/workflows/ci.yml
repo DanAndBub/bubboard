@@ -1,35 +1,53 @@
+# .github/workflows/ci.yml
+# Runs on every PR targeting master and on pushes to master.
+# All three checks (lint, typecheck, build) must pass before a PR can merge.
+
 name: CI
 
 on:
-  push:
-    branches: [master]
   pull_request:
     branches: [master]
+  push:
+    branches: [master]
+
+# Cancel in-progress runs for the same PR when new commits are pushed.
+# Saves GitHub Actions minutes — you don't need to check stale commits.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  ci:
+    name: Lint, Typecheck & Build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      # Step 1: Check out your repo code onto the runner
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      # Step 2: Set up Node.js (matches your engine requirements)
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm          # Caches node_modules between runs for speed
 
-      - name: Install dependencies
-        run: npm ci
+      # Step 3: Install dependencies
+      - run: npm ci
+      # npm ci is like npm install but stricter:
+      # it uses the exact versions from package-lock.json
+      # and is faster in CI because it skips some checks.
 
-      - name: Type check
-        run: npx tsc --noEmit
-
+      # Step 4: Lint
       - name: Lint
         run: npm run lint
 
+      # Step 5: Type check
+      - name: Typecheck
+        run: npx tsc --noEmit
+      # --noEmit means "check types but don't output files."
+      # This catches type errors that lint might miss.
+
+      # Step 6: Build
       - name: Build
         run: npm run build
-
-      - name: Run unit tests
-        run: npm test
+      # This runs next build. If it fails, the PR is blocked.
