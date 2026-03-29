@@ -1,18 +1,21 @@
 import { TruncationAnalysis } from './types';
-
-const DEFAULT_BOOTSTRAP_MAX_CHARS = 20_000;
+import {
+  BOOTSTRAP_MAX_CHARS_DEFAULT,
+  TRUNCATION_HEAD_RATIO,
+  TRUNCATION_TAIL_RATIO,
+} from './thresholds';
 
 /**
  * Calculate OpenClaw's 70/20/10 truncation split for a file.
  * When a file exceeds bootstrapMaxChars:
- *   - 70% from HEAD
- *   - 20% from TAIL
+ *   - 70% from HEAD (TRUNCATION_HEAD_RATIO applied to limit)
+ *   - 20% from TAIL (TRUNCATION_TAIL_RATIO applied to limit)
  *   - 10% reserved for truncation marker
  *   - The MIDDLE disappears silently.
  */
 export function calculateTruncation(
   fileCharCount: number,
-  bootstrapMaxChars: number = DEFAULT_BOOTSTRAP_MAX_CHARS,
+  bootstrapMaxChars: number = BOOTSTRAP_MAX_CHARS_DEFAULT,
 ): TruncationAnalysis {
   if (fileCharCount <= bootstrapMaxChars) {
     return {
@@ -25,8 +28,8 @@ export function calculateTruncation(
     };
   }
 
-  const headChars = Math.floor(bootstrapMaxChars * 0.70);
-  const tailChars = Math.floor(bootstrapMaxChars * 0.20);
+  const headChars = Math.floor(bootstrapMaxChars * TRUNCATION_HEAD_RATIO);
+  const tailChars = Math.floor(bootstrapMaxChars * TRUNCATION_TAIL_RATIO);
   const hiddenChars = fileCharCount - headChars - tailChars;
 
   return {
