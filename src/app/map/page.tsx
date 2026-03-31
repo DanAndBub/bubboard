@@ -27,13 +27,10 @@ import MapShell from '@/components/map/MapShell';
 import MapTopBar from '@/components/map/MapTopBar';
 import MapSidebar from '@/components/map/MapSidebar';
 import OverviewView from '@/components/map/views/OverviewView';
-import AgentsView from '@/components/map/views/AgentsView';
-import FilesView from '@/components/map/views/FilesView';
-import CostsView from '@/components/map/views/CostsView';
 import ReviewView from '@/components/map/views/ReviewView';
 import DriftView from '@/components/map/views/DriftView';
 
-type View = 'overview' | 'agents' | 'files' | 'costs' | 'review' | 'drift';
+type View = 'overview' | 'review' | 'drift';
 
 function MapPageContent() {
   const searchParams = useSearchParams();
@@ -52,25 +49,13 @@ function MapPageContent() {
   const [editorFile, setEditorFile] = useState<string | null>(null);
   const [editorFinding, setEditorFinding] = useState<ReviewFinding | null>(null);
   const [activeView, setActiveView] = useState<View>('overview');
-  const [costRecordCount, setCostRecordCount] = useState(0);
 
   // Apply ?view= query param on mount
   const initialView = searchParams.get('view');
-  // Load cost record count for reset dialog
   useEffect(() => {
-    import('@/lib/cost-tracking/store').then(({ getRecordCount }) =>
-      getRecordCount().then(setCostRecordCount)
-    );
-  }, []);
-
-  useEffect(() => {
-    const valid: View[] = ['overview', 'agents', 'files', 'costs', 'review', 'drift'];
+    const valid: View[] = ['overview', 'review', 'drift'];
     if (initialView && (valid as string[]).includes(initialView)) {
       setActiveView(initialView as View);
-      // Cost tracking doesn't need scan data — skip input screen
-      if (initialView === 'costs' && !agentMap) {
-        setInputCollapsed(true);
-      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -205,7 +190,7 @@ function MapPageContent() {
     buildMapFromTree(tree);
   };
 
-  function handleNewMap(options: { clearCosts: boolean; clearSnapshots: boolean }) {
+  function handleNewMap(options: { clearSnapshots: boolean }) {
     setAgentMap(null);
     setFileContents({});
     setReviewResult(null);
@@ -216,9 +201,6 @@ function MapPageContent() {
     setInputCollapsed(false);
     setActiveView('overview');
     window.history.pushState({}, '', '/map');
-    if (options.clearCosts) {
-      import('@/lib/cost-tracking/store').then(({ clearAllData }) => clearAllData());
-    }
     if (options.clearSnapshots) {
       setCurrentSnapshot(null);
       setPreviousSnapshot(null);
@@ -247,7 +229,7 @@ function MapPageContent() {
   // Main content rendered inside MapShell
   const mainContent = (
     <>
-      {!agentMap && activeView !== 'costs' ? (
+      {!agentMap ? (
         /* ── INPUT SECTION ─────────────────────────────────────────────── */
         <>
         {/* How Driftwatch works */}
@@ -264,7 +246,7 @@ function MapPageContent() {
             </li>
             <li className="flex gap-3">
               <span className="text-sm font-mono text-[#7a8a9b] shrink-0 w-5 pt-0.5">3.</span>
-              <span className="text-sm text-[#b0bec9] leading-relaxed">Review findings across six views: Overview, Agents, Files, Config Review, Drift Detection, and Cost Tracking.</span>
+              <span className="text-sm text-[#b0bec9] leading-relaxed">Review findings across three views: Overview, Config Review, and Drift Detection.</span>
             </li>
           </ol>
           <p className="text-sm text-[#7a8a9b]">No account required. No data leaves your machine. Works with any OpenClaw workspace.</p>
@@ -392,21 +374,6 @@ function MapPageContent() {
               isDemo={isDemo}
             />
           )}
-          {activeView === 'agents' && agentMap && (
-            <AgentsView agents={agentMap.agents} />
-          )}
-          {activeView === 'files' && agentMap && (
-            <FilesView
-              workspace={agentMap.workspace}
-              fileContents={fileContents}
-              analyzedFiles={analyzedFiles}
-              budget={budget}
-              onNavigateToReview={() => setActiveView('review')}
-            />
-          )}
-          {activeView === 'costs' && (
-            <CostsView />
-          )}
           {activeView === 'review' && (
             <ReviewView
               reviewResult={reviewResult}
@@ -449,7 +416,6 @@ function MapPageContent() {
           isDemo={isDemo}
           onNewMap={handleNewMap}
           showNewMap={agentMap !== null}
-          costRecordCount={costRecordCount}
           snapshotCount={(currentSnapshot ? 1 : 0) + (previousSnapshot ? 1 : 0)}
         />
       }
@@ -459,8 +425,6 @@ function MapPageContent() {
             activeView={activeView}
             onViewChange={setActiveView}
 
-            agentCount={agentMap.agents.length}
-            fileCount={totalFileCount}
             hasFindings={(reviewResult?.findings.length ?? 0) > 0}
             onDownloadSnapshot={() => {
               if (currentSnapshot) downloadSnapshot(currentSnapshot);

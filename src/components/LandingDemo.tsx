@@ -5,9 +5,6 @@ import MapShell from '@/components/map/MapShell';
 import MapTopBar from '@/components/map/MapTopBar';
 import MapSidebar from '@/components/map/MapSidebar';
 import OverviewView from '@/components/map/views/OverviewView';
-import AgentsView from '@/components/map/views/AgentsView';
-import FilesView from '@/components/map/views/FilesView';
-import CostsView from '@/components/map/views/CostsView';
 import ReviewPanel from '@/components/config-review/ReviewPanel';
 import { getDemoAgentMap, getDemoFileContents } from '@/lib/demo-data';
 import { DEMO_REVIEW_RESULT, DEMO_BUDGET, DEMO_FILE_ANALYSES } from '@/lib/phase3-demo-data';
@@ -15,7 +12,7 @@ import { runReview } from '@/lib/config-review/runner';
 import { analyzeFiles } from '@/lib/config-review/analyze-file';
 import type { StatsData } from '@/lib/types';
 
-type View = 'overview' | 'agents' | 'files' | 'costs' | 'review' | 'drift';
+type View = 'overview' | 'review' | 'drift';
 
 export default function LandingDemo() {
   const [activeView, setActiveView] = useState<View>('overview');
@@ -46,8 +43,6 @@ export default function LandingDemo() {
     return mdFiles.length > 0 ? analyzeFiles(Object.fromEntries(mdFiles)) : DEMO_FILE_ANALYSES;
   })();
 
-  const totalFileCount = demoMap.workspace.coreFiles.length + demoMap.workspace.memoryFiles.length + demoMap.workspace.customFiles.length;
-
   function renderView() {
     switch (activeView) {
       case 'overview':
@@ -62,20 +57,6 @@ export default function LandingDemo() {
             isDemo
           />
         );
-      case 'agents':
-        return <AgentsView agents={demoMap.agents} />;
-      case 'files':
-        return (
-          <FilesView
-            workspace={demoMap.workspace}
-            fileContents={fileContents}
-            analyzedFiles={analyzedFiles}
-            budget={DEMO_BUDGET}
-            onNavigateToReview={() => setActiveView('review')}
-          />
-        );
-      case 'costs':
-        return <CostsView />;
       case 'review':
         return (
           <ReviewPanel
@@ -105,7 +86,6 @@ export default function LandingDemo() {
             isDemo
             onNewMap={() => {}}
             showNewMap
-            costRecordCount={0}
             snapshotCount={0}
           />
         }
@@ -114,8 +94,6 @@ export default function LandingDemo() {
             activeView={activeView}
             onViewChange={setActiveView}
 
-            agentCount={stats.agentCount}
-            fileCount={totalFileCount}
             hasFindings={reviewResult.findings.length > 0}
             onDownloadSnapshot={() => {}}
             onUploadSnapshot={() => {}}

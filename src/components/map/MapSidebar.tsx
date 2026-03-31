@@ -3,13 +3,11 @@
 import { useState } from 'react';
 import WaitlistForm from '@/components/WaitlistForm';
 
-type View = 'overview' | 'agents' | 'files' | 'costs' | 'review' | 'drift';
+type View = 'overview' | 'review' | 'drift';
 
 interface MapSidebarProps {
   activeView: View;
   onViewChange: (view: View) => void;
-  agentCount: number;
-  fileCount: number;
   hasFindings: boolean;
   onDownloadSnapshot: () => void;
   onUploadSnapshot: () => void;
@@ -20,9 +18,6 @@ interface MapSidebarProps {
 
 const TABS: { view: View; icon: string; label: string }[] = [
   { view: 'overview', icon: '◉', label: 'Overview' },
-  { view: 'agents', icon: '⬡', label: 'Agents' },
-  { view: 'files', icon: '▤', label: 'Files' },
-  { view: 'costs', icon: '◎', label: 'Costs' },
   { view: 'review', icon: '⚑', label: 'Config' },
   { view: 'drift', icon: '↔', label: 'Drift' },
 ];
@@ -178,8 +173,6 @@ function Divider() {
 export default function MapSidebar({
   activeView,
   onViewChange,
-  agentCount,
-  fileCount,
   hasFindings,
   onDownloadSnapshot,
   onUploadSnapshot,
@@ -243,9 +236,6 @@ export default function MapSidebar({
         <div style={{ padding: '0 12px', marginBottom: 20 }}>
           <SectionLabel>Views</SectionLabel>
           <NavItem icon="◉" label="Overview" active={activeView === 'overview'} onClick={() => onViewChange('overview')} />
-          <NavItem icon="⬡" label="Agents" active={activeView === 'agents'} badge={agentCount} onClick={() => onViewChange('agents')} />
-          <NavItem icon="▤" label="Files" active={activeView === 'files'} badge={fileCount} onClick={() => onViewChange('files')} />
-          <NavItem icon="◎" label="Cost Tracking" active={activeView === 'costs'} onClick={() => onViewChange('costs')} />
         </div>
 
         <Divider />

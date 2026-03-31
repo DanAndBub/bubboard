@@ -6,14 +6,12 @@ import { createPortal } from 'react-dom';
 interface ResetDialogProps {
   open: boolean;
   onClose: () => void;
-  onReset: (options: { clearCosts: boolean; clearSnapshots: boolean }) => void;
-  costRecordCount: number;
+  onReset: (options: { clearSnapshots: boolean }) => void;
   snapshotCount: number;
   anchorRef?: React.RefObject<HTMLElement | null>;
 }
 
-export default function ResetDialog({ open, onClose, onReset, costRecordCount, snapshotCount, anchorRef }: ResetDialogProps) {
-  const [clearCosts, setClearCosts] = useState(false);
+export default function ResetDialog({ open, onClose, onReset, snapshotCount, anchorRef }: ResetDialogProps) {
   const [clearSnapshots, setClearSnapshots] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -58,11 +56,11 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
 
   // Reset checkboxes when dialog opens — use key-based reset instead
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { if (open) { setClearCosts(false); setClearSnapshots(false); } }, [open]);
+  useEffect(() => { if (open) { setClearSnapshots(false); } }, [open]);
 
   if (!open || !pos) return null;
 
-  const hasDestructive = clearCosts || clearSnapshots;
+  const hasDestructive = clearSnapshots;
 
   const dialog = (
     <div
@@ -83,22 +81,6 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
         <label className="flex items-center gap-2.5 text-xs cursor-default">
           <input type="checkbox" checked disabled className="accent-[#7db8fc] rounded" />
           <span className="text-[#b0bec9]">Reset map &amp; config data</span>
-        </label>
-
-        {/* Optional: costs */}
-        <label className="flex items-center gap-2.5 text-xs cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={clearCosts}
-            onChange={e => setClearCosts(e.target.checked)}
-            className="accent-[#7db8fc] rounded"
-          />
-          <span className="text-[#b0bec9] group-hover:text-[#f1f5f9] transition-colors">
-            Clear cost data
-            {costRecordCount > 0 && (
-              <span className="text-[#7a8a9b] ml-1">({costRecordCount.toLocaleString()} records)</span>
-            )}
-          </span>
         </label>
 
         {/* Optional: snapshots */}
@@ -127,7 +109,7 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
         {/* Actions */}
         <div className="flex gap-2 pt-1">
           <button
-            onClick={() => { onReset({ clearCosts, clearSnapshots }); onClose(); }}
+            onClick={() => { onReset({ clearSnapshots }); onClose(); }}
             className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               hasDestructive
                 ? 'bg-[#f87171]/20 text-[#f87171] border border-[#f87171]/30 hover:bg-[#f87171]/30'

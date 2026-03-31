@@ -5,13 +5,12 @@ import ResetDialog from './ResetDialog';
 
 interface MapTopBarProps {
   isDemo?: boolean;
-  onNewMap: (options: { clearCosts: boolean; clearSnapshots: boolean }) => void;
+  onNewMap: (options: { clearSnapshots: boolean }) => void;
   showNewMap: boolean;
-  costRecordCount: number;
   snapshotCount: number;
 }
 
-export default function MapTopBar({ isDemo, onNewMap, showNewMap, costRecordCount, snapshotCount }: MapTopBarProps) {
+export default function MapTopBar({ isDemo, onNewMap, showNewMap, snapshotCount }: MapTopBarProps) {
   const [resetOpen, setResetOpen] = useState(false);
   const newMapBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -72,7 +71,6 @@ export default function MapTopBar({ isDemo, onNewMap, showNewMap, costRecordCoun
             open={resetOpen}
             onClose={() => setResetOpen(false)}
             onReset={onNewMap}
-            costRecordCount={costRecordCount}
             snapshotCount={snapshotCount}
             anchorRef={newMapBtnRef}
           />

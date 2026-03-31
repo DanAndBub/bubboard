@@ -10,7 +10,7 @@ export interface OverviewViewProps {
   reviewFindings: ReviewFinding[];
   healthScore: number;
   budget: BootstrapBudget | null;
-  onNavigate: (view: 'agents' | 'files' | 'costs' | 'review' | 'drift') => void;
+  onNavigate: (view: 'review' | 'drift') => void;
   isDemo?: boolean;
 }
 
@@ -81,7 +81,6 @@ export default function OverviewView({
 }: OverviewViewProps) {
   const title = isDemo ? "Bub's Agent Architecture" : 'Your Agent Architecture';
   const agentCount = agentMap.agents.length;
-  const topAgents = agentMap.agents.slice(0, 5);
   const topFindings = reviewFindings.slice(0, 3);
   const budgetPct = budget
     ? Math.round((budget.totalChars / budget.budgetLimit) * 100)
@@ -93,8 +92,6 @@ export default function OverviewView({
       ? 'linear-gradient(90deg, #fbbf24, #f59e0b)'
       : 'linear-gradient(90deg, #34d399, #7db8fc)';
   const topBudgetFiles = budget ? budget.perFileBreakdown.slice(0, 3) : [];
-  const coreFiles = agentMap.workspace.coreFiles.slice(0, 5);
-  const memoryFileCount = agentMap.workspace.memoryFiles.length;
 
   return (
     <div className="min-h-full" style={{ padding: '28px 32px' }}>
@@ -128,12 +125,10 @@ export default function OverviewView({
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-[14px]" style={{ marginBottom: 24 }}>
+      <div className="grid grid-cols-2 sm:grid-cols-2 gap-[14px]" style={{ marginBottom: 24 }}>
         {([
           { label: 'Total Files',     value: stats.totalFiles,     color: '#7db8fc' },
-          { label: 'Agents',          value: stats.agentCount,     color: '#a78bfa' },
           { label: 'Memory Entries',  value: stats.memoryEntries,  color: '#34d399' },
-          { label: 'Skills',          value: stats.skillCount,     color: '#fbbf24' },
         ] as const).map(({ label, value, color }) => (
           <div
             key={label}
@@ -150,32 +145,6 @@ export default function OverviewView({
 
       {/* Overview grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px]">
-        {/* Agent Fleet */}
-        <SummaryCard onClick={() => onNavigate('agents')} aria-label="View all agents">
-          <CardHeader title="Agent Fleet" action="View all →" />
-          {topAgents.length === 0 ? (
-            <p style={{ fontSize: 13, color: '#7a8a9b', margin: 0 }}>No agents detected.</p>
-          ) : (
-            <div className="flex flex-col gap-[8px]">
-              {topAgents.map(agent => (
-                <div key={agent.id} className="flex items-center gap-[8px]">
-                  <span
-                    className="rounded-full shrink-0"
-                    style={{ width: 6, height: 6, background: '#a78bfa' }}
-                    aria-hidden="true"
-                  />
-                  <span className="font-semibold flex-1 truncate" style={{ fontSize: 13, color: '#f1f5f9' }}>
-                    {agent.name}
-                  </span>
-                  <span className="font-mono shrink-0" style={{ fontSize: 11, color: '#7a8a9b' }}>
-                    {agent.model ?? '—'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </SummaryCard>
-
         {/* Config Review */}
         <SummaryCard onClick={() => onNavigate('review')} aria-label="View config review">
           <CardHeader title="Config Review" action="View all →" />
@@ -276,46 +245,6 @@ export default function OverviewView({
           )}
         </SummaryCard>
 
-        {/* File Health */}
-        <SummaryCard onClick={() => onNavigate('files')} aria-label="View workspace files">
-          <CardHeader title="File Health" action="View all →" />
-          {coreFiles.length === 0 ? (
-            <p style={{ fontSize: 13, color: '#7a8a9b', margin: 0 }}>No core files found.</p>
-          ) : (
-            <div className="flex flex-col gap-[6px]">
-              {coreFiles.map(file => (
-                <div key={file} className="flex items-center justify-between">
-                  <span style={{ fontSize: 13, color: '#b0bec9' }}>{shortName(file)}</span>
-                  <span style={{ fontSize: 13, color: '#34d399' }} aria-label="Present">✓</span>
-                </div>
-              ))}
-            </div>
-          )}
-          {(memoryFileCount > 0 || stats.memoryEntries > 0) && (
-            <div
-              style={{
-                marginTop: 10,
-                paddingTop: 10,
-                borderTop: '1px solid rgba(58,78,99,0.3)',
-              }}
-            >
-              <div
-                className="font-bold uppercase"
-                style={{ fontSize: 11, letterSpacing: '1.2px', color: '#7a8a9b', marginBottom: 6 }}
-              >
-                Memory
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-mono" style={{ fontSize: 11, color: '#7a8a9b' }}>
-                  {memoryFileCount} file{memoryFileCount !== 1 ? 's' : ''}
-                </span>
-                <span style={{ fontSize: 12, color: '#34d399' }}>
-                  ✓ {stats.memoryEntries} entr{stats.memoryEntries !== 1 ? 'ies' : 'y'}
-                </span>
-              </div>
-            </div>
-          )}
-        </SummaryCard>
       </div>
     </div>
   );
