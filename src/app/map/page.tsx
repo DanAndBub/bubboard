@@ -22,7 +22,6 @@ import { downloadSessionNotes } from '@/lib/drift/session-notes-export';
 import type { Snapshot, DriftReport } from '@/lib/drift/types';
 import EditorPanel from '@/components/editor/EditorPanel';
 import DirectoryScanner from '@/scanner/DirectoryScanner';
-import TreeInput from '@/components/TreeInput';
 import { calculateHealthScore } from '@/lib/scoring';
 import MapShell from '@/components/map/MapShell';
 import MapTopBar from '@/components/map/MapTopBar';
@@ -68,10 +67,6 @@ function MapPageContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Whether webkitdirectory is unsupported in this browser
-  const [browserUnsupported, setBrowserUnsupported] = useState(false);
-  // Whether the text-input fallback section is expanded
-  const [textFallbackOpen, setTextFallbackOpen] = useState(false);
 
   const snapshotInputRef = useRef<HTMLInputElement>(null);
 
@@ -193,11 +188,6 @@ function MapPageContent() {
     buildMapFromTree(tree, normalizedContents);
   };
 
-  // Called by TreeInput (text fallback)
-  const handleTreeSubmit = (tree: string) => {
-    buildMapFromTree(tree);
-  };
-
   function handleNewMap(options: { clearSnapshots: boolean }) {
     setAgentMap(null);
     setFileContents({});
@@ -239,135 +229,31 @@ function MapPageContent() {
     <>
       {!agentMap ? (
         /* ── INPUT SECTION ─────────────────────────────────────────────── */
-        <>
-        {/* How Driftwatch works */}
-        <div className="max-w-2xl mx-auto px-4 pb-8">
-          <h2 className="text-xl font-semibold text-[#f1f5f9] mb-4">How Driftwatch works</h2>
-          <ol className="space-y-3 mb-5 list-none">
-            <li className="flex gap-3">
-              <span className="text-sm font-mono text-[#7a8a9b] shrink-0 w-5 pt-0.5">1.</span>
-              <span className="text-sm text-[#b0bec9] leading-relaxed">Point Driftwatch at your OpenClaw workspace directory. Everything stays in your browser — nothing is uploaded.</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="text-sm font-mono text-[#7a8a9b] shrink-0 w-5 pt-0.5">2.</span>
-              <span className="text-sm text-[#b0bec9] leading-relaxed">Driftwatch reads your config files (<span className="font-mono text-[#f1f5f9]">AGENTS.md</span>, <span className="font-mono text-[#f1f5f9]">MEMORY.md</span>, <span className="font-mono text-[#f1f5f9]">SOUL.md</span>, <span className="font-mono text-[#f1f5f9]">HEARTBEAT.md</span>, <span className="font-mono text-[#f1f5f9]">TOOLS.md</span>, <span className="font-mono text-[#f1f5f9]">USER.md</span>, <span className="font-mono text-[#f1f5f9]">BOOTSTRAP.md</span>) and runs structural analysis.</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="text-sm font-mono text-[#7a8a9b] shrink-0 w-5 pt-0.5">3.</span>
-              <span className="text-sm text-[#b0bec9] leading-relaxed">Review findings across three views: Overview, Config Review, and Drift Detection.</span>
-            </li>
-          </ol>
-          <p className="text-sm text-[#7a8a9b]">No account required. No data leaves your machine. Works with any OpenClaw workspace.</p>
-        </div>
+        <div className="max-w-lg mx-auto px-4 py-8">
+          <h1 className="text-xl font-medium text-[#f1f5f9] mb-2">
+            Scan your workspace
+          </h1>
+          <p className="text-sm text-[#7a8a9b] mb-6 leading-relaxed">
+            Point Driftwatch at your{' '}
+            <code className="text-xs bg-[#1c2028] px-1.5 py-0.5 rounded text-[#b0bec9]">~/.openclaw</code>
+            {' '}directory. File contents are read locally — nothing leaves your browser.
+          </p>
 
-        <div className="max-w-2xl mx-auto space-y-4">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-[#f1f5f9] mb-2">Map Your Agent</h1>
-            <p className="text-sm text-[#b0bec9]">
-              Select your OpenClaw directory to generate an interactive architecture map
-            </p>
-          </div>
+          <DirectoryScanner onConfirm={handleDirectoryConfirm} />
 
-          {/* Try Demo */}
-          <div className="text-center">
+          <div className="mt-4 border-t border-[#30363d] pt-4">
             <a
               href="/map?demo=true"
-              className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-lg border border-[#7db8fc]/30 text-[#7db8fc] hover:bg-[#7db8fc]/10 transition-colors"
+              className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#506880] bg-transparent px-4 py-3 text-sm text-[#b0bec9] hover:border-[#7db8fc]/40 hover:text-[#f1f5f9] transition-colors"
             >
-              ◈ Try Demo — see an example workspace
+              Try the interactive demo
             </a>
           </div>
 
-          {/* Primary: folder picker (hidden when browser is unsupported) */}
-          {!browserUnsupported && (
-            <DirectoryScanner
-              onConfirm={handleDirectoryConfirm}
-            />
-          )}
-
-          {/* Secondary: text input fallback (collapsible) */}
-          <div className="rounded-xl border border-[#506880] bg-[#111827] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setTextFallbackOpen(v => !v)}
-              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#0d1520] transition-colors"
-            >
-              <span className="text-xs text-[#b0bec9]">
-                Using SSH or headless server? Paste output instead
-              </span>
-              <svg
-                className={`w-4 h-4 text-[#7a8a9b] transition-transform ${textFallbackOpen ? 'rotate-180' : ''}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {textFallbackOpen && (
-              <div className="border-t border-[#506880]">
-                <TreeInput onSubmit={handleTreeSubmit} isLoading={isLoading} />
-              </div>
-            )}
-          </div>
-
-          {/* Quick-start guide */}
-          <div className="space-y-4 pt-2">
-            <h2 className="text-sm font-semibold text-[#b0bec9] tracking-wide uppercase">
-              How to scan your workspace
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* Step 1 */}
-              <div className="bg-[#111827] border border-[#506880] rounded-lg p-4 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#7a8a9b]">01</span>
-                  <svg className="w-4 h-4 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
-                  </svg>
-                </div>
-                <p className="text-xs text-[#b0bec9] leading-relaxed">
-                  Choose your <span className="text-[#f1f5f9] font-mono">~/.openclaw</span> directory using the folder picker above (Chrome/Edge) or paste the <span className="font-mono">ls</span> output (Firefox/Safari).
-                </p>
-              </div>
-
-              {/* Step 2 */}
-              <div className="bg-[#111827] border border-[#506880] rounded-lg p-4 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#7a8a9b]">02</span>
-                  <svg className="w-4 h-4 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
-                </div>
-                <p className="text-xs text-[#b0bec9] leading-relaxed">
-                  Review detected files. Toggle on <span className="text-[#f1f5f9]">Read File Contents</span> to auto-populate agent roles, config, and relationships.
-                </p>
-              </div>
-
-              {/* Step 3 */}
-              <div className="bg-[#111827] border border-[#506880] rounded-lg p-4 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#7a8a9b]">03</span>
-                  <svg className="w-4 h-4 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                </div>
-                <p className="text-xs text-[#b0bec9] leading-relaxed">
-                  Hit <span className="text-[#f1f5f9]">Build Map</span> to generate your interactive architecture dashboard.
-                </p>
-              </div>
-            </div>
-
-            <p className="text-xs text-[#7a8a9b] border-l-2 border-[#7db8fc]/30 pl-3">
-              Tip: For the richest map, toggle on file content reading. Your files never leave your browser.
-            </p>
-
-          </div>
+          <p className="text-[11px] text-[#506880] text-center mt-3">
+            Requires Chrome or Edge for folder access.
+          </p>
         </div>
-        </>
       ) : (
         /* ── VIEW-BASED LAYOUT ──────────────────────────────────────────── */
         <>

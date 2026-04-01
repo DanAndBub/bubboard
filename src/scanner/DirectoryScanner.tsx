@@ -2,14 +2,12 @@
 
 import { useState } from 'react';
 import { redactSensitiveValues } from '@/lib/redact';
+import { BOOTSTRAP_FILE_ORDER } from '@/lib/config-review/thresholds';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Bucket = 'config' | 'workspace' | 'agents' | 'memory' | 'subagents' | 'skills' | 'cron';
-
 interface ScannedItem {
   path: string;
-  bucket: Bucket;
   selected: boolean;
 }
 
@@ -22,101 +20,13 @@ interface Props {
   ) => void;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Bootstrap filter ─────────────────────────────────────────────────────────
 
-const BUCKET_LABELS: Record<Bucket, string> = {
-  config:    'Config',
-  workspace: 'Workspace',
-  agents:    'Agents',
-  memory:    'Memory',
-  subagents: 'Subagents',
-  skills:    'Skills',
-  cron:      'Cron',
-};
+const BOOTSTRAP_NAMES = new Set(BOOTSTRAP_FILE_ORDER.map(f => f.toUpperCase()));
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function IconGear() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  );
-}
-
-function IconDoc() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-  );
-}
-
-function IconRobot() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <rect x="4" y="10" width="16" height="11" rx="2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="12" cy="5" r="2" strokeWidth={2} />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v3M8 14h.01M16 14h.01M8 17h.01M16 17h.01" />
-    </svg>
-  );
-}
-
-function IconLink() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-    </svg>
-  );
-}
-
-function IconBolt() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-    </svg>
-  );
-}
-
-function IconClock() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9" strokeWidth={2} />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3" />
-    </svg>
-  );
-}
-
-function BucketIcon({ bucket }: { bucket: Bucket }) {
-  return (
-    <span className="text-[#7db8fc] flex items-center">
-      {bucket === 'config'    && <IconGear />}
-      {bucket === 'workspace' && <IconDoc />}
-      {bucket === 'agents'    && <IconRobot />}
-      {bucket === 'memory'    && <span className="text-sm leading-none">🧠</span>}
-      {bucket === 'subagents' && <IconLink />}
-      {bucket === 'skills'    && <IconBolt />}
-      {bucket === 'cron'      && <IconClock />}
-    </span>
-  );
-}
-
-// ─── Path classification ──────────────────────────────────────────────────────
-
-function classifyRelativePath(relPath: string): Bucket | null {
-  const p = relPath.replace(/\\/g, '/');
-  if (p === 'openclaw.json') return 'config';
-  if (p === 'cron/jobs.json') return 'cron';
-  if (/^workspace\/[^/]+\.md$/.test(p)) return 'workspace';
-  if (/^workspace\/memory\/[^/]+\.md$/.test(p)) return 'memory';
-  if (/^workspace\/subagents\/[^/]+\.md$/.test(p)) return 'subagents';
-  if (/^agents\/[^/]+(\/)?$/.test(p)) return 'agents';
-  if (/^skills\/[^/]+(\/)?$/.test(p)) return 'skills';
-  return null;
+function isBootstrapFile(relPath: string): boolean {
+  const base = relPath.split('/').pop()?.toUpperCase() ?? '';
+  return BOOTSTRAP_NAMES.has(base);
 }
 
 // ─── FileSystem Access API scan ───────────────────────────────────────────────
@@ -144,9 +54,10 @@ async function tryGetDir(dir: FSDirHandle, name: string): Promise<FSDirHandle | 
 
 async function scanWithDirectoryPicker(
   onProgress: (msg: string) => void
-): Promise<{ items: ScannedItem[]; fileContents: Record<string, string> }> {
+): Promise<{ items: ScannedItem[]; fileContents: Record<string, string>; folderName: string }> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const root = await (window as any).showDirectoryPicker({ mode: 'read' }) as FSDirHandle;
+  const folderName = root.name;
   const items: ScannedItem[] = [];
   const fileContents: Record<string, string> = {};
 
@@ -154,7 +65,7 @@ async function scanWithDirectoryPicker(
   onProgress('Checking openclaw.json…');
   const configText = await tryGetFile(root, 'openclaw.json');
   if (configText !== null) {
-    items.push({ path: 'openclaw.json', bucket: 'config', selected: true });
+    items.push({ path: 'openclaw.json', selected: true });
     fileContents['openclaw.json'] = redactSensitiveValues(configText);
   }
 
@@ -167,7 +78,7 @@ async function scanWithDirectoryPicker(
         const relPath = `workspace/${name}`;
         const file = await (handle as FileSystemFileHandle).getFile();
         fileContents[relPath] = await file.text();
-        items.push({ path: relPath, bucket: 'workspace', selected: true });
+        items.push({ path: relPath, selected: true });
       }
     }
 
@@ -177,7 +88,7 @@ async function scanWithDirectoryPicker(
     if (memoryDir) {
       for await (const [name, handle] of memoryDir.entries()) {
         if (handle.kind === 'file' && name.endsWith('.md')) {
-          items.push({ path: `workspace/memory/${name}`, bucket: 'memory', selected: true });
+          items.push({ path: `workspace/memory/${name}`, selected: true });
         }
       }
     }
@@ -189,7 +100,7 @@ async function scanWithDirectoryPicker(
       for await (const [name, handle] of subagentsDir.entries()) {
         if (handle.kind === 'file' && name.endsWith('.md')) {
           const relPath = `workspace/subagents/${name}`;
-          items.push({ path: relPath, bucket: 'subagents', selected: true });
+          items.push({ path: relPath, selected: true });
           try {
             const file = await (handle as FileSystemFileHandle).getFile();
             fileContents[relPath] = await file.text();
@@ -205,7 +116,7 @@ async function scanWithDirectoryPicker(
   if (agentsDir) {
     for await (const [name, handle] of agentsDir.entries()) {
       if (handle.kind === 'directory') {
-        items.push({ path: `agents/${name}/`, bucket: 'agents', selected: true });
+        items.push({ path: `agents/${name}/`, selected: true });
       }
     }
   }
@@ -216,7 +127,7 @@ async function scanWithDirectoryPicker(
   if (skillsDir) {
     for await (const [name, handle] of skillsDir.entries()) {
       if (handle.kind === 'directory') {
-        items.push({ path: `skills/${name}/`, bucket: 'skills', selected: true });
+        items.push({ path: `skills/${name}/`, selected: true });
       }
     }
   }
@@ -227,11 +138,11 @@ async function scanWithDirectoryPicker(
   if (cronDir) {
     try {
       await cronDir.getFileHandle('jobs.json');
-      items.push({ path: 'cron/jobs.json', bucket: 'cron', selected: true });
+      items.push({ path: 'cron/jobs.json', selected: true });
     } catch { /* not present */ }
   }
 
-  return { items, fileContents };
+  return { items, fileContents, folderName };
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -241,18 +152,11 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   const [progressMsg, setProgressMsg] = useState('');
   const [items, setItems] = useState<ScannedItem[]>([]);
   const [fileContents, setFileContents] = useState<Record<string, string>>({});
+  const [folderName, setFolderName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const supportsDirectoryPicker =
     typeof window !== 'undefined' && 'showDirectoryPicker' in window;
-
-  const detectedBrowser = typeof navigator !== 'undefined'
-    ? /Edg\//.test(navigator.userAgent) ? 'Edge'
-      : /Chrome\//.test(navigator.userAgent) ? 'Chrome'
-      : /Firefox\//.test(navigator.userAgent) ? 'Firefox'
-      : /Safari\//.test(navigator.userAgent) ? 'Safari'
-      : null
-    : null;
 
   // ── Scan handlers ──────────────────────────────────────────────────────────
 
@@ -261,9 +165,11 @@ export default function DirectoryScanner({ onConfirm }: Props) {
     setScanState('scanning');
     setProgressMsg('Opening folder picker…');
     try {
-      const { items: found, fileContents: contents } = await scanWithDirectoryPicker(setProgressMsg);
+      const { items: found, fileContents: contents, folderName: name } =
+        await scanWithDirectoryPicker(setProgressMsg);
       setItems(found);
       setFileContents(contents);
+      setFolderName(name);
       setScanState('review');
     } catch (e: unknown) {
       setScanState('idle');
@@ -277,6 +183,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
     setScanState('idle');
     setItems([]);
     setFileContents({});
+    setFolderName('');
     setError(null);
   }
 
@@ -286,15 +193,11 @@ export default function DirectoryScanner({ onConfirm }: Props) {
     setItems(prev => prev.map(i => i.path === path ? { ...i, selected: !i.selected } : i));
   }
 
-  function toggleBucket(bucket: Bucket, value: boolean) {
-    setItems(prev => prev.map(i => i.bucket === bucket ? { ...i, selected: value } : i));
-  }
-
   // ── Confirm ────────────────────────────────────────────────────────────────
 
   function handleConfirm() {
-    const selected = items.filter(i => i.selected);
-    const paths = selected.map(i => i.path);
+    // All items are included in paths (bootstrap + non-bootstrap)
+    const paths = items.filter(i => i.selected).map(i => i.path);
     const filteredContents: Record<string, string> = {};
     for (const path of paths) {
       if (fileContents[path] !== undefined) filteredContents[path] = fileContents[path];
@@ -302,26 +205,15 @@ export default function DirectoryScanner({ onConfirm }: Props) {
     onConfirm(paths, { manifestVersion: '3.0', fileContents: filteredContents });
   }
 
-  // ── Grouped buckets ────────────────────────────────────────────────────────
+  // ── Bootstrap items for display ────────────────────────────────────────────
 
-  const BUCKET_ORDER: Bucket[] = ['config', 'workspace', 'agents', 'memory', 'subagents', 'skills', 'cron'];
-  const grouped = BUCKET_ORDER
-    .map(bucket => ({ bucket, items: items.filter(i => i.bucket === bucket) }))
-    .filter(g => g.items.length > 0);
-  const selectedCount = items.filter(i => i.selected).length;
+  const bootstrapItems = items.filter(item => isBootstrapFile(item.path));
+  const selectedBootstrapCount = bootstrapItems.filter(i => i.selected).length;
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="rounded-xl border border-[#506880] bg-[#111827] p-6 flex flex-col gap-4">
-
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <h2 className="text-sm font-semibold text-white tracking-wide">Scan Workspace</h2>
-        <span className="text-xs text-slate-500 text-right">
-          🔒 File contents stay in your browser. Nothing is uploaded.
-        </span>
-      </div>
+    <div className="flex flex-col gap-3">
 
       {/* Error banner */}
       {error && (
@@ -330,47 +222,36 @@ export default function DirectoryScanner({ onConfirm }: Props) {
         </div>
       )}
 
-      {/* ── IDLE: mobile message ── */}
+      {/* ── IDLE ── */}
       {scanState === 'idle' && (
-        <div className="md:hidden rounded-lg border border-[#506880] bg-[#111827] px-4 py-3 text-center">
-          <p className="text-xs text-[#b0bec9] font-medium">Scanning works best on desktop</p>
-          <p className="text-[11px] text-[#7a8a9b] mt-1">Open Driftwatch on your computer with Chrome or Edge to scan your agent directory.</p>
-        </div>
-      )}
-
-      {/* ── IDLE: desktop ── */}
-      {scanState === 'idle' && (
-        <div className="hidden md:flex flex-col gap-2">
-          {detectedBrowser && (
-            <p className="text-[10px] text-[#7a8a9b] mb-1">
-              Detected: <span className="text-[#b0bec9] font-medium">{detectedBrowser}</span>
-              {supportsDirectoryPicker
-                ? ' — folder picker available ✓'
-                : ' — folder picker requires Chrome or Edge'}
+        <>
+          {/* Mobile */}
+          <div className="md:hidden rounded-lg border border-[#30363d] bg-[#111827] px-4 py-3 text-center">
+            <p className="text-sm text-[#b0bec9]">
+              Config review requires Chrome or Edge on desktop.
             </p>
-          )}
+          </div>
 
-          {supportsDirectoryPicker ? (
-            <button
-              onClick={handleDirectoryPicker}
-              className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-[#1c3a5e] hover:bg-[#254a75] border border-[#7db8fc]/40 text-white cursor-pointer"
-            >
-              <IconDoc />
-              Select Workspace Folder
-              <span className="ml-auto text-xs font-normal text-blue-200">
-                <span className="text-[#34d399]">●</span> Recommended
-              </span>
-            </button>
-          ) : (
-            <p className="rounded-lg border border-[#506880] bg-[#0a0e17] px-4 py-3 text-xs text-[#b0bec9] leading-relaxed">
-              Config review requires Chrome or Edge to read file contents. Open Driftwatch in Chrome or Edge to scan your workspace.
-            </p>
-          )}
-
-          <p className="text-xs text-[#7a8a9b] text-center pl-1 mt-1">
-            🔒 Everything stays in your browser. Nothing is uploaded.
-          </p>
-        </div>
+          {/* Desktop */}
+          <div className="hidden md:block">
+            {supportsDirectoryPicker ? (
+              <button
+                onClick={handleDirectoryPicker}
+                className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors bg-[#1c3a5e] hover:bg-[#254a75] border border-[#7db8fc]/40 text-white cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                </svg>
+                Select workspace folder
+              </button>
+            ) : (
+              <p className="rounded-lg border border-[#30363d] bg-[#0a0e17] px-4 py-3 text-sm text-[#b0bec9] leading-relaxed text-center">
+                Config review requires Chrome or Edge to read file contents. Open Driftwatch in Chrome or Edge to scan your workspace.
+              </p>
+            )}
+          </div>
+        </>
       )}
 
       {/* ── SCANNING ── */}
@@ -383,95 +264,67 @@ export default function DirectoryScanner({ onConfirm }: Props) {
 
       {/* ── REVIEW ── */}
       {scanState === 'review' && (
-        <div className="flex flex-col gap-4">
-          {items.length === 0 ? (
-            <p className="text-xs text-slate-500 text-center py-8">
-              No matching OpenClaw files found.
-            </p>
-          ) : (
-            <>
-              <p className="text-xs text-slate-400">
-                Found <span className="text-[#7db8fc] font-medium">{items.length}</span> items.
-                Deselect anything you&apos;d rather exclude.
-              </p>
-
-              <div className="flex flex-col gap-2">
-                {grouped.map(({ bucket, items: bucketItems }) => {
-                  const allSelected = bucketItems.every(i => i.selected);
-                  const noneSelected = bucketItems.every(i => !i.selected);
-                  return (
-                    <div key={bucket} className="rounded-lg border border-[#506880] bg-[#0a0e17] overflow-hidden">
-                      {/* Bucket header */}
-                      <div className="flex items-center gap-2 px-3 py-2 border-b border-[#506880] bg-[#111827]/50">
-                        <BucketIcon bucket={bucket} />
-                        <span className="text-xs font-semibold text-slate-300">
-                          {BUCKET_LABELS[bucket]}
-                        </span>
-                        <div className="ml-auto flex items-center gap-2">
-                          <span className="text-xs text-slate-500">
-                            {bucketItems.filter(i => i.selected).length}/{bucketItems.length}
-                          </span>
-                          {!allSelected && (
-                            <button
-                              onClick={() => toggleBucket(bucket, true)}
-                              className="text-xs text-[#7db8fc] hover:text-blue-300"
-                            >
-                              all
-                            </button>
-                          )}
-                          {!noneSelected && (
-                            <button
-                              onClick={() => toggleBucket(bucket, false)}
-                              className="text-xs text-slate-500 hover:text-slate-300"
-                            >
-                              ×
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      {/* Items */}
-                      <div className="divide-y divide-[#506880]">
-                        {bucketItems.map(item => (
-                          <label
-                            key={item.path}
-                            className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-white/[0.02] transition-colors"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={item.selected}
-                              onChange={() => toggleItem(item.path)}
-                              className="w-3.5 h-3.5 flex-shrink-0 accent-blue-500"
-                            />
-                            <span className="text-xs text-slate-300 font-mono break-all">
-                              {item.path}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          <div className="flex gap-2 pt-1">
+        <div className="flex flex-col gap-3">
+          {/* Folder path bar */}
+          <div className="flex items-center justify-between rounded-lg border border-[#30363d] bg-[#111827] px-3 py-2">
+            <span className="text-xs font-mono text-[#8b949e]">~/{folderName}</span>
             <button
-              onClick={handleConfirm}
-              disabled={selectedCount === 0}
-              className="flex-1 rounded-lg bg-[#7db8fc] hover:bg-blue-600 disabled:opacity-40 px-4 py-2.5 text-sm font-medium text-white transition-colors"
-            >
-              Confirm {selectedCount} item{selectedCount !== 1 ? 's' : ''}
-            </button>
-            <button
-              onClick={handleReset}
-              className="rounded-lg border border-[#506880] px-4 py-2.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+              onClick={() => { handleReset(); handleDirectoryPicker(); }}
+              className="text-xs text-[#7a8a9b] hover:text-[#b0bec9] transition-colors"
             >
               Rescan
             </button>
           </div>
-          <p className="text-xs text-[#7a8a9b] text-center">
-            🔒 Nothing leaves your browser.
+
+          {/* File list */}
+          {bootstrapItems.length === 0 ? (
+            <p className="text-xs text-[#7a8a9b] text-center py-4">
+              No bootstrap files found in this directory.
+            </p>
+          ) : (
+            <div className="rounded-lg border border-[#30363d] bg-[#111827] overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-[#30363d]">
+                <span className="text-xs text-[#8b949e]">
+                  Found <span className="text-[#f1f5f9] font-medium">{bootstrapItems.length}</span> bootstrap files
+                </span>
+                <span className="text-xs text-[#7a8a9b]">
+                  {selectedBootstrapCount} selected
+                </span>
+              </div>
+              <div className="divide-y divide-[#30363d]">
+                {bootstrapItems.map(item => {
+                  const displayName = item.path.split('/').pop() ?? item.path;
+                  return (
+                    <label
+                      key={item.path}
+                      className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-white/[0.02] transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={item.selected}
+                        onChange={() => toggleItem(item.path)}
+                        className="w-3.5 h-3.5 flex-shrink-0 accent-blue-500"
+                      />
+                      <span className="text-xs text-[#b0bec9] font-mono">{displayName}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Analyze button */}
+          <button
+            onClick={handleConfirm}
+            disabled={selectedBootstrapCount === 0 && bootstrapItems.length > 0}
+            className="w-full rounded-lg bg-[#7db8fc] hover:bg-blue-600 disabled:opacity-40 px-4 py-2.5 text-sm font-medium text-white transition-colors"
+          >
+            Analyze {selectedBootstrapCount} file{selectedBootstrapCount !== 1 ? 's' : ''}
+          </button>
+
+          {/* Privacy note */}
+          <p className="text-[11px] text-[#506880] text-center">
+            File contents stay in your browser.
           </p>
         </div>
       )}

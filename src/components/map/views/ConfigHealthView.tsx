@@ -101,7 +101,20 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: '1.8rem', fontWeight: 700, color }}>{count}</div>
+            {label === 'Truncated' ? (
+              <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>
+                <span style={{
+                  background: 'repeating-linear-gradient(135deg, #da3633, #da3633 3px, #8b1a18 3px, #8b1a18 6px)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}>
+                  {count}
+                </span>
+              </div>
+            ) : (
+              <div style={{ fontSize: '1.8rem', fontWeight: 700, color }}>{count}</div>
+            )}
             <div style={{ fontSize: '0.75rem', color: '#8b949e', marginTop: 4 }}>{label}</div>
           </div>
         ))}
@@ -502,41 +515,17 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
         </div>
       )}
 
-      {/* 6. Legend */}
+      {/* 6. Attribution footer */}
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'space-evenly',
-          alignItems: 'center',
           marginTop: 16,
-          flexWrap: 'wrap',
-          width: '100%',
           paddingTop: 12,
-          paddingBottom: 12,
+          borderTop: '1px solid #1c2028',
+          fontSize: 11,
+          color: '#506880',
+          textAlign: 'center',
         }}
       >
-        {[
-          { color: '#2ea043', label: 'Healthy', striped: false },
-          { color: '#d29922', label: 'Warning', striped: false },
-          { color: '#f85149', label: 'Danger', striped: false },
-          { color: '', label: 'Truncated', striped: true },
-        ].map(({ color, label, striped }) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: striped ? STRIPE_BG : color,
-              }}
-            />
-            <span style={{ fontSize: 13, color: '#8b949e' }}>{label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* 7. Attribution */}
-      <div style={{ fontSize: 10, color: '#8b949e', marginTop: 8 }}>
         Thresholds based on OpenClaw source code and community best practices
       </div>
     </div>
