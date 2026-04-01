@@ -2,7 +2,7 @@
 
 import type { FileAnalysis, BootstrapBudget } from '@/lib/config-review/types';
 import { calculateTruncation } from '@/lib/config-review/truncation';
-import { BOOTSTRAP_MAX_CHARS_DEFAULT, BOOTSTRAP_TOTAL_MAX_CHARS } from '@/lib/config-review/thresholds';
+import { BOOTSTRAP_MAX_CHARS_DEFAULT, BOOTSTRAP_TOTAL_MAX_CHARS, BOOTSTRAP_FILE_ORDER } from '@/lib/config-review/thresholds';
 
 interface ConfigHealthViewProps {
   analyzedFiles: FileAnalysis[];
@@ -59,12 +59,20 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
     );
   }
 
+  // Sort files by BOOTSTRAP_FILE_ORDER
+  const orderIndex = (path: string) => {
+    const base = path.split('/').pop()?.toUpperCase() ?? '';
+    const idx = BOOTSTRAP_FILE_ORDER.findIndex(f => f.toUpperCase() === base);
+    return idx === -1 ? 999 : idx;
+  };
+  const sortedFiles = [...analyzedFiles].sort((a, b) => orderIndex(a.path) - orderIndex(b.path));
+
   // Summary card counts
   let healthyCount = 0;
   let warningCount = 0;
   let dangerCount = 0;
   let truncatedCount = 0;
-  for (const file of analyzedFiles) {
+  for (const file of sortedFiles) {
     const typical = getTypicalThreshold(file.path);
     if (file.charCount >= 20_000) truncatedCount++;
     else if (file.charCount >= 18_000) dangerCount++;
@@ -123,7 +131,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
       {/* 2. Section header */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontWeight: 700, color: '#f1f5f9', marginBottom: 4 }}>
-          Bootstrap file size analysis
+          Bootstrap File Size Analysis
         </div>
         <div style={{ fontSize: '0.8rem', color: '#8b949e' }}>
           Each file is injected into your agent&apos;s context on every turn. Files over 20K
@@ -133,8 +141,8 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
 
       {/* 3. Per-file progress bars */}
       <div>
-        {analyzedFiles.map((file, idx) => {
-          const isLast = idx === analyzedFiles.length - 1;
+        {sortedFiles.map((file, idx) => {
+          const isLast = idx === sortedFiles.length - 1;
           const displayName = file.path.split('/').pop() ?? file.path;
           const typical = getTypicalThreshold(file.path);
           const charCount = file.charCount;
@@ -365,7 +373,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
                 fontSize: '0.9rem',
               }}
             >
-              All bootstrap files
+              All Bootstrap Files
             </span>
             <span
               style={{
