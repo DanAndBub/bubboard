@@ -5,7 +5,7 @@ import MapShell from '@/components/map/MapShell';
 import MapTopBar from '@/components/map/MapTopBar';
 import MapSidebar from '@/components/map/MapSidebar';
 import OverviewView from '@/components/map/views/OverviewView';
-import ReviewPanel from '@/components/config-review/ReviewPanel';
+import ConfigHealthView from '@/components/map/views/ConfigHealthView';
 import { getDemoAgentMap, getDemoFileContents } from '@/lib/demo-data';
 import { DEMO_REVIEW_RESULT, DEMO_BUDGET, DEMO_FILE_ANALYSES } from '@/lib/phase3-demo-data';
 import { runReview } from '@/lib/config-review/runner';
@@ -59,9 +59,9 @@ export default function LandingDemo() {
         );
       case 'review':
         return (
-          <ReviewPanel
-            result={reviewResult}
-            files={analyzedFiles}
+          <ConfigHealthView
+            analyzedFiles={analyzedFiles}
+            budget={DEMO_BUDGET}
           />
         );
       case 'drift':

@@ -376,9 +376,8 @@ function MapPageContent() {
           )}
           {activeView === 'review' && (
             <ReviewView
-              reviewResult={reviewResult}
               analyzedFiles={analyzedFiles}
-              onOpenFile={openFileEditor}
+              budget={budget}
             />
           )}
           {activeView === 'drift' && (
