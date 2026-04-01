@@ -11,6 +11,7 @@ import type { AgentMap } from '@/lib/types';
 import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
 import { runReview, type ReviewResult } from '@/lib/config-review/runner';
 import { calculateBudget } from '@/lib/config-review/budget';
+import { BOOTSTRAP_FILE_ORDER } from '@/lib/config-review/thresholds';
 import type { BootstrapBudget, ReviewFinding } from '@/lib/config-review/types';
 import { serializeSnapshot } from '@/lib/drift/snapshot-serialize';
 import { downloadSnapshot } from '@/lib/drift/snapshot-export';
@@ -29,6 +30,13 @@ import MapSidebar from '@/components/map/MapSidebar';
 import OverviewView from '@/components/map/views/OverviewView';
 import ReviewView from '@/components/map/views/ReviewView';
 import DriftView from '@/components/map/views/DriftView';
+
+const BOOTSTRAP_NAMES = new Set(BOOTSTRAP_FILE_ORDER.map(f => f.toUpperCase()));
+
+function isBootstrapFile(filename: string): boolean {
+  const base = filename.split('/').pop()?.toUpperCase() ?? '';
+  return BOOTSTRAP_NAMES.has(base);
+}
 
 type View = 'overview' | 'review' | 'drift';
 
@@ -70,7 +78,7 @@ function MapPageContent() {
   // Demo mode: run config review on initial demo data (state initialized in useState above)
   useEffect(() => {
     if (isDemo && fileContents && Object.keys(fileContents).length > 0) {
-      const mdFiles = Object.entries(fileContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
+      const mdFiles = Object.entries(fileContents).filter(([k]) => k.toLowerCase().endsWith('.md') && isBootstrapFile(k));
       if (mdFiles.length > 0) {
         const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
         setAnalyzedFiles(analyzed);
@@ -105,7 +113,7 @@ function MapPageContent() {
     setEditorFile(null);
     // Re-run review with updated file contents
     const allContents = fileContents;
-    const mdFiles = Object.entries(allContents).filter(([k]) => k.toLowerCase().endsWith('.md'));
+    const mdFiles = Object.entries(allContents).filter(([k]) => k.toLowerCase().endsWith('.md') && isBootstrapFile(k));
     if (mdFiles.length > 0) {
       const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
       setAnalyzedFiles(analyzed);
@@ -135,7 +143,7 @@ function MapPageContent() {
       setInputCollapsed(true);
 
       // Run config review on file contents (only if we actually have content)
-      const mdFiles = Object.entries(allContents).filter(([k, v]) => k.toLowerCase().endsWith('.md') && v.length > 0);
+      const mdFiles = Object.entries(allContents).filter(([k, v]) => k.toLowerCase().endsWith('.md') && v.length > 0 && isBootstrapFile(k));
       if (mdFiles.length > 0) {
         const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
         setAnalyzedFiles(analyzed);

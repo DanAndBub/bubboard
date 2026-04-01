@@ -91,15 +91,6 @@ function IconClock() {
   );
 }
 
-function IconClipboard() {
-  return (
-    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-    </svg>
-  );
-}
-
 function BucketIcon({ bucket }: { bucket: Bucket }) {
   return (
     <span className="text-[#7db8fc] flex items-center">
@@ -243,28 +234,6 @@ async function scanWithDirectoryPicker(
   return { items, fileContents };
 }
 
-// ─── Paste fallback ───────────────────────────────────────────────────────────
-
-const PASTE_LS_COMMAND = `cd ~/.openclaw && ls -1 openclaw.json cron/jobs.json 2>/dev/null; ls -1 workspace/*.md workspace/memory/*.md workspace/subagents/*.md 2>/dev/null; ls -1d agents/*/ skills/*/ 2>/dev/null`;
-
-function parsePastedOutput(text: string): ScannedItem[] {
-  const seen = new Set<string>();
-  const items: ScannedItem[] = [];
-  for (const line of text.split('\n')) {
-    const rel = line.trim()
-      .replace(/^\.\//, '')
-      // Strip absolute paths to ~/.openclaw/
-      .replace(/^.*?\.openclaw\//, '');
-    if (!rel || rel.endsWith(':')) continue; // skip empty lines and ls headers like "agents/:"
-    const bucket = classifyRelativePath(rel);
-    if (bucket && !seen.has(rel)) {
-      seen.add(rel);
-      items.push({ path: rel, bucket, selected: true });
-    }
-  }
-  return items;
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function DirectoryScanner({ onConfirm }: Props) {
@@ -273,11 +242,6 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   const [items, setItems] = useState<ScannedItem[]>([]);
   const [fileContents, setFileContents] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
-  const [pasteMode, setPasteMode] = useState(false);
-  const [pasteText, setPasteText] = useState('');
-  const [includeContents, setIncludeContents] = useState(false);
-  const [scanSource, setScanSource] = useState<'picker' | 'paste'>('picker');
-  const [copied, setCopied] = useState(false);
 
   const supportsDirectoryPicker =
     typeof window !== 'undefined' && 'showDirectoryPicker' in window;
@@ -295,7 +259,6 @@ export default function DirectoryScanner({ onConfirm }: Props) {
   async function handleDirectoryPicker() {
     setError(null);
     setScanState('scanning');
-    setScanSource('picker');
     setProgressMsg('Opening folder picker…');
     try {
       const { items: found, fileContents: contents } = await scanWithDirectoryPicker(setProgressMsg);
@@ -310,20 +273,10 @@ export default function DirectoryScanner({ onConfirm }: Props) {
     }
   }
 
-  function handlePasteSubmit() {
-    setScanSource('paste');
-    setItems(parsePastedOutput(pasteText));
-    setFileContents({});
-    setIncludeContents(false);
-    setScanState('review');
-  }
-
   function handleReset() {
     setScanState('idle');
     setItems([]);
     setFileContents({});
-    setPasteMode(false);
-    setPasteText('');
     setError(null);
   }
 
@@ -343,10 +296,8 @@ export default function DirectoryScanner({ onConfirm }: Props) {
     const selected = items.filter(i => i.selected);
     const paths = selected.map(i => i.path);
     const filteredContents: Record<string, string> = {};
-    if (includeContents) {
-      for (const path of paths) {
-        if (fileContents[path] !== undefined) filteredContents[path] = fileContents[path];
-      }
+    for (const path of paths) {
+      if (fileContents[path] !== undefined) filteredContents[path] = fileContents[path];
     }
     onConfirm(paths, { manifestVersion: '3.0', fileContents: filteredContents });
   }
@@ -387,100 +338,38 @@ export default function DirectoryScanner({ onConfirm }: Props) {
         </div>
       )}
 
-      {/* ── IDLE: picker buttons ── */}
-      {scanState === 'idle' && !pasteMode && (
+      {/* ── IDLE: desktop ── */}
+      {scanState === 'idle' && (
         <div className="hidden md:flex flex-col gap-2">
           {detectedBrowser && (
             <p className="text-[10px] text-[#7a8a9b] mb-1">
               Detected: <span className="text-[#b0bec9] font-medium">{detectedBrowser}</span>
               {supportsDirectoryPicker
                 ? ' — folder picker available ✓'
-                : ' — use terminal paste below'}
+                : ' — folder picker requires Chrome or Edge'}
             </p>
           )}
 
-          <button
-            onClick={supportsDirectoryPicker ? handleDirectoryPicker : undefined}
-            disabled={!supportsDirectoryPicker}
-            className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
-              supportsDirectoryPicker
-                ? 'bg-[#1c3a5e] hover:bg-[#254a75] border border-[#7db8fc]/40 text-white cursor-pointer'
-                : 'bg-[#111827] border border-[#506880] text-[#7a8a9b] cursor-not-allowed opacity-60'
-            }`}
-          >
-            <IconDoc />
-            Select Workspace Folder
-            <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-blue-200' : 'text-[#7a8a9b]'}`}>
-              {supportsDirectoryPicker ? (
-                <><span className="text-[#34d399]">●</span> Recommended</>
-              ) : 'Requires Chrome or Edge'}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setPasteMode(true)}
-            className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm transition-colors ${
-              supportsDirectoryPicker
-                ? 'border border-[#506880] bg-[#0a0e17] hover:border-[#7db8fc]/40 text-slate-400'
-                : 'bg-[#7db8fc] hover:bg-blue-600 font-medium text-white'
-            }`}
-          >
-            <span className="text-base leading-none">📋</span>
-            Paste terminal output
-            <span className={`ml-auto text-xs font-normal ${supportsDirectoryPicker ? 'text-slate-600' : 'text-blue-200'}`}>
-              {supportsDirectoryPicker ? 'Firefox / Safari / SSH' : 'Any terminal'}
-            </span>
-          </button>
+          {supportsDirectoryPicker ? (
+            <button
+              onClick={handleDirectoryPicker}
+              className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-[#1c3a5e] hover:bg-[#254a75] border border-[#7db8fc]/40 text-white cursor-pointer"
+            >
+              <IconDoc />
+              Select Workspace Folder
+              <span className="ml-auto text-xs font-normal text-blue-200">
+                <span className="text-[#34d399]">●</span> Recommended
+              </span>
+            </button>
+          ) : (
+            <p className="rounded-lg border border-[#506880] bg-[#0a0e17] px-4 py-3 text-xs text-[#b0bec9] leading-relaxed">
+              Config review requires Chrome or Edge to read file contents. Open Driftwatch in Chrome or Edge to scan your workspace.
+            </p>
+          )}
 
           <p className="text-xs text-[#7a8a9b] text-center pl-1 mt-1">
             🔒 Everything stays in your browser. Nothing is uploaded.
           </p>
-        </div>
-      )}
-
-      {/* ── IDLE: paste mode ── */}
-      {scanState === 'idle' && pasteMode && (
-        <div className="hidden md:flex flex-col gap-3">
-          <div className="relative rounded-lg border border-[#506880] bg-[#0a0e17] p-3">
-            <p className="text-xs text-slate-400 mb-2 font-medium">
-              Copy this command, run it in your terminal, and paste the output below:
-            </p>
-            <pre className="text-xs text-blue-300 whitespace-pre-wrap break-all font-mono leading-relaxed overflow-x-auto">
-              {PASTE_LS_COMMAND}
-            </pre>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(PASTE_LS_COMMAND);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              }}
-              className="absolute top-2 right-2 flex items-center gap-1 rounded px-2 py-1 text-xs text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
-            >
-              {copied ? 'Copied!' : <><IconClipboard /><span>copy</span></>}
-            </button>
-          </div>
-          <textarea
-            value={pasteText}
-            onChange={e => setPasteText(e.target.value)}
-            placeholder="Paste output here…"
-            rows={6}
-            className="rounded-lg border border-[#506880] bg-[#0a0e17] px-3 py-2 text-xs text-slate-300 placeholder-slate-600 font-mono resize-none focus:outline-none focus:border-[#7db8fc]/60"
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={handlePasteSubmit}
-              disabled={!pasteText.trim()}
-              className="flex-1 rounded-lg bg-[#7db8fc] hover:bg-blue-600 disabled:opacity-40 px-4 py-2 text-sm font-medium text-white transition-colors"
-            >
-              Parse Output
-            </button>
-            <button
-              onClick={() => { setPasteMode(false); setPasteText(''); }}
-              className="rounded-lg border border-[#506880] px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition-colors"
-            >
-              Back
-            </button>
-          </div>
         </div>
       )}
 
@@ -505,33 +394,6 @@ export default function DirectoryScanner({ onConfirm }: Props) {
                 Found <span className="text-[#7db8fc] font-medium">{items.length}</span> items.
                 Deselect anything you&apos;d rather exclude.
               </p>
-
-              {/* Contents toggle */}
-              <div className={`flex items-center justify-between gap-4 rounded-lg border border-[#506880] bg-[#0a0e17] px-3 py-2.5 ${scanSource === 'paste' ? 'opacity-60' : ''}`}>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-medium text-slate-200">Read file contents</span>
-                  <span className="text-xs text-slate-500">
-                    {scanSource === 'paste'
-                      ? 'Not available with terminal paste. Use Chrome/Edge folder picker to read file contents.'
-                      : includeContents
-                        ? 'File contents will be read to populate your map with relationships, config details, and agent roles.'
-                        : 'Only filenames will be scanned — faster and more private.'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={includeContents}
-                  disabled={scanSource === 'paste'}
-                  onClick={() => setIncludeContents(v => !v)}
-                  title={scanSource === 'paste' ? 'File contents not available with terminal paste method' : undefined}
-                  className={`relative flex-shrink-0 w-9 h-5 rounded-full transition-colors ${scanSource === 'paste' ? 'bg-slate-700 cursor-not-allowed' : includeContents ? 'bg-[#7db8fc]' : 'bg-slate-600'}`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${includeContents ? 'translate-x-4' : 'translate-x-0'}`}
-                  />
-                </button>
-              </div>
 
               <div className="flex flex-col gap-2">
                 {grouped.map(({ bucket, items: bucketItems }) => {
@@ -583,11 +445,6 @@ export default function DirectoryScanner({ onConfirm }: Props) {
                             <span className="text-xs text-slate-300 font-mono break-all">
                               {item.path}
                             </span>
-                            {includeContents && fileContents[item.path] !== undefined && (
-                              <span className="ml-auto flex-shrink-0 text-xs text-emerald-500/70">
-                                read
-                              </span>
-                            )}
                           </label>
                         ))}
                       </div>

@@ -506,10 +506,13 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
       <div
         style={{
           display: 'flex',
-          gap: 16,
+          justifyContent: 'space-evenly',
           alignItems: 'center',
           marginTop: 16,
           flexWrap: 'wrap',
+          width: '100%',
+          paddingTop: 12,
+          paddingBottom: 12,
         }}
       >
         {[
@@ -521,13 +524,13 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div
               style={{
-                width: 8,
-                height: 8,
+                width: 10,
+                height: 10,
                 borderRadius: '50%',
                 background: striped ? STRIPE_BG : color,
               }}
             />
-            <span style={{ fontSize: 10, color: '#8b949e' }}>{label}</span>
+            <span style={{ fontSize: 13, color: '#8b949e' }}>{label}</span>
           </div>
         ))}
       </div>
