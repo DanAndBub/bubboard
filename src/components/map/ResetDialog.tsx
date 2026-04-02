@@ -75,12 +75,12 @@ export default function ResetDialog({ open, onClose, onReset, snapshotCount, anc
       }}
     >
       <div className="p-3 space-y-2.5">
-        <p className="text-xs font-medium text-[#f1f5f9]">Reset map</p>
+        <p className="text-xs font-medium text-[#f1f5f9]">Reset scan</p>
 
         {/* Always-on: map data */}
         <label className="flex items-center gap-2.5 text-xs cursor-default">
           <input type="checkbox" checked disabled className="accent-[#7db8fc] rounded" />
-          <span className="text-[#b0bec9]">Reset map &amp; config data</span>
+          <span className="text-[#b0bec9]">Reset config data</span>
         </label>
 
         {/* Optional: snapshots */}

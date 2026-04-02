@@ -13,8 +13,8 @@ export default function DriftView({ driftReport }: DriftViewProps) {
     <div>
       <ViewContextHeader
         viewId="drift"
-        oneLiner="What changed since your last scan."
-        expandedDetail="Take a snapshot of your workspace, then compare it to a previous one. Drift detection shows added, removed, and modified files with line-level diffs. Useful for catching unintended changes from agent edits or for auditing what evolved between reviews."
+        oneLiner="How your config files changed between scans."
+        expandedDetail="Snapshot your workspace, come back later, and compare. Drift detection tracks character count changes and section-level shifts across your bootstrap files. Catch unreviewed agent edits, creeping file growth, and content that quietly crossed a truncation threshold."
       />
       <h1 className="text-xl font-semibold text-[#f1f5f9] mb-6">Drift Report</h1>
 

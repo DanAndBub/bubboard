@@ -39,8 +39,6 @@ export default function MapTopBar({ isDemo, onNewMap, showNewMap, snapshotCount 
           ◈
         </div>
         <span className="font-semibold text-sm text-[#f1f5f9]">Driftwatch</span>
-        <span className="hidden sm:inline text-[#7a8a9b] text-sm">/</span>
-        <span className="hidden sm:inline text-[#b0bec9] text-[13px]">Agent Map</span>
         {isDemo && (
           <span className="hidden sm:inline ml-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-900/60 text-blue-300 border border-blue-700/50">
             Demo
@@ -65,7 +63,7 @@ export default function MapTopBar({ isDemo, onNewMap, showNewMap, snapshotCount 
               (e.currentTarget as HTMLButtonElement).style.color = '#b0bec9';
             }}
           >
-            New map
+            New scan
           </button>
           <ResetDialog
             open={resetOpen}

@@ -65,8 +65,6 @@ export function generateSessionNotes(
     lines.push(`Previous scan: ${new Date(drift.previousTimestamp).toLocaleDateString()} (${drift.daysBetween} days ago)`);
     lines.push('');
 
-    if (drift.filesAdded.length > 0) lines.push(`- **Added:** ${drift.filesAdded.join(', ')}`);
-    if (drift.filesRemoved.length > 0) lines.push(`- **Removed:** ${drift.filesRemoved.join(', ')}`);
     if (drift.filesChanged.length > 0) {
       lines.push(`- **Changed:** ${drift.filesChanged.length} file${drift.filesChanged.length !== 1 ? 's' : ''}`);
       for (const f of drift.filesChanged) {
@@ -74,13 +72,9 @@ export function generateSessionNotes(
         lines.push(`  - ${f.path}: ${dir}${f.charCountDelta.toLocaleString()} chars (${f.percentGrowth >= 0 ? '+' : ''}${f.percentGrowth.toFixed(1)}%)`);
       }
     }
-    if (drift.healthScoreDelta !== 0) {
-      const dir = drift.healthScoreDelta > 0 ? '+' : '';
-      lines.push(`- **Health score:** ${dir}${drift.healthScoreDelta} points`);
-    }
-    if (drift.budgetDelta !== 0) {
-      const dir = drift.budgetDelta > 0 ? '+' : '';
-      lines.push(`- **Budget:** ${dir}${drift.budgetDelta.toLocaleString()} chars`);
+    if (drift.totalCharsDelta !== 0) {
+      const dir = drift.totalCharsDelta > 0 ? '+' : '';
+      lines.push(`- **All bootstrap files combined:** ${dir}${drift.totalCharsDelta.toLocaleString()} chars`);
     }
     lines.push('');
   }

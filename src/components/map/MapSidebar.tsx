@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import WaitlistForm from '@/components/WaitlistForm';
 
-type View = 'overview' | 'review' | 'drift';
+type View = 'review' | 'drift';
 
 interface MapSidebarProps {
   activeView: View;
@@ -17,7 +17,6 @@ interface MapSidebarProps {
 // ── Mobile bottom tab item ───────────────────────────────────────────────────
 
 const TABS: { view: View; icon: string; label: string }[] = [
-  { view: 'overview', icon: '◉', label: 'Overview' },
   { view: 'review', icon: '⚑', label: 'Config' },
   { view: 'drift', icon: '↔', label: 'Drift' },
 ];
@@ -232,14 +231,6 @@ export default function MapSidebar({
           padding: '16px 0',
         }}
       >
-        {/* Views section */}
-        <div style={{ padding: '0 12px', marginBottom: 20 }}>
-          <SectionLabel>Views</SectionLabel>
-          <NavItem icon="◉" label="Overview" active={activeView === 'overview'} onClick={() => onViewChange('overview')} />
-        </div>
-
-        <Divider />
-
         {/* Intelligence section */}
         <div style={{ padding: '0 12px', marginBottom: 20 }}>
           <SectionLabel>Intelligence</SectionLabel>

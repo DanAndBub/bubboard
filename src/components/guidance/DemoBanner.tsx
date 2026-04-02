@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 
 interface DemoBannerProps {
   isDemo: boolean;
+  onScanYours?: () => void;
 }
 
-export default function DemoBanner({ isDemo }: DemoBannerProps) {
+export default function DemoBanner({ isDemo, onScanYours }: DemoBannerProps) {
   const [visible, setVisible] = useState(() => {
     if (!isDemo) return false;
     if (typeof window === 'undefined') return false;
@@ -39,12 +39,12 @@ export default function DemoBanner({ isDemo }: DemoBannerProps) {
       </svg>
       <span className="flex-1">
         You are viewing demo data. Scan your own workspace to see your real config.{' '}
-        <Link
-          href="/map"
+        <button
+          onClick={onScanYours}
           className="text-[#5a8aaa] hover:text-[#7aaac8] underline underline-offset-2 transition-colors"
         >
           Scan yours →
-        </Link>
+        </button>
       </span>
       <button
         onClick={handleDismiss}

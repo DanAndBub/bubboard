@@ -910,82 +910,16 @@ export const DEMO_BUDGET: BootstrapBudget = {
 };
 
 // ── 4. DEMO_DRIFT_REPORT ─────────────────────────────────────────────
-// Story: workspace grew significantly over 7 days. AGENTS.md bloated 45%,
-// TOOLS.md bloated 55% (possibleAgentBloat), MEMORY.md grew 20%.
-// A file was added (WORKFLOW_AUTO.md), an old file removed (BOOTSTRAP.md).
-// Health score dropped 10 points.
+// Story: workspace grew significantly over 7 days. AGENTS.md bloated 42%,
+// TOOLS.md bloated 55%, MEMORY.md grew 20%.
 
 const NOW_ISO = new Date('2026-03-09T22:00:00.000Z').toISOString();
 const SEVEN_DAYS_AGO_ISO = new Date('2026-03-02T22:00:00.000Z').toISOString();
-
-const agentsBloatFinding: ReviewFinding = {
-  ruleId: 'size/file-critical',
-  severity: 'critical',
-  category: 'size',
-  file: 'AGENTS.md',
-  message: 'AGENTS.md is 20146 chars — exceeds the hard limit of 20000 chars.',
-  recommendation: 'Split AGENTS.md into focused sub-files.',
-  charCount: 20146,
-  threshold: 20000,
-};
-
-const toolsWarnFinding: ReviewFinding = {
-  ruleId: 'size/file-warning',
-  severity: 'warning',
-  category: 'size',
-  file: 'TOOLS.md',
-  message: 'TOOLS.md is 4500 chars — exceeds the warning threshold of 4096 chars.',
-  recommendation: 'Move the Setup Roadmap section out of bootstrap context.',
-  charCount: 4500,
-  threshold: 4096,
-};
-
-const budgetCritFinding: ReviewFinding = {
-  ruleId: 'size/budget-critical',
-  severity: 'critical',
-  category: 'size',
-  file: 'workspace',
-  message: 'Bootstrap budget is 31778/20000 chars (159% used) — over the hard limit.',
-  recommendation: 'Urgently reduce bootstrap size. AGENTS.md alone exceeds the entire budget.',
-};
-
-const workflowInfoFinding: ReviewFinding = {
-  ruleId: 'structure/new-file',
-  severity: 'info',
-  category: 'structure',
-  file: 'WORKFLOW_AUTO.md',
-  message: 'New file WORKFLOW_AUTO.md added — review for redundancy with AGENTS.md.',
-  recommendation: 'Ensure WORKFLOW_AUTO.md content does not duplicate delegation rules already in AGENTS.md.',
-};
-
-const structureFinding: ReviewFinding = {
-  ruleId: 'structure/missing-section',
-  severity: 'info',
-  category: 'structure',
-  file: 'MEMORY.md',
-  message: 'MEMORY.md lacks a "Last Updated" header.',
-  recommendation: 'Add a "Last Updated: YYYY-MM-DD" line at the top.',
-};
-
-// Previously resolved (was present 7 days ago, gone now):
-const resolvedFinding: ReviewFinding = {
-  ruleId: 'size/file-warning',
-  severity: 'warning',
-  category: 'size',
-  file: 'BOOTSTRAP.md',
-  message: 'BOOTSTRAP.md was 2800 chars — approaching warning threshold.',
-  recommendation: 'File has been removed.',
-  charCount: 2800,
-  threshold: 2048,
-};
 
 export const DEMO_DRIFT_REPORT: DriftReport = {
   previousTimestamp: SEVEN_DAYS_AGO_ISO,
   currentTimestamp: NOW_ISO,
   daysBetween: 7,
-
-  filesAdded: ['WORKFLOW_AUTO.md'],
-  filesRemoved: ['BOOTSTRAP.md'],
 
   filesChanged: [
     {
@@ -1022,76 +956,7 @@ export const DEMO_DRIFT_REPORT: DriftReport = {
     },
   ],
 
-  filesUnchanged: ['SOUL.md', 'USER.md'],
-
-  // significantGrowth: >30% — all three changed files qualify
-  significantGrowth: [
-    {
-      path: 'AGENTS.md',
-      charCountDelta: 6008,
-      percentGrowth: 42,
-      headingsAdded: ['## Multi-Channel Daily Notes Protocol', '## Cost Awareness', '## Subagent Protocols Reference'],
-      headingsRemoved: [],
-      contentHashChanged: true,
-    },
-    {
-      path: 'MEMORY.md',
-      charCountDelta: 300,
-      percentGrowth: 20,
-      headingsAdded: ['## Recent Wins'],
-      headingsRemoved: [],
-      contentHashChanged: true,
-    },
-    {
-      path: 'TOOLS.md',
-      charCountDelta: 1607,
-      percentGrowth: 55,
-      headingsAdded: [
-        '## Search and Research',
-        '## Claude Code CLI (extended)',
-        '## Knowledge Graph (PARA — ~/life/)',
-        '## Nightly Memory Consolidation',
-        '## Coding Agent Loops',
-        '## Setup Roadmap (Priority Order)',
-        '## Not Yet Set Up',
-      ],
-      headingsRemoved: [],
-      contentHashChanged: true,
-    },
-  ],
-
-  // possibleAgentBloat: >50% growth — only TOOLS.md qualifies
-  possibleAgentBloat: [
-    {
-      path: 'TOOLS.md',
-      charCountDelta: 1607,
-      percentGrowth: 55,
-      headingsAdded: [
-        '## Search and Research',
-        '## Claude Code CLI (extended)',
-        '## Knowledge Graph (PARA — ~/life/)',
-        '## Nightly Memory Consolidation',
-        '## Coding Agent Loops',
-        '## Setup Roadmap (Priority Order)',
-        '## Not Yet Set Up',
-      ],
-      headingsRemoved: [],
-      contentHashChanged: true,
-    },
-  ],
-
-  healthScoreDelta: -10, // health score dropped: things got worse
-
-  newFindings: [agentsBloatFinding, workflowInfoFinding],
-  resolvedFindings: [resolvedFinding],
-  persistentFindings: [toolsWarnFinding, budgetCritFinding, structureFinding],
-
-  agentTopologyChanges: {
-    added: ['local'],   // "local" agent was added this week
-    removed: [],
-  },
-
-  budgetDelta: 2500, // total chars grew by ~2500 chars over the week
+  totalCharsDelta: 2500, // total chars grew by ~2500 chars over the week
 };
 
 // ── 5. DEMO_SNAPSHOT ─────────────────────────────────────────────────

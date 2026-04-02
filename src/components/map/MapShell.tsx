@@ -8,9 +8,10 @@ interface MapShellProps {
   sidebar: React.ReactNode;
   children: React.ReactNode;
   isDemo?: boolean;
+  onScanYours?: () => void;
 }
 
-export default function MapShell({ topBar, sidebar, children, isDemo = false }: MapShellProps) {
+export default function MapShell({ topBar, sidebar, children, isDemo = false, onScanYours }: MapShellProps) {
   return (
     <div className="bg-[#0a0e17] h-dvh flex flex-col lg:grid lg:grid-cols-[252px_1fr] lg:grid-rows-[52px_1fr] overflow-hidden">
       <a
@@ -35,7 +36,7 @@ export default function MapShell({ topBar, sidebar, children, isDemo = false }: 
         id="main-content"
         className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-9 lg:py-7 pb-20 lg:pb-7"
       >
-        <DemoBanner isDemo={isDemo} />
+        <DemoBanner isDemo={isDemo} onScanYours={onScanYours} />
         {children}
       </main>
 
