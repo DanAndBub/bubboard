@@ -21,7 +21,7 @@ import { generateSessionNotes } from '@/lib/drift/session-notes';
 import { downloadSessionNotes } from '@/lib/drift/session-notes-export';
 import type { Snapshot, DriftReport } from '@/lib/drift/types';
 import EditorPanel from '@/components/editor/EditorPanel';
-import Link from 'next/link';
+import CommunityCounter from '@/components/CommunityCounter';
 import DirectoryScanner from '@/scanner/DirectoryScanner';
 import MapShell from '@/components/map/MapShell';
 import MapTopBar from '@/components/map/MapTopBar';
@@ -68,6 +68,7 @@ function ScanPageContent() {
 
 
   const snapshotInputRef = useRef<HTMLInputElement>(null);
+  const scanStatsFiredRef = useRef(false);
 
   // Demo mode: run config review on initial demo data (state initialized in useState above)
   useEffect(() => {
@@ -85,6 +86,26 @@ function ScanPageContent() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+ function loadDemoData() {
+    const demoMap = getDemoAgentMap();
+    const demoContents = getDemoFileContents();
+    setAgentMap(demoMap);
+    setFileContents(demoContents);
+    setInputCollapsed(true);
+    setActiveView('review');
+    window.history.pushState({}, '', '/?demo=true');
+
+    const mdFiles = Object.entries(demoContents).filter(([k]) => k.toLowerCase().endsWith('.md') && isBootstrapFile(k));
+    if (mdFiles.length > 0) {
+      const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+      setAnalyzedFiles(analyzed);
+      setReviewResult(runReview(analyzed));
+    }
+    setCurrentSnapshot(DEMO_SNAPSHOT);
+    setDriftReport(DEMO_DRIFT_REPORT);
+    setBudget(DEMO_BUDGET);
+  }
 
   function applyAnalyzer(fileName: string, content: string, map: AgentMap): AgentMap {
     const name = fileName.toUpperCase();
@@ -125,6 +146,7 @@ function ScanPageContent() {
   }
 
   function buildMapFromTree(tree: string, extraContents: Record<string, string> = {}) {
+    scanStatsFiredRef.current = false;
     setIsLoading(true);
     const allContents = { ...fileContents, ...extraContents };
     setTimeout(() => {
@@ -145,6 +167,23 @@ function ScanPageContent() {
         setReviewResult(review);
         const fileBudget = calculateBudget(analyzed);
         setBudget(fileBudget);
+
+        // Fire-and-forget scan stats (real scans only, once per scan)
+        if (!scanStatsFiredRef.current) {
+          scanStatsFiredRef.current = true;
+          const truncatedFileCount = new Set(
+            review.findings.filter(f => f.category === 'truncation').map(f => f.file)
+          ).size;
+          fetch('/api/scan-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filesScanned: analyzed.length,
+              totalChars: fileBudget.totalChars,
+              truncatedFiles: truncatedFileCount,
+            }),
+          }).catch(() => {});
+        }
 
         // Build snapshot + drift (async for content hashing)
         serializeSnapshot(analyzed, review, fileBudget, enriched).then(snap => {
@@ -210,31 +249,47 @@ function ScanPageContent() {
     <>
       {!agentMap ? (
         /* ── INPUT SECTION ─────────────────────────────────────────────── */
-        <div className="max-w-lg mx-auto px-4 py-8">
-          <div className="max-w-2xl mx-auto px-4 pb-8 text-center">
-            <h2 className="text-xl font-semibold text-[#f1f5f9] mb-3">
+        <div className="w-full max-w-[520px] mx-auto px-4 py-10 flex flex-col gap-6">
+
+          {/* Category label */}
+          <p className="text-[11px] font-mono uppercase tracking-widest text-[#7db8fc] text-center">
+            bootstrap file inspector
+          </p>
+
+          {/* Headline + sub-copy */}
+          <div className="text-center flex flex-col gap-2">
+            <h2 className="text-2xl font-semibold text-[#f1f5f9]">
               See what your agent can&apos;t see.
             </h2>
-            <p className="text-sm text-[#b0bec9] leading-relaxed max-w-md mx-auto">
-              Scan your OpenClaw workspace to find truncated config, silent drift, and wasted token budget.
-              Everything runs in your browser — nothing is uploaded.
+            <p className="text-sm text-[#b0bec9] leading-relaxed">
+              Scan your OpenClaw workspace. Check file sizes, find truncation zones, see exactly what&apos;s being cut.
             </p>
           </div>
 
+          {/* Primary CTA — scan button */}
           <DirectoryScanner onConfirm={handleDirectoryConfirm} />
 
-          <div className="mt-4 border-t border-[#30363d] pt-4">
-            <Link
-              href="/?demo=true"
-              className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#506880] bg-transparent px-4 py-3 text-sm text-[#b0bec9] hover:border-[#7db8fc]/40 hover:text-[#f1f5f9] transition-colors"
-            >
-              Try the interactive demo
-            </Link>
+          {/* Secondary CTA — demo */}
+          <button
+            onClick={loadDemoData}
+            className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#30363d] bg-transparent px-4 py-2.5 text-sm font-mono text-[#7a8a9b] hover:text-[#b0bec9] hover:border-[#506880] transition-colors"
+          >
+            try demo data
+          </button>
+
+          {/* Trust signals */}
+          <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:justify-center sm:gap-0 sm:divide-x sm:divide-[#30363d]">
+            {['runs entirely in your browser', 'nothing uploaded, nothing stored', 'chrome or edge required for folder access'].map(line => (
+              <span key={line} className="text-[11px] text-[#506880] sm:px-3">
+                {line}
+              </span>
+            ))}
           </div>
 
-          <p className="text-[11px] text-[#506880] text-center mt-3">
-            Requires Chrome or Edge for folder access.
-          </p>
+          {/* Community counter */}
+          <div className="border-t border-[#1e2a38] pt-5">
+            <CommunityCounter />
+          </div>
         </div>
       ) : (
         /* ── VIEW-BASED LAYOUT ──────────────────────────────────────────── */
