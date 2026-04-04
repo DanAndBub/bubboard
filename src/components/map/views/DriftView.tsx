@@ -10,7 +10,7 @@ interface DriftViewProps {
 
 export default function DriftView({ driftReport }: DriftViewProps) {
   return (
-    <div>
+    <div className="max-w-[960px] mx-auto">
       <ViewContextHeader
         viewId="drift"
         oneLiner="How your config files changed between scans."

@@ -11,7 +11,7 @@ interface ReviewViewProps {
 
 export default function ReviewView({ analyzedFiles, budget }: ReviewViewProps) {
   return (
-    <div>
+    <div className="max-w-[960px] mx-auto">
       <ViewContextHeader
         viewId="review"
         oneLiner="Your config files, checked for issues that silently break your agent."

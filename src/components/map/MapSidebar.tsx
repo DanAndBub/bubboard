@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import WaitlistForm from '@/components/WaitlistForm';
 
-type View = 'review' | 'drift';
+type View = 'review' | 'drift' | 'conflict';
 
 interface MapSidebarProps {
   activeView: View;
@@ -18,6 +18,7 @@ interface MapSidebarProps {
 
 const TABS: { view: View; icon: string; label: string }[] = [
   { view: 'review', icon: '⚑', label: 'Config' },
+  { view: 'conflict', icon: '⚡', label: 'Conflicts' },
   { view: 'drift', icon: '↔', label: 'Drift' },
 ];
 
@@ -51,6 +52,202 @@ function WaitlistModal({ onClose }: { onClose: () => void }) {
           ✕
         </button>
         <WaitlistForm />
+      </div>
+    </div>
+  );
+}
+
+// ── Contact modal ────────────────────────────────────────────────────────────
+
+type ContactType = 'Feature Request' | 'Bug Report' | 'Review' | 'Message';
+
+const TYPE_API_MAP: Record<ContactType, string> = {
+  'Feature Request': 'suggestion',
+  'Bug Report': 'bug',
+  'Review': 'review',
+  'Message': 'suggestion',
+};
+
+function ContactModal({ onClose }: { onClose: () => void }) {
+  const [type, setType] = useState<ContactType>('Feature Request');
+  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorText, setErrorText] = useState('');
+
+  const emailRequired = type === 'Message';
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!message.trim()) return;
+    if (emailRequired && !email.trim()) return;
+    setStatus('loading');
+
+    const apiMessage = type === 'Message' ? `[Message] ${message}` : message;
+
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: TYPE_API_MAP[type],
+          message: apiMessage,
+          email: email.trim() || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(data.error ?? `HTTP ${res.status}`);
+      }
+      setStatus('success');
+      setTimeout(onClose, 2000);
+    } catch (err) {
+      setStatus('error');
+      setErrorText(err instanceof Error ? err.message : 'Something went wrong.');
+    }
+  }
+
+  const contactTypes: ContactType[] = ['Feature Request', 'Bug Report', 'Review', 'Message'];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.75)' }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-sm"
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: '#111827',
+          border: '1px solid #3a4e63',
+          borderRadius: 12,
+          padding: '24px',
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <span style={{ color: '#f1f5f9', fontWeight: 600, fontSize: 14 }}>Message the Creators</span>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="w-7 h-7 flex items-center justify-center rounded-full text-[12px] transition-colors"
+            style={{ background: 'rgba(255,255,255,0.06)', color: '#7a8a9b' }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.12)';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.color = '#7a8a9b';
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {status === 'success' ? (
+          <div style={{ textAlign: 'center', padding: '28px 0', color: '#34d399', fontSize: 14, fontWeight: 500 }}>
+            Sent — thanks!
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* Type */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <label style={{ fontSize: 10, color: '#7a8a9b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Type
+              </label>
+              <select
+                value={type}
+                onChange={e => setType(e.target.value as ContactType)}
+                required
+                style={{
+                  background: '#0a0e17',
+                  border: '1px solid #3a4e63',
+                  borderRadius: 6,
+                  color: '#f1f5f9',
+                  fontSize: 13,
+                  padding: '7px 10px',
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                {contactTypes.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+
+            {/* Message */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <label style={{ fontSize: 10, color: '#7a8a9b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Message
+              </label>
+              <textarea
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+                maxLength={2000}
+                required
+                rows={4}
+                placeholder="What's on your mind?"
+                style={{
+                  background: '#0a0e17',
+                  border: '1px solid #3a4e63',
+                  borderRadius: 6,
+                  color: '#f1f5f9',
+                  fontSize: 13,
+                  padding: '8px 10px',
+                  resize: 'none',
+                  outline: 'none',
+                }}
+              />
+            </div>
+
+            {/* Email */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <label style={{ fontSize: 10, color: '#7a8a9b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Email{emailRequired ? ' *' : ' (optional)'}
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required={emailRequired}
+                placeholder={emailRequired ? 'your@email.com' : 'your@email.com (optional)'}
+                style={{
+                  background: '#0a0e17',
+                  border: '1px solid #3a4e63',
+                  borderRadius: 6,
+                  color: '#f1f5f9',
+                  fontSize: 13,
+                  padding: '7px 10px',
+                  outline: 'none',
+                }}
+              />
+            </div>
+
+            {status === 'error' && (
+              <p style={{ color: '#f87171', fontSize: 12, margin: 0 }}>{errorText}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={status === 'loading' || !message.trim() || (emailRequired && !email.trim())}
+              style={{
+                background: '#7db8fc',
+                color: '#0a0e17',
+                border: 'none',
+                borderRadius: 6,
+                padding: '9px 16px',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+                opacity: (status === 'loading' || !message.trim() || (emailRequired && !email.trim())) ? 0.4 : 1,
+                transition: 'opacity 120ms',
+              }}
+            >
+              {status === 'loading' ? 'Sending...' : 'Send'}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -178,10 +375,12 @@ export default function MapSidebar({
   onDownloadNotes,
 }: MapSidebarProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   return (
     <>
       {modalOpen && <WaitlistModal onClose={() => setModalOpen(false)} />}
+      {contactOpen && <ContactModal onClose={() => setContactOpen(false)} />}
 
       {/* ── Mobile bottom tab bar ── */}
       <nav
@@ -212,12 +411,12 @@ export default function MapSidebar({
           );
         })}
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={() => setContactOpen(true)}
           className="flex flex-col items-center gap-0.5 py-2 px-1 min-w-0 transition-colors"
-          style={{ color: '#fbbf24' }}
+          style={{ color: '#7a8a9b' }}
         >
-          <span className="text-[15px] leading-none">✦</span>
-          <span className="text-[10px] font-medium truncate max-w-[52px]">More</span>
+          <span className="text-[15px] leading-none">✉</span>
+          <span className="text-[10px] font-medium truncate max-w-[52px]">Message</span>
         </button>
       </nav>
 
@@ -234,23 +433,47 @@ export default function MapSidebar({
         {/* Intelligence section */}
         <div style={{ padding: '0 12px', marginBottom: 20 }}>
           <SectionLabel>Intelligence</SectionLabel>
-          <NavItem icon="⚑" label="Config Review" active={activeView === 'review'} alertDot={hasFindings} onClick={() => onViewChange('review')} />
+          <NavItem icon="⚑" label="Config Health" active={activeView === 'review'} alertDot={hasFindings} onClick={() => onViewChange('review')} />
+          <NavItem icon="⚡" label="Conflict Scanner" active={activeView === 'conflict'} onClick={() => onViewChange('conflict')} />
           <NavItem icon="↔" label="Drift Report" active={activeView === 'drift'} onClick={() => onViewChange('drift')} />
-          <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-[10px] w-full rounded-md text-[13px] transition-all duration-[120ms] border-none text-left"
-            style={{ padding: '9px 12px', background: 'transparent', color: '#fbbf24', fontWeight: 400 }}
+
+          {/* Get the Skill — external link */}
+          <a
+            href="https://clawhub.ai/danandbub/driftwatch-oc"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-[10px] w-full rounded-md text-[13px] transition-all duration-[120ms] no-underline"
+            style={{ padding: '9px 12px', color: '#7db8fc', fontWeight: 400, display: 'flex' }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(251,191,36,0.06)';
-              (e.currentTarget as HTMLButtonElement).style.color = '#fde68a';
+              (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(125,184,252,0.06)';
+              (e.currentTarget as HTMLAnchorElement).style.color = '#a5c8fd';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+              (e.currentTarget as HTMLAnchorElement).style.color = '#7db8fc';
+            }}
+          >
+            <span className="w-[18px] text-center text-[13px] shrink-0">⬡</span>
+            <span>Get the Skill</span>
+            <span className="ml-auto text-[10px]" style={{ color: '#506880' }}>↗</span>
+          </a>
+
+          {/* Message the Creators */}
+          <button
+            onClick={() => setContactOpen(true)}
+            className="flex items-center gap-[10px] w-full rounded-md text-[13px] transition-all duration-[120ms] border-none text-left"
+            style={{ padding: '9px 12px', background: 'transparent', color: '#b0bec9', fontWeight: 400 }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(125,184,252,0.06)';
+              (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-              (e.currentTarget as HTMLButtonElement).style.color = '#fbbf24';
+              (e.currentTarget as HTMLButtonElement).style.color = '#b0bec9';
             }}
           >
-            <span className="w-[18px] text-center text-[13px] shrink-0">✦</span>
-            <span>More is Coming</span>
+            <span className="w-[18px] text-center text-[13px] shrink-0">✉</span>
+            <span>Message the Creators</span>
           </button>
         </div>
 

@@ -28,6 +28,7 @@ import MapTopBar from '@/components/map/MapTopBar';
 import MapSidebar from '@/components/map/MapSidebar';
 import ReviewView from '@/components/map/views/ReviewView';
 import DriftView from '@/components/map/views/DriftView';
+import ConflictScannerView from '@/components/map/views/ConflictScannerView';
 
 const BOOTSTRAP_NAMES = new Set(BOOTSTRAP_FILE_ORDER.map(f => f.toUpperCase()));
 
@@ -36,7 +37,7 @@ function isBootstrapFile(filename: string): boolean {
   return BOOTSTRAP_NAMES.has(base);
 }
 
-type View = 'review' | 'drift';
+type View = 'review' | 'drift' | 'conflict';
 
 function ScanPageContent() {
   const searchParams = useSearchParams();
@@ -59,7 +60,7 @@ function ScanPageContent() {
   // Apply ?view= query param on mount
   const initialView = searchParams.get('view');
   useEffect(() => {
-    const valid: View[] = ['review', 'drift'];
+    const valid: View[] = ['review', 'drift', 'conflict'];
     if (initialView && (valid as string[]).includes(initialView)) {
       setActiveView(initialView as View);
     }
@@ -266,16 +267,18 @@ function ScanPageContent() {
             </p>
           </div>
 
-          {/* Primary CTA — scan button */}
-          <DirectoryScanner onConfirm={handleDirectoryConfirm} />
-
-          {/* Secondary CTA — demo */}
-          <button
-            onClick={loadDemoData}
-            className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#30363d] bg-transparent px-4 py-2.5 text-sm font-mono text-[#7a8a9b] hover:text-[#b0bec9] hover:border-[#506880] transition-colors"
-          >
-            try demo data
-          </button>
+          {/* CTAs — side-by-side on desktop */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+            <div className="sm:flex-1">
+              <DirectoryScanner onConfirm={handleDirectoryConfirm} />
+            </div>
+            <button
+              onClick={loadDemoData}
+              className="w-full sm:flex-1 flex items-center justify-center gap-2 rounded-lg border border-[#30363d] bg-transparent px-4 py-2.5 text-sm font-mono text-[#7a8a9b] hover:text-[#b0bec9] hover:border-[#506880] transition-colors"
+            >
+              try demo data
+            </button>
+          </div>
 
           {/* Trust signals */}
           <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:justify-center sm:gap-0 sm:divide-x sm:divide-[#30363d]">
@@ -290,6 +293,20 @@ function ScanPageContent() {
           <div className="border-t border-[#1e2a38] pt-5">
             <CommunityCounter />
           </div>
+
+          {/* Skill promotion */}
+          <p className="text-xs text-[#7a8a9b] text-center leading-relaxed">
+            Also available as a skill.{' '}
+            <a
+              href="https://clawhub.ai/danandbub/driftwatch-oc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#7db8fc] hover:text-[#a5c8fd] transition-colors"
+            >
+              The Driftwatch skill ↗
+            </a>{' '}
+            runs <span className="font-mono text-[11px]">scan my config</span> directly in your agent workspace — no browser needed.
+          </p>
         </div>
       ) : (
         /* ── VIEW-BASED LAYOUT ──────────────────────────────────────────── */
@@ -299,6 +316,9 @@ function ScanPageContent() {
               analyzedFiles={analyzedFiles}
               budget={budget}
             />
+          )}
+          {activeView === 'conflict' && (
+            <ConflictScannerView />
           )}
           {activeView === 'drift' && (
             <DriftView driftReport={driftReport} />
@@ -360,16 +380,7 @@ function ScanPageContent() {
               }
             }}
           />
-        ) : (
-          /* No sidebar content before a scan is loaded */
-          <div
-            style={{
-              background: '#080c14',
-              borderRight: '1px solid #3a4e63',
-              height: '100%',
-            }}
-          />
-        )
+        ) : null
       }
     >
       {mainContent}

@@ -16,23 +16,31 @@ function abbreviateChars(n: number): string {
   return n.toLocaleString();
 }
 
+// TODO: Remove threshold override after Dan's visual review
+const PLACEHOLDER_STATS: AggregateStats = {
+  totalScans: 127,
+  totalFilesScanned: 843,
+  totalCharsAnalyzed: 2_400_000,
+  totalTruncationsDetected: 43,
+  scansWithTruncation: 54,
+};
+
 export default function CommunityCounter() {
-  const [stats, setStats] = useState<AggregateStats | null>(null);
+  const [stats, setStats] = useState<AggregateStats>(PLACEHOLDER_STATS);
 
   useEffect(() => {
     fetch('/api/scan-stats')
       .then(r => r.ok ? r.json() : null)
       .then((data: AggregateStats | null) => {
-        if (data && data.totalScans >= 50) {
-          setStats(data);
-        }
+        // TODO: Remove threshold override after Dan's visual review
+        if (data) setStats(data);
       })
       .catch(() => {});
   }, []);
 
-  if (!stats) return null;
-
-  const truncationPct = Math.round((stats.scansWithTruncation / stats.totalScans) * 100);
+  const truncationPct = stats.totalScans > 0
+    ? Math.round((stats.scansWithTruncation / stats.totalScans) * 100)
+    : 0;
 
   return (
     <div className="flex flex-col items-center gap-3">

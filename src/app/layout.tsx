@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import FeedbackWidget from '@/components/FeedbackWidget';
-
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains',
   subsets: ['latin'],
@@ -30,7 +28,6 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${jetbrainsMono.variable} antialiased bg-grid`}>
         {children}
-        <FeedbackWidget />
       </body>
     </html>
   );
