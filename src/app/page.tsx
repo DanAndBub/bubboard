@@ -17,11 +17,8 @@ import { serializeSnapshot } from '@/lib/drift/snapshot-serialize';
 import { downloadSnapshot } from '@/lib/drift/snapshot-export';
 import { importSnapshot } from '@/lib/drift/snapshot-import';
 import { computeDrift } from '@/lib/drift/diff-engine';
-import { generateSessionNotes } from '@/lib/drift/session-notes';
-import { downloadSessionNotes } from '@/lib/drift/session-notes-export';
 import type { Snapshot, DriftReport } from '@/lib/drift/types';
 import EditorPanel from '@/components/editor/EditorPanel';
-import CommunityCounter from '@/components/CommunityCounter';
 import DirectoryScanner from '@/scanner/DirectoryScanner';
 import MapShell from '@/components/map/MapShell';
 import MapTopBar from '@/components/map/MapTopBar';
@@ -250,62 +247,68 @@ function ScanPageContent() {
     <>
       {!agentMap ? (
         /* ── INPUT SECTION ─────────────────────────────────────────────── */
-        <div className="w-full max-w-[520px] mx-auto px-4 py-10 flex flex-col gap-6">
-
-          {/* Category label */}
-          <p className="text-[11px] font-mono uppercase tracking-widest text-[#7db8fc] text-center">
-            bootstrap file inspector
-          </p>
+        <div className="w-full max-w-[520px] mx-auto px-4 py-16 flex flex-col gap-8">
 
           {/* Headline + sub-copy */}
-          <div className="text-center flex flex-col gap-2">
-            <h2 className="text-2xl font-semibold text-[#f1f5f9]">
-              See what your agent can&apos;t see.
-            </h2>
-            <p className="text-sm text-[#b0bec9] leading-relaxed">
-              Scan your OpenClaw workspace. Check file sizes, find truncation zones, see exactly what&apos;s being cut.
+          <div className="text-center flex flex-col gap-3">
+            <h1 className="text-[28px] font-semibold text-[#e2e8f0] leading-[1.3] tracking-[-0.01em]">
+              Find what&apos;s being silently cut from your agent config.
+            </h1>
+            <p className="text-[16px] text-[#94a3b8] leading-relaxed max-w-[440px] mx-auto">
+              Scan your OpenClaw workspace. Check file sizes against context window limits, find truncation zones, see exactly where content is being dropped.
             </p>
           </div>
 
-          {/* CTAs — side-by-side on desktop */}
-          <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-            <div className="sm:flex-1">
-              <DirectoryScanner onConfirm={handleDirectoryConfirm} />
-            </div>
+          {/* CTAs — stacked: scanner on top, demo below */}
+          <div className="flex flex-col gap-3">
+            <DirectoryScanner onConfirm={handleDirectoryConfirm} />
             <button
               onClick={loadDemoData}
-              className="w-full sm:flex-1 flex items-center justify-center gap-2 rounded-lg border border-[#30363d] bg-transparent px-4 py-2.5 text-sm font-mono text-[#7a8a9b] hover:text-[#b0bec9] hover:border-[#506880] transition-colors"
+              className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#1e2a38] bg-transparent px-6 py-3 text-[13px] font-mono font-medium text-[#94a3b8] hover:text-[#e2e8f0] hover:border-[#2d3f5a] transition-colors cursor-pointer"
             >
-              try demo data
+              Try demo data
             </button>
           </div>
 
           {/* Trust signals */}
-          <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:justify-center sm:gap-0 sm:divide-x sm:divide-[#30363d]">
-            {['runs entirely in your browser', 'nothing uploaded, nothing stored', 'chrome or edge required for folder access'].map(line => (
-              <span key={line} className="text-[11px] text-[#506880] sm:px-3">
-                {line}
-              </span>
-            ))}
+          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+            <span className="text-[12px] text-[#506880]">Runs in your browser</span>
+            <span className="text-[10px] text-[#1e2a38]">&middot;</span>
+            <span className="text-[12px] text-[#506880]">Nothing uploaded</span>
+            <span className="text-[10px] text-[#1e2a38]">&middot;</span>
+            <span className="text-[12px] text-[#506880]">Chrome or Edge required</span>
           </div>
 
-          {/* Community counter */}
-          <div className="border-t border-[#1e2a38] pt-5">
-            <CommunityCounter />
+          {/* Capabilities */}
+          <div className="flex flex-col gap-5 pt-2 border-t border-[#1e2a38]">
+            <div className="flex flex-col gap-1">
+              <span className="text-[13px] font-mono font-medium text-[#e2e8f0]">Truncation detection</span>
+              <span className="text-[14px] text-[#94a3b8] leading-snug">See which bootstrap files exceed context window limits and where content gets cut.</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[13px] font-mono font-medium text-[#e2e8f0]">Config health review</span>
+              <span className="text-[14px] text-[#94a3b8] leading-snug">Check for contradictions, structural issues, and agent-edit artifacts across your config files.</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[13px] font-mono font-medium text-[#e2e8f0]">Drift tracking</span>
+              <span className="text-[14px] text-[#94a3b8] leading-snug">Snapshot your config state, compare across sessions, catch unintended changes.</span>
+            </div>
           </div>
 
           {/* Skill promotion */}
-          <p className="text-xs text-[#7a8a9b] text-center leading-relaxed">
-            Also available as a skill.{' '}
+          <p className="text-[13px] text-[#506880] text-center leading-relaxed pt-2 border-t border-[#1e2a38]">
+            Also available as a CLI skill.{' '}
             <a
               href="https://clawhub.ai/danandbub/driftwatch-oc"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#7db8fc] hover:text-[#a5c8fd] transition-colors"
+              className="text-[#3b82f6] hover:text-[#e2e8f0] transition-colors"
             >
-              The Driftwatch skill ↗
+              The Driftwatch skill
             </a>{' '}
-            runs <span className="font-mono text-[11px]">scan my config</span> directly in your agent workspace — no browser needed.
+            runs{' '}
+            <code className="font-mono text-[12px] text-[#94a3b8] bg-[#111820] px-1.5 py-0.5 rounded">scan my config</code>{' '}
+            directly in your workspace.
           </p>
         </div>
       ) : (
@@ -373,12 +376,6 @@ function ScanPageContent() {
               if (currentSnapshot) downloadSnapshot(currentSnapshot);
             }}
             onUploadSnapshot={() => snapshotInputRef.current?.click()}
-            onDownloadNotes={() => {
-              if (reviewResult && budget && currentSnapshot) {
-                const notes = generateSessionNotes(reviewResult, budget, currentSnapshot, driftReport);
-                downloadSessionNotes(notes);
-              }
-            }}
           />
         ) : null
       }
@@ -415,7 +412,7 @@ export default function HomePage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-[#7a8a9b] text-sm">Loading...</div>
+        <div className="text-[#506880] text-sm">Loading...</div>
       </div>
     }>
       <ScanPageContent />

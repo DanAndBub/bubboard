@@ -11,15 +11,43 @@ interface MapSidebarProps {
   hasFindings: boolean;
   onDownloadSnapshot: () => void;
   onUploadSnapshot: () => void;
-  onDownloadNotes: () => void;
 }
 
 // ── Mobile bottom tab item ───────────────────────────────────────────────────
 
-const TABS: { view: View; icon: string; label: string }[] = [
-  { view: 'review', icon: '⚑', label: 'Config' },
-  { view: 'conflict', icon: '⚡', label: 'Conflicts' },
-  { view: 'drift', icon: '↔', label: 'Drift' },
+// SVG icons for nav items — rendered inline so they inherit currentColor
+function NavIcon({ type }: { type: View }) {
+  switch (type) {
+    case 'review':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 12l2 2 4-4"/>
+          <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/>
+        </svg>
+      );
+    case 'conflict':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 4l16 16"/>
+          <path d="M20 4L4 20"/>
+        </svg>
+      );
+    case 'drift':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 3l4 4-4 4"/>
+          <path d="M16 21l-4-4 4-4"/>
+          <path d="M12 7h7a2 2 0 0 1 2 2v2"/>
+          <path d="M12 17H5a2 2 0 0 1-2-2v-2"/>
+        </svg>
+      );
+  }
+}
+
+const TABS: { view: View; label: string }[] = [
+  { view: 'review', label: 'Config' },
+  { view: 'conflict', label: 'Conflicts' },
+  { view: 'drift', label: 'Drift' },
 ];
 
 // ── Waitlist modal ───────────────────────────────────────────────────────────
@@ -38,14 +66,14 @@ function WaitlistModal({ onClose }: { onClose: () => void }) {
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-6 right-6 z-10 w-8 h-8 flex items-center justify-center rounded-full text-[13px] transition-colors"
-          style={{ background: 'rgba(255,255,255,0.08)', color: '#7a8a9b' }}
+          className="absolute top-6 right-6 z-10 w-8 h-8 flex items-center justify-center rounded-full text-[13px] transition-colors cursor-pointer"
+          style={{ background: 'rgba(255,255,255,0.08)', color: '#506880' }}
           onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
+            (e.currentTarget as HTMLButtonElement).style.color = '#e2e8f0';
             (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.14)';
           }}
           onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.color = '#7a8a9b';
+            (e.currentTarget as HTMLButtonElement).style.color = '#506880';
             (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)';
           }}
         >
@@ -119,26 +147,26 @@ function ContactModal({ onClose }: { onClose: () => void }) {
         className="relative w-full max-w-sm"
         onClick={e => e.stopPropagation()}
         style={{
-          background: '#111827',
-          border: '1px solid #3a4e63',
+          background: '#111820',
+          border: '1px solid #1e2a38',
           borderRadius: 12,
           padding: '24px',
         }}
       >
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <span style={{ color: '#f1f5f9', fontWeight: 600, fontSize: 14 }}>Message the Creators</span>
+          <span style={{ color: '#e2e8f0', fontWeight: 600, fontSize: 14 }}>Message the Creators</span>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="w-7 h-7 flex items-center justify-center rounded-full text-[12px] transition-colors"
-            style={{ background: 'rgba(255,255,255,0.06)', color: '#7a8a9b' }}
+            className="w-7 h-7 flex items-center justify-center rounded-full text-[12px] transition-colors cursor-pointer"
+            style={{ background: 'rgba(255,255,255,0.06)', color: '#506880' }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
+              (e.currentTarget as HTMLButtonElement).style.color = '#e2e8f0';
               (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.12)';
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.color = '#7a8a9b';
+              (e.currentTarget as HTMLButtonElement).style.color = '#506880';
               (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
             }}
           >
@@ -147,14 +175,14 @@ function ContactModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {status === 'success' ? (
-          <div style={{ textAlign: 'center', padding: '28px 0', color: '#34d399', fontSize: 14, fontWeight: 500 }}>
+          <div style={{ textAlign: 'center', padding: '28px 0', color: '#10b981', fontSize: 14, fontWeight: 500 }}>
             Sent — thanks!
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {/* Type */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              <label style={{ fontSize: 10, color: '#7a8a9b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <label style={{ fontSize: 12, color: '#506880' }}>
                 Type
               </label>
               <select
@@ -162,10 +190,10 @@ function ContactModal({ onClose }: { onClose: () => void }) {
                 onChange={e => setType(e.target.value as ContactType)}
                 required
                 style={{
-                  background: '#0a0e17',
-                  border: '1px solid #3a4e63',
+                  background: '#0b1017',
+                  border: '1px solid #1e2a38',
                   borderRadius: 6,
-                  color: '#f1f5f9',
+                  color: '#e2e8f0',
                   fontSize: 13,
                   padding: '7px 10px',
                   outline: 'none',
@@ -178,7 +206,7 @@ function ContactModal({ onClose }: { onClose: () => void }) {
 
             {/* Message */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              <label style={{ fontSize: 10, color: '#7a8a9b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <label style={{ fontSize: 12, color: '#506880' }}>
                 Message
               </label>
               <textarea
@@ -189,10 +217,10 @@ function ContactModal({ onClose }: { onClose: () => void }) {
                 rows={4}
                 placeholder="What's on your mind?"
                 style={{
-                  background: '#0a0e17',
-                  border: '1px solid #3a4e63',
+                  background: '#0b1017',
+                  border: '1px solid #1e2a38',
                   borderRadius: 6,
-                  color: '#f1f5f9',
+                  color: '#e2e8f0',
                   fontSize: 13,
                   padding: '8px 10px',
                   resize: 'none',
@@ -203,7 +231,7 @@ function ContactModal({ onClose }: { onClose: () => void }) {
 
             {/* Email */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              <label style={{ fontSize: 10, color: '#7a8a9b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <label style={{ fontSize: 12, color: '#506880' }}>
                 Email{emailRequired ? ' *' : ' (optional)'}
               </label>
               <input
@@ -213,10 +241,10 @@ function ContactModal({ onClose }: { onClose: () => void }) {
                 required={emailRequired}
                 placeholder={emailRequired ? 'your@email.com' : 'your@email.com (optional)'}
                 style={{
-                  background: '#0a0e17',
-                  border: '1px solid #3a4e63',
+                  background: '#0b1017',
+                  border: '1px solid #1e2a38',
                   borderRadius: 6,
-                  color: '#f1f5f9',
+                  color: '#e2e8f0',
                   fontSize: 13,
                   padding: '7px 10px',
                   outline: 'none',
@@ -232,8 +260,8 @@ function ContactModal({ onClose }: { onClose: () => void }) {
               type="submit"
               disabled={status === 'loading' || !message.trim() || (emailRequired && !email.trim())}
               style={{
-                background: '#7db8fc',
-                color: '#0a0e17',
+                background: '#3b82f6',
+                color: '#fff',
                 border: 'none',
                 borderRadius: 6,
                 padding: '9px 16px',
@@ -256,7 +284,7 @@ function ContactModal({ onClose }: { onClose: () => void }) {
 // ── Desktop sidebar components ───────────────────────────────────────────────
 
 interface NavItemProps {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   active: boolean;
   badge?: number;
@@ -269,23 +297,23 @@ function NavItem({ icon, label, active, badge, alertDot: _alertDot, onClick }: N
     <button
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className="flex items-center gap-[10px] w-full rounded-md text-[13px] transition-all duration-[120ms] border-none text-left"
+      className="flex items-center gap-[10px] w-full rounded-md text-[13px] transition-all duration-[120ms] border-none text-left cursor-pointer"
       style={{
         padding: '9px 12px',
-        background: active ? 'rgba(125,184,252,0.10)' : 'transparent',
-        color: active ? '#7db8fc' : '#b0bec9',
+        background: active ? 'rgba(59,130,246,0.10)' : 'transparent',
+        color: active ? '#3b82f6' : '#94a3b8',
         fontWeight: active ? 500 : 400,
       }}
       onMouseEnter={e => {
         if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(125,184,252,0.06)';
-          (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
+          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(59,130,246,0.06)';
+          (e.currentTarget as HTMLButtonElement).style.color = '#e2e8f0';
         }
       }}
       onMouseLeave={e => {
         if (!active) {
           (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-          (e.currentTarget as HTMLButtonElement).style.color = '#b0bec9';
+          (e.currentTarget as HTMLButtonElement).style.color = '#94a3b8';
         }
       }}
     >
@@ -296,8 +324,8 @@ function NavItem({ icon, label, active, badge, alertDot: _alertDot, onClick }: N
           className="ml-auto text-[11px] font-mono rounded-lg"
           style={{
             padding: '2px 8px',
-            background: active ? 'rgba(125,184,252,0.12)' : '#1c2637',
-            color: active ? '#7db8fc' : '#7a8a9b',
+            background: active ? 'rgba(59,130,246,0.12)' : '#1a2235',
+            color: active ? '#3b82f6' : '#506880',
           }}
         >
           {badge}
@@ -318,14 +346,14 @@ function ActionButton({ icon, label, onClick }: ActionButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 w-full rounded-[5px] text-[12px] text-left transition-all duration-[120ms] border-none"
-      style={{ padding: '7px 12px', color: '#7a8a9b', background: 'transparent' }}
+      className="flex items-center gap-2 w-full rounded-[5px] text-[12px] text-left transition-all duration-[120ms] border-none cursor-pointer"
+      style={{ padding: '7px 12px', color: '#506880', background: 'transparent' }}
       onMouseEnter={e => {
-        (e.currentTarget as HTMLButtonElement).style.color = '#b0bec9';
+        (e.currentTarget as HTMLButtonElement).style.color = '#94a3b8';
         (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)';
       }}
       onMouseLeave={e => {
-        (e.currentTarget as HTMLButtonElement).style.color = '#7a8a9b';
+        (e.currentTarget as HTMLButtonElement).style.color = '#506880';
         (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
       }}
     >
@@ -338,11 +366,9 @@ function ActionButton({ icon, label, onClick }: ActionButtonProps) {
 function SectionLabel({ children }: { children: string }) {
   return (
     <div
-      className="font-semibold uppercase"
+      className="font-medium text-[12px]"
       style={{
-        fontSize: 10,
-        letterSpacing: '1.5px',
-        color: '#7a8a9b',
+        color: '#506880',
         padding: '0 12px',
         marginBottom: 6,
       }}
@@ -357,7 +383,7 @@ function Divider() {
     <div
       style={{
         height: 1,
-        background: '#3a4e63',
+        background: '#1e2a38',
         margin: '4px 24px 16px',
       }}
     />
@@ -372,7 +398,6 @@ export default function MapSidebar({
   hasFindings,
   onDownloadSnapshot,
   onUploadSnapshot,
-  onDownloadNotes,
 }: MapSidebarProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
@@ -387,33 +412,32 @@ export default function MapSidebar({
         aria-label="Main navigation"
         className="lg:hidden flex items-center justify-around border-t"
         style={{
-          background: '#080c14',
-          borderTopColor: '#3a4e63',
+          background: '#0b1017',
+          borderTopColor: '#1e2a38',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
-        {TABS.map(({ view, icon, label }) => {
+        {TABS.map(({ view, label }) => {
           const active = activeView === view;
           return (
             <button
               key={view}
               onClick={() => onViewChange(view)}
               aria-current={active ? 'page' : undefined}
-              className="flex flex-col items-center gap-0.5 py-2 px-1 min-w-0 transition-colors"
-              style={{ color: active ? '#7db8fc' : '#7a8a9b' }}
+              className="flex flex-col items-center gap-0.5 py-2 px-1 min-w-0 transition-colors cursor-pointer"
+              style={{ color: active ? '#3b82f6' : '#506880' }}
             >
-              <span className="text-[15px] leading-none">{icon}</span>
+              <span className="leading-none"><NavIcon type={view} /></span>
               <span className="text-[10px] font-medium truncate max-w-[52px]">
                 {label}
               </span>
-
             </button>
           );
         })}
         <button
           onClick={() => setContactOpen(true)}
-          className="flex flex-col items-center gap-0.5 py-2 px-1 min-w-0 transition-colors"
-          style={{ color: '#7a8a9b' }}
+          className="flex flex-col items-center gap-0.5 py-2 px-1 min-w-0 transition-colors cursor-pointer"
+          style={{ color: '#506880' }}
         >
           <span className="text-[15px] leading-none">✉</span>
           <span className="text-[10px] font-medium truncate max-w-[52px]">Message</span>
@@ -425,17 +449,17 @@ export default function MapSidebar({
         aria-label="Main navigation"
         className="hidden lg:flex flex-col overflow-y-auto h-full"
         style={{
-          background: '#080c14',
-          borderRight: '1px solid #3a4e63',
+          background: '#0b1017',
+          borderRight: '1px solid #1e2a38',
           padding: '16px 0',
         }}
       >
         {/* Intelligence section */}
         <div style={{ padding: '0 12px', marginBottom: 20 }}>
           <SectionLabel>Intelligence</SectionLabel>
-          <NavItem icon="⚑" label="Config Health" active={activeView === 'review'} alertDot={hasFindings} onClick={() => onViewChange('review')} />
-          <NavItem icon="⚡" label="Conflict Scanner" active={activeView === 'conflict'} onClick={() => onViewChange('conflict')} />
-          <NavItem icon="↔" label="Drift Report" active={activeView === 'drift'} onClick={() => onViewChange('drift')} />
+          <NavItem icon={<NavIcon type="review" />} label="Config Health" active={activeView === 'review'} alertDot={hasFindings} onClick={() => onViewChange('review')} />
+          <NavItem icon={<NavIcon type="conflict" />} label="Conflict Scanner" active={activeView === 'conflict'} onClick={() => onViewChange('conflict')} />
+          <NavItem icon={<NavIcon type="drift" />} label="Drift Report" active={activeView === 'drift'} onClick={() => onViewChange('drift')} />
 
           {/* Get the Skill — external link */}
           <a
@@ -443,14 +467,14 @@ export default function MapSidebar({
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-[10px] w-full rounded-md text-[13px] transition-all duration-[120ms] no-underline"
-            style={{ padding: '9px 12px', color: '#7db8fc', fontWeight: 400, display: 'flex' }}
+            style={{ padding: '9px 12px', color: '#3b82f6', fontWeight: 400, display: 'flex' }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(125,184,252,0.06)';
-              (e.currentTarget as HTMLAnchorElement).style.color = '#a5c8fd';
+              (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(59,130,246,0.06)';
+              (e.currentTarget as HTMLAnchorElement).style.color = '#60a5fa';
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
-              (e.currentTarget as HTMLAnchorElement).style.color = '#7db8fc';
+              (e.currentTarget as HTMLAnchorElement).style.color = '#3b82f6';
             }}
           >
             <span className="w-[18px] text-center text-[13px] shrink-0">⬡</span>
@@ -461,15 +485,15 @@ export default function MapSidebar({
           {/* Message the Creators */}
           <button
             onClick={() => setContactOpen(true)}
-            className="flex items-center gap-[10px] w-full rounded-md text-[13px] transition-all duration-[120ms] border-none text-left"
-            style={{ padding: '9px 12px', background: 'transparent', color: '#b0bec9', fontWeight: 400 }}
+            className="flex items-center gap-[10px] w-full rounded-md text-[13px] transition-all duration-[120ms] border-none text-left cursor-pointer"
+            style={{ padding: '9px 12px', background: 'transparent', color: '#94a3b8', fontWeight: 400 }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(125,184,252,0.06)';
-              (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(59,130,246,0.06)';
+              (e.currentTarget as HTMLButtonElement).style.color = '#e2e8f0';
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-              (e.currentTarget as HTMLButtonElement).style.color = '#b0bec9';
+              (e.currentTarget as HTMLButtonElement).style.color = '#94a3b8';
             }}
           >
             <span className="w-[18px] text-center text-[13px] shrink-0">✉</span>
@@ -486,24 +510,23 @@ export default function MapSidebar({
         <div style={{ padding: '0 12px' }}>
           <ActionButton icon="📥" label="Download Snapshot" onClick={onDownloadSnapshot} />
           <ActionButton icon="📤" label="Upload Snapshot" onClick={onUploadSnapshot} />
-          <ActionButton icon="📝" label="Session Notes" onClick={onDownloadNotes} />
         </div>
 
         {/* Social links */}
-        <div style={{ height: 1, background: '#3a4e63', margin: '12px 24px 8px' }} />
+        <div style={{ height: 1, background: '#1e2a38', margin: '12px 24px 8px' }} />
         <div style={{ padding: '0 16px 4px', display: 'flex', gap: 4 }}>
           <a
-            href="https://github.com/DanAndBub/bubboard"
+            href="https://github.com/DanAndBub"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
             className="flex items-center justify-center rounded-md transition-colors duration-[120ms]"
-            style={{ width: 32, height: 32, color: '#7a8a9b' }}
+            style={{ width: 32, height: 32, color: '#506880' }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLAnchorElement).style.color = '#b0bec9';
+              (e.currentTarget as HTMLAnchorElement).style.color = '#94a3b8';
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLAnchorElement).style.color = '#7a8a9b';
+              (e.currentTarget as HTMLAnchorElement).style.color = '#506880';
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -516,12 +539,12 @@ export default function MapSidebar({
             rel="noopener noreferrer"
             aria-label="TikTok"
             className="flex items-center justify-center rounded-md transition-colors duration-[120ms]"
-            style={{ width: 32, height: 32, color: '#7a8a9b' }}
+            style={{ width: 32, height: 32, color: '#506880' }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLAnchorElement).style.color = '#b0bec9';
+              (e.currentTarget as HTMLAnchorElement).style.color = '#94a3b8';
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLAnchorElement).style.color = '#7a8a9b';
+              (e.currentTarget as HTMLAnchorElement).style.color = '#506880';
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

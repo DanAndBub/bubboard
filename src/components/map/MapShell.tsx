@@ -14,7 +14,7 @@ interface MapShellProps {
 export default function MapShell({ topBar, sidebar, children, isDemo = false, onScanYours }: MapShellProps) {
   const hasSidebar = sidebar !== null && sidebar !== undefined;
   return (
-    <div className={`bg-[#0a0e17] h-dvh flex flex-col overflow-hidden${hasSidebar ? ' lg:grid lg:grid-cols-[252px_1fr] lg:grid-rows-[52px_1fr]' : ''}`}>
+    <div className={`bg-[#0b1017] h-dvh flex flex-col overflow-hidden${hasSidebar ? ' lg:grid lg:grid-cols-[252px_1fr] lg:grid-rows-[48px_1fr]' : ''}`}>
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:top-2 focus:left-2 focus:rounded"

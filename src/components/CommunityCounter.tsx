@@ -54,12 +54,12 @@ export default function CommunityCounter() {
       </div>
 
       {/* Highlight line */}
-      <p className="text-xs text-[#b0bec9] text-center">
-        <span className="text-[#f1f5f9]">{truncationPct}%</span> of workspaces have at least one file being silently cut.
+      <p className="text-xs text-[#94a3b8] text-center">
+        <span className="text-[#e2e8f0]">{truncationPct}%</span> of workspaces have at least one file being silently cut.
       </p>
 
       {/* Disclaimer */}
-      <p className="text-[11px] text-[#506880] text-center">
+      <p className="text-[11px] text-[#1e2a38] text-center">
         we count scans, not content.
       </p>
     </div>
@@ -69,8 +69,8 @@ export default function CommunityCounter() {
 function StatItem({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col items-center gap-0.5 min-w-0">
-      <span className="text-sm font-mono text-[#b0bec9]">{value}</span>
-      <span className="text-[10px] text-[#506880] whitespace-nowrap">{label}</span>
+      <span className="text-sm font-mono text-[#94a3b8]">{value}</span>
+      <span className="text-[10px] text-[#1e2a38] whitespace-nowrap">{label}</span>
     </div>
   );
 }

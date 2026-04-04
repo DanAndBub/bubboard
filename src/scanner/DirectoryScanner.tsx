@@ -226,8 +226,8 @@ export default function DirectoryScanner({ onConfirm }: Props) {
       {scanState === 'idle' && (
         <>
           {/* Mobile */}
-          <div className="md:hidden rounded-lg border border-[#30363d] bg-[#111827] px-4 py-3 text-center">
-            <p className="text-sm text-[#b0bec9]">
+          <div className="md:hidden rounded-lg border border-[#1e2a38] bg-[#111820] px-4 py-3 text-center">
+            <p className="text-sm text-[#94a3b8]">
               Config review requires Chrome or Edge on desktop.
             </p>
           </div>
@@ -237,7 +237,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
             {supportsDirectoryPicker ? (
               <button
                 onClick={handleDirectoryPicker}
-                className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors bg-[#1c3a5e] hover:bg-[#254a75] border border-[#7db8fc]/40 text-white cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-[13px] font-mono font-medium transition-colors bg-[#3b82f6] hover:bg-[#2563eb] border border-[#3b82f6] text-white cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -246,7 +246,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
                 Select workspace folder
               </button>
             ) : (
-              <p className="rounded-lg border border-[#30363d] bg-[#0a0e17] px-4 py-3 text-sm text-[#b0bec9] leading-relaxed text-center">
+              <p className="rounded-lg border border-[#1e2a38] bg-[#0b1017] px-4 py-3 text-sm text-[#94a3b8] leading-relaxed text-center">
                 Config review requires Chrome or Edge to read file contents. Open Driftwatch in Chrome or Edge to scan your workspace.
               </p>
             )}
@@ -266,11 +266,11 @@ export default function DirectoryScanner({ onConfirm }: Props) {
       {scanState === 'review' && (
         <div className="flex flex-col gap-3">
           {/* Folder path bar */}
-          <div className="flex items-center justify-between rounded-lg border border-[#30363d] bg-[#111827] px-3 py-2">
+          <div className="flex items-center justify-between rounded-lg border border-[#1e2a38] bg-[#111820] px-3 py-2">
             <span className="text-xs font-mono text-[#8b949e]">~/{folderName}</span>
             <button
               onClick={() => { handleReset(); handleDirectoryPicker(); }}
-              className="text-xs text-[#7a8a9b] hover:text-[#b0bec9] transition-colors"
+              className="text-xs text-[#506880] hover:text-[#94a3b8] transition-colors"
             >
               Rescan
             </button>
@@ -278,20 +278,20 @@ export default function DirectoryScanner({ onConfirm }: Props) {
 
           {/* File list */}
           {bootstrapItems.length === 0 ? (
-            <p className="text-xs text-[#7a8a9b] text-center py-4">
+            <p className="text-xs text-[#506880] text-center py-4">
               No bootstrap files found in this directory.
             </p>
           ) : (
-            <div className="rounded-lg border border-[#30363d] bg-[#111827] overflow-hidden">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-[#30363d]">
+            <div className="rounded-lg border border-[#1e2a38] bg-[#111820] overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-[#1e2a38]">
                 <span className="text-xs text-[#8b949e]">
-                  Found <span className="text-[#f1f5f9] font-medium">{bootstrapItems.length}</span> bootstrap files
+                  Found <span className="text-[#e2e8f0] font-medium">{bootstrapItems.length}</span> bootstrap files
                 </span>
-                <span className="text-xs text-[#7a8a9b]">
+                <span className="text-xs text-[#506880]">
                   {selectedBootstrapCount} selected
                 </span>
               </div>
-              <div className="divide-y divide-[#30363d]">
+              <div className="divide-y divide-[#1e2a38]">
                 {bootstrapItems.map(item => {
                   const displayName = item.path.split('/').pop() ?? item.path;
                   return (
@@ -305,7 +305,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
                         onChange={() => toggleItem(item.path)}
                         className="w-3.5 h-3.5 flex-shrink-0 accent-blue-500"
                       />
-                      <span className="text-xs text-[#b0bec9] font-mono">{displayName}</span>
+                      <span className="text-xs text-[#94a3b8] font-mono">{displayName}</span>
                     </label>
                   );
                 })}
@@ -317,7 +317,7 @@ export default function DirectoryScanner({ onConfirm }: Props) {
           <button
             onClick={handleConfirm}
             disabled={selectedBootstrapCount === 0 && bootstrapItems.length > 0}
-            className="w-full rounded-lg bg-[#7db8fc] hover:bg-blue-600 disabled:opacity-40 px-4 py-2.5 text-sm font-medium text-white transition-colors"
+            className="w-full rounded-lg bg-[#3b82f6] hover:bg-[#2563eb] disabled:opacity-40 px-4 py-2.5 text-[13px] font-mono font-medium text-white transition-colors cursor-pointer"
           >
             Analyze {selectedBootstrapCount} file{selectedBootstrapCount !== 1 ? 's' : ''}
           </button>

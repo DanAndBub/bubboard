@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #0a0e17;
-  --color-surface: #111827;
+  --color-background: #0b1017;
+  --color-surface: #111820;
   --color-surface-hover: #1a2235;
-  --color-border: #1e293b;
+  --color-border: #1e2a38;
   --color-border-bright: #2d3f5a;
   --color-accent: #3b82f6;
   --color-accent-glow: rgba(59, 130, 246, 0.15);
@@ -19,7 +19,7 @@
   --color-text-secondary: #94a3b8;
   --color-text-muted: #475569;
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
 }
 
 * {
@@ -31,16 +31,10 @@ html {
 }
 
 body {
-  background-color: #0a0e17;
+  background-color: #0b1017;
   color: #e2e8f0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
   min-height: 100vh;
-}
-
-/* Subtle dot grid background */
-.bg-grid {
-  background-image: radial-gradient(circle, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
-  background-size: 32px 32px;
 }
 
 /* Glow effects */
@@ -56,7 +50,7 @@ body {
   box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
 }
 
-/* Card hover glow */
+/* Card hover */
 .card-hover {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
@@ -79,35 +73,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #111827;
+  background: #111820;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #1e2a38;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #2d3f5a;
-}
-
-/* Animated gradient border for hero CTA */
-.gradient-border {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6);
-  background-size: 200% auto;
-  animation: gradient-shift 3s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% center; }
-  50% { background-position: 100% center; }
-  100% { background-position: 0% center; }
-}
-
-/* Scan line animation for "mission control" feel */
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
 }
 
 /* Pulse animation for status dots */

@@ -18,7 +18,7 @@ interface EditorPanelProps {
 const SEVERITY_COLOR: Record<string, string> = {
   critical: 'text-red-400 border-red-500/30 bg-red-500/5',
   warning: 'text-[#fbbf24] border-amber-500/30 bg-amber-500/5',
-  info: 'text-[#7db8fc] border-[#7db8fc]/30 bg-[#7db8fc]/5',
+  info: 'text-[#3b82f6] border-[#3b82f6]/30 bg-[#3b82f6]/5',
   resolved: 'text-[#34d399] border-green-500/30 bg-green-500/5',
 };
 
@@ -36,7 +36,7 @@ function FindingContextCard({ finding }: { finding: ReviewFinding }) {
         <span className="shrink-0 text-[10px] opacity-60">{collapsed ? '▼' : '▲'}</span>
       </button>
       {!collapsed && (
-        <div className="px-3 pb-2 text-[11px] text-[#b0bec9] border-t border-white/10 pt-2">
+        <div className="px-3 pb-2 text-[11px] text-[#94a3b8] border-t border-white/10 pt-2">
           {finding.recommendation}
         </div>
       )}
@@ -48,7 +48,7 @@ export default function EditorPanel({ path, content, fileHandle, finding, onClos
   const [editing, setEditing] = useState(false);
 
   return (
-    <div className="fixed inset-y-0 right-0 z-40 w-full sm:w-[min(50%,640px)] min-w-[380px] bg-[#111827] border-l border-[#506880] shadow-2xl flex flex-col transition-transform duration-200">
+    <div className="fixed inset-y-0 right-0 z-40 w-full sm:w-[min(50%,640px)] min-w-[380px] bg-[#111820] border-l border-[#1e2a38] shadow-2xl flex flex-col transition-transform duration-200">
       {finding && <FindingContextCard finding={finding} />}
       {editing ? (
         <MDEditor

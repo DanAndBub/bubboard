@@ -45,14 +45,14 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
     return (
       <div
         style={{
-          background: '#111827',
-          border: '1px solid #3a4e63',
+          background: '#111820',
+          border: '1px solid #1e2a38',
           borderRadius: 12,
           padding: '40px 24px',
           textAlign: 'center',
         }}
       >
-        <p style={{ fontSize: '0.875rem', color: '#7a8a9b' }}>
+        <p style={{ fontSize: '0.875rem', color: '#506880' }}>
           Scan your workspace to see config health
         </p>
       </div>
@@ -102,8 +102,8 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
           <div
             key={label}
             style={{
-              background: '#111827',
-              border: '1px solid #30363d',
+              background: '#111820',
+              border: '1px solid #1e2a38',
               borderRadius: 8,
               padding: 16,
               textAlign: 'center',
@@ -130,7 +130,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
 
       {/* 2. Section header */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontWeight: 700, color: '#f1f5f9', marginBottom: 4 }}>
+        <div style={{ fontWeight: 700, color: '#e2e8f0', marginBottom: 4 }}>
           Bootstrap File Size Analysis
         </div>
         <div style={{ fontSize: '0.8rem', color: '#8b949e' }}>
@@ -166,7 +166,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
               key={file.path}
               style={
                 !isLast
-                  ? { borderBottom: '1px solid #30363d', paddingBottom: 12, marginBottom: 12 }
+                  ? { borderBottom: '1px solid #1e2a38', paddingBottom: 12, marginBottom: 12 }
                   : {}
               }
             >
@@ -183,7 +183,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
                   style={{
                     fontFamily: 'monospace',
                     fontWeight: 700,
-                    color: '#f1f5f9',
+                    color: '#e2e8f0',
                     fontSize: '0.9rem',
                   }}
                 >
@@ -263,7 +263,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
                 <div
                   style={{
                     height: 20,
-                    background: '#30363d',
+                    background: '#1e2a38',
                     borderRadius: 4,
                     overflow: 'hidden',
                     position: 'relative',
@@ -355,7 +355,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
 
       {/* 4 & 5. Aggregate separator + bar */}
       {budget !== null && (
-        <div style={{ borderTop: '2px solid #30363d', paddingTop: 12, marginTop: 12 }}>
+        <div style={{ borderTop: '2px solid #1e2a38', paddingTop: 12, marginTop: 12 }}>
           {/* Aggregate header */}
           <div
             style={{
@@ -369,7 +369,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
               style={{
                 fontFamily: 'monospace',
                 fontWeight: 700,
-                color: '#f1f5f9',
+                color: '#e2e8f0',
                 fontSize: '0.9rem',
               }}
             >
@@ -453,7 +453,7 @@ export default function ConfigHealthView({ analyzedFiles, budget }: ConfigHealth
                   <div
                     style={{
                       height: 20,
-                      background: '#30363d',
+                      background: '#1e2a38',
                       borderRadius: 4,
                       overflow: 'hidden',
                       position: 'relative',

@@ -33,18 +33,18 @@ export default function ViewContextHeader({ viewId, oneLiner, expandedDetail }: 
         <button
           onClick={handleInfoClick}
           aria-label={expanded ? 'Collapse hint' : 'Expand hint'}
-          className="flex-shrink-0 w-4 h-4 text-[#7a8a9b] hover:text-[#b0bec9] transition-colors"
+          className="flex-shrink-0 w-4 h-4 text-[#506880] hover:text-[#94a3b8] transition-colors"
         >
           <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 3.25a.875.875 0 1 1 0 1.75.875.875 0 0 1 0-1.75ZM7.25 7h1.5v4.5h-1.5V7Z" />
           </svg>
         </button>
-        <span className="flex-1 text-[#b0bec9]">{oneLiner}</span>
+        <span className="flex-1 text-[#94a3b8]">{oneLiner}</span>
         {!dismissed && (
           <button
             onClick={handleDismiss}
             aria-label="Dismiss hint"
-            className="flex-shrink-0 text-[#7a8a9b] hover:text-[#b0bec9] transition-colors leading-none"
+            className="flex-shrink-0 text-[#506880] hover:text-[#94a3b8] transition-colors leading-none"
           >
             ×
           </button>
@@ -60,7 +60,7 @@ export default function ViewContextHeader({ viewId, oneLiner, expandedDetail }: 
         }}
       >
         <div className="overflow-hidden">
-          <div className="px-3 pb-3 pt-0 text-[#7a8a9b] border-t border-[#1e3a52] mt-0 leading-relaxed">
+          <div className="px-3 pb-3 pt-0 text-[#506880] border-t border-[#1e3a52] mt-0 leading-relaxed">
             <div className="pt-2">{expandedDetail}</div>
           </div>
         </div>
