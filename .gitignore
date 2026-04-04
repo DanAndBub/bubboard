@@ -11,4 +11,24 @@ tsconfig.tsbuildinfo
 PHASE1_SPEC.md
 docs/scanner-v3-spec.md
 .claude/
+*.Zone.Identifier
+*:Zone.Identifier
+
+# Internal build tooling — not for public repo
+spec/
+specs/
+design-system/
+docs/
+mockup.html
+QUICK_START.md
+CODEBASE.md
+.instructions.md
+.env.local.example
+test-data/
+
+# Deployment config
+.vercel/
+
+# Build artifacts
+tsconfig.tsbuildinfo
 
