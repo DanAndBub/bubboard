@@ -1,4 +1,4 @@
-# Contributing to Bubboard
+# Contributing to Driftwatch
 
 Thank you for contributing! This guide ensures consistent, high-quality contributions across the project. It applies to all contributors—human and AI.
 
@@ -53,16 +53,21 @@ npm run lint
 
 ```
 src/
-├── app/              # Next.js app router pages & API routes
-├── components/       # React components (client & server)
-├── lib/              # Core logic, utilities, analyzers
-│   ├── analyzer.ts   # OpenClaw config parsing
-│   ├── scoring.ts    # Health score calculation
-│   ├── redact.ts     # Automatic secret redaction
-│   ├── parser.ts     # Tree/ls output parsing
-│   ├── types.ts      # Shared TypeScript types
-│   └── cost-tracking/    # AI cost analytics (beta)
-└── scanner/          # File system scanning component
+├── app/                    # Next.js app router pages & API routes
+├── components/
+│   ├── map/views/          # Config Health, Drift, Conflict Scanner views
+│   ├── drift/              # Drift report components
+│   ├── editor/             # Markdown editor/viewer
+│   └── guidance/           # Context headers, demo banner
+├── lib/
+│   ├── config-review/      # Core ruleset (size, truncation, structure, contradiction rules)
+│   ├── drift/              # Snapshot serialization, diff engine, export/import
+│   ├── analyzer.ts         # OpenClaw config parsing
+│   ├── redact.ts           # Automatic secret redaction
+│   ├── parser.ts           # Tree/ls output parsing
+│   ├── demo-data.ts        # Demo mode data
+│   └── types.ts            # Shared TypeScript types
+└── scanner/                # File system scanning component
 ```
 
 ---
@@ -74,14 +79,14 @@ src/
 **Always enable strict mode:**
 ```typescript
 // ✅ DO: Type everything explicitly
-function calculateScore(map: AgentMap): HealthReport {
-  const score: number = 0;
-  return { score, items: [] };
+function calculateBudget(files: FileAnalysis[]): BootstrapBudget {
+  const totalChars = files.reduce((sum, f) => sum + f.charCount, 0);
+  return { totalChars, budgetLimit: 150_000, overBudgetBy: 0 };
 }
 
 // ❌ DON'T: Use `any`
-function calculateScore(map: any): any {
-  return map;
+function calculateBudget(files: any): any {
+  return files;
 }
 ```
 
@@ -105,47 +110,35 @@ const BUCKET_LABELS = {
 **Use TypeScript for props:**
 ```typescript
 // ✅ DO
-interface AgentCardProps {
-  agentId: string;
-  onSelect: (id: string) => void;
-  disabled?: boolean;
+interface FindingCardProps {
+  finding: ReviewFinding;
+  onDismiss?: (id: string) => void;
 }
 
-export function AgentCard({ agentId, onSelect, disabled }: AgentCardProps) {
+export function FindingCard({ finding, onDismiss }: FindingCardProps) {
   // ...
 }
 
 // ❌ DON'T
-export function AgentCard({ agentId, onSelect, disabled }) {
+export function FindingCard({ finding, onDismiss }) {
   // ...
 }
 ```
 
 **Mark client components explicitly:**
 ```typescript
-// ✅ DO (in src/components/InteractiveChart.tsx)
+// ✅ DO (in src/components/map/views/ConfigHealthView.tsx)
 'use client';
 
 import { useState } from 'react';
 
-export function InteractiveChart() {
+export function ConfigHealthView() {
   // ...
 }
 
-// ❌ DON'T (forget 'use client')
-export function InteractiveChart() {
+// ❌ DON'T (forget 'use client' when using hooks)
+export function ConfigHealthView() {
   // ...
-}
-```
-
-**Server Components for read-only data:**
-```typescript
-// ✅ DO (fetch server-side, no 'use client')
-import { AgentData } from '@/lib/types';
-
-export async function AgentList() {
-  const agents = await fetchAgents();
-  return <ul>{agents.map(a => <li key={a.id}>{a.name}</li>)}</ul>;
 }
 ```
 
@@ -308,15 +301,15 @@ chore(deps): upgrade typescript to 5.9.3
 
 Optional but recommended for non-trivial changes:
 ```
-feat(cost-tracking): implement exponential forecasting
+feat(config-review): add contradiction detection across bootstrap files
 
-Add support for exponential regression model alongside linear.
-The exponential model provides better forecasts for rapidly
-growing token usage patterns.
+Scan pairs of bootstrap files for conflicting instructions — model
+assignments, delegation rules, behavioral directives. Surface as
+findings with file + section references.
 
-- Calculate exponential fit with R² confidence
-- Fallback to linear if exponential fit is poor
-- Update UI to show model selection
+- Add contradiction-rules.ts with cross-file diffing
+- Integrate with runner.ts review pipeline
+- Add unit tests for known conflict patterns
 ```
 
 ### Footer
@@ -340,16 +333,16 @@ git commit -m "fix(redact): handle nested secret objects
 Fixes #15"
 
 # Complex feature with body
-git commit -m "feat(cost-tracking): add anomaly detection
+git commit -m "feat(config-review): add contradiction detection
 
-Implement statistical anomaly detection for token usage spikes.
-Alerts user when usage deviates >2 standard deviations from mean.
+Cross-reference bootstrap files for conflicting instructions.
+Surfaces conflicts as findings with file and section references.
 
-- Add AnomalyDetector class
-- Integrate with daily cost calculation
-- Add unit tests
+- Add contradiction-rules.ts
+- Integrate with runner.ts
+- Add unit tests for known conflict patterns
 
-Closes #28"
+Closes #31"
 
 # Chore
 git commit -m "chore(deps): update eslint-config-next to v16.1.6"
@@ -528,21 +521,20 @@ npm run lint
 ```typescript
 // Conflicted file
 <<<<<<< HEAD
-function calculateScore(map: AgentMap): number {
-  return map.agents.length * 10;
+function getHealthScore(findings: ReviewFinding[]): number {
+  return 100 - findings.length * 10;
 }
 =======
-function calculateScore(map: AgentMap): HealthReport {
-  const items = checkHealth(map);
-  return { score: items.length, items };
+function getHealthScore(findings: ReviewFinding[]): number {
+  const criticals = findings.filter(f => f.severity === 'critical').length;
+  return Math.max(0, 100 - criticals * 15);
 }
->>>>>>> feature/improved-scoring
+>>>>>>> feature/weighted-scoring
 
-// ✅ Resolved (combined both improvements)
-function calculateScore(map: AgentMap): HealthReport {
-  const items = checkHealth(map);
-  const baseScore = map.agents.length * 10;
-  return { score: baseScore + items.length, items };
+// ✅ Resolved (keep the weighted version — it's more accurate)
+function getHealthScore(findings: ReviewFinding[]): number {
+  const criticals = findings.filter(f => f.severity === 'critical').length;
+  return Math.max(0, 100 - criticals * 15);
 }
 ```
 
@@ -693,4 +685,4 @@ If you're an AI agent (OpenClaw, Claude, etc.) contributing to this project:
 - **Security issue**: See [SECURITY.md](./SECURITY.md)
 - **Contributing question**: Feel free to ask in an issue
 
-Thank you for making Bubboard better! 🚀
+Thank you for making Driftwatch better!
