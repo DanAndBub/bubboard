@@ -1,106 +1,109 @@
 # Driftwatch
 
-**See inside your AI agent in 30 seconds.**
+**Config intelligence for AI agents. Catch problems before they silently break your agent.**
 
-Driftwatch scans your [OpenClaw](https://openclaw.ai) agent directory and generates an interactive architecture map — agents, workspace files, health score, delegation hierarchy, and relationships. All in your browser, nothing uploaded.
+Driftwatch scans your [OpenClaw](https://openclaw.ai) bootstrap files and tells you what's wrong — truncation, bloat, contradictions, structural gaps — with specific recommendations for each finding.
 
 🔗 **Live:** [bubbuilds.com](https://bubbuilds.com)
 
-## Upgrading from v1
+## What it does
 
-This is a major rewrite. If you need the previous version:
-- **Tagged release:** [v1.0.0](../../releases/tag/v1.0.0)
-- **Legacy branch:** [v1](../../tree/v1)
-
-v2 is not backwards-compatible with v1. See the [v1.0.0 release notes](../../releases/tag/v1.0.0) for details.
-
-## Features
-
-- **Surgical scanner** — checks ~30 specific files, no recursive scanning
-- **Auto file reading** — toggle on to populate agent roles, config, and delegation rules automatically
-- **Agent hierarchy** — visual tree showing who delegates to who
-- **Health scoring** — identifies missing protocols, config gaps, and recommendations
+- **Config health scan** — checks all bootstrap files for truncation, oversized content, structural issues, and contradictions that degrade agent performance
+- **Drift detection** — snapshot your config state and compare it over time to see what changed
+- **Conflict scanner** — finds instructions that contradict each other across files
+- **Snapshot export/import** — share config state with collaborators or track history
 - **Privacy first** — everything runs client-side, your files never leave your browser
-- **API key redaction** — sensitive values in openclaw.json are automatically stripped
+- **API key redaction** — sensitive values are automatically stripped before analysis
 
 ## Try it
 
 ### Hosted (recommended)
-Visit [bubbuilds.com/map](https://bubbuilds.com/map) and scan your workspace.
+
+Visit [bubbuilds.com](https://bubbuilds.com), paste your file list, and get your config health report in seconds.
+
+Also available as a CLI skill — run `scan my config` directly in your OpenClaw workspace:
+[Get the Driftwatch skill →](https://clawhub.ai/danandbub/driftwatch-oc)
 
 ### Self-hosted
 
 > **Requires Node.js >= 20.9.0**
 
 ```bash
-git clone https://github.com/DanAndBub/bubboard.git
-cd bubboard
+git clone https://github.com/DanAndBub/Driftwatch.git
+cd Driftwatch
 npm install
 npm run build
 npm start
 ```
 
-Open [localhost:3000/map](http://localhost:3000/map) and scan your `~/.openclaw` directory.
+Open [localhost:3000](http://localhost:3000).
 
 ### Demo
-See an example map without scanning: [bubbuilds.com/map?demo=true](https://bubbuilds.com/map?demo=true)
+
+See the tool with example data (no scanning required): [bubbuilds.com?demo=true](https://bubbuilds.com?demo=true)
 
 ## How it works
 
-1. **Pick your folder** — choose your `~/.openclaw` directory (Chrome/Edge) or paste `ls` output (Firefox/Safari)
-2. **Review & enrich** — see detected files grouped by type, toggle on file content reading for richer maps
-3. **Explore your map** — agents, files, skills, health score, and hierarchy on one page
+1. **Paste your file list** — paste the output of `ls -la` or `find` from your OpenClaw workspace, or use the file picker (Chrome/Edge)
+2. **Run the scan** — Driftwatch checks your bootstrap files against a ruleset of known failure patterns
+3. **Review findings** — critical findings first: truncation, budget overrun, structural gaps, contradictions
 
 ## What gets scanned
 
-Driftwatch only looks at specific known locations:
+Driftwatch checks specific known OpenClaw file locations:
 
-| Location | What | Content read? |
-|----------|------|---------------|
-| `openclaw.json` | Config | Yes (keys redacted) |
-| `workspace/*.md` | Core files (SOUL, AGENTS, MEMORY, etc.) | Optional |
-| `workspace/subagents/*.md` | Protocol files | Optional |
-| `workspace/memory/*.md` | Daily notes | Names only |
-| `agents/*/` | Agent directories | Names only |
-| `skills/*/` | Installed skills | Names only |
-| `cron/jobs.json` | Cron config | Existence only |
+| File | What it checks |
+|------|----------------|
+| `AGENTS.md`, `SOUL.md`, `MEMORY.md`, etc. | Size, truncation risk, structural headings |
+| All bootstrap files combined | Total bootstrap budget vs. limits |
+| Any two files together | Contradictions and duplicated instructions |
+
+## Findings explained
+
+| Severity | Meaning |
+|----------|---------|
+| **Critical** | Actively hurting your agent right now (truncation, budget overrun) |
+| **Warning** | Approaching a limit, will become critical as files grow |
+| **Info** | Structural improvements that reduce maintenance burden |
 
 ## Tech stack
 
 - **Next.js 16** with App Router
 - **TypeScript** throughout
 - **Tailwind CSS** — dark mission control theme
-- **No database** — fully client-side
+- **No database** — fully client-side analysis
 - **Vercel** for hosting
 
-## Environment variables (optional, for hosted features)
+## Environment variables (optional)
 
 ```env
 AIRTABLE_BASE_ID=your_base_id
 AIRTABLE_API_KEY=your_api_key
+KV_REST_API_URL=your_upstash_url
+KV_REST_API_TOKEN=your_upstash_token
 ```
 
-These power the waitlist and feedback forms. Not needed for self-hosted use.
+Airtable powers the waitlist and feedback forms. Upstash KV tracks scan counts for the community counter. Neither is required for self-hosted use.
+
+## Upgrading from v1
+
+This is a major rewrite. The agent architecture map (v1) has been replaced by config health analysis (v4). If you need the previous version:
+- **Tagged release:** [v1.0.0](../../releases/tag/v1.0.0)
+- **Legacy branch:** [v1](../../tree/v1)
 
 ## Contributing
 
-PRs welcome! Please:
-- Keep TypeScript strict (zero `any`)
-- Tailwind only, no separate CSS files
-- Test with `npx tsc --noEmit` and `npm run build` before submitting
+PRs welcome. Please:
+- Keep TypeScript strict (`noImplicitAny`, no `any` types)
+- Tailwind only — no separate CSS files
+- Verify with `npx tsc --noEmit` and `npm run build` before submitting
 
-## Roadmap
-
-- [ ] Cost tracking and optimization
-- [ ] Historical drift analysis
-- [ ] Team dashboards
-- [ ] Export/share maps
-- [ ] Support for non-OpenClaw agent frameworks
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ## License
 
-[MIT](LICENSE) — do whatever you want, just include the copyright notice.
+[MIT](LICENSE) — do whatever you want, just keep the copyright notice.
 
 ---
 
-Built by [Bub](https://bsky.app/profile/bubbuilds.bsky.social) 🐾 — an AI agent who needed a better way to understand itself.
+Built by [Bub](https://bsky.app/profile/bubbuilds.bsky.social) — an AI agent who needed a better way to understand itself.

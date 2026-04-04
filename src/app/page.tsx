@@ -1,185 +1,421 @@
 'use client';
 
-import Link from 'next/link';
-import LandingDemo from '@/components/LandingDemo';
-import CompactDemo from '@/components/CompactDemo';
-import WaitlistForm from '@/components/WaitlistForm';
-import Footer from '@/components/Footer';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { parseAgentTree } from '@/lib/parser';
+import { pathsToTree } from '@/lib/pathsToTree';
+import { analyzeAgentsMd, analyzeOpenClawConfig, analyzeHeartbeat } from '@/lib/analyzer';
+import { getDemoAgentMap, getDemoFileContents } from '@/lib/demo-data';
+import { DEMO_DRIFT_REPORT, DEMO_SNAPSHOT, DEMO_BUDGET } from '@/lib/phase3-demo-data';
+import type { AgentMap } from '@/lib/types';
+import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
+import { runReview, type ReviewResult } from '@/lib/config-review/runner';
+import { calculateBudget } from '@/lib/config-review/budget';
+import { BOOTSTRAP_FILE_ORDER } from '@/lib/config-review/thresholds';
+import type { BootstrapBudget, ReviewFinding } from '@/lib/config-review/types';
+import { serializeSnapshot } from '@/lib/drift/snapshot-serialize';
+import { downloadSnapshot } from '@/lib/drift/snapshot-export';
+import { importSnapshot } from '@/lib/drift/snapshot-import';
+import { computeDrift } from '@/lib/drift/diff-engine';
+import type { Snapshot, DriftReport } from '@/lib/drift/types';
+import EditorPanel from '@/components/editor/EditorPanel';
+import DirectoryScanner from '@/scanner/DirectoryScanner';
+import MapShell from '@/components/map/MapShell';
+import MapTopBar from '@/components/map/MapTopBar';
+import MapSidebar from '@/components/map/MapSidebar';
+import ReviewView from '@/components/map/views/ReviewView';
+import DriftView from '@/components/map/views/DriftView';
+import ConflictScannerView from '@/components/map/views/ConflictScannerView';
+
+const BOOTSTRAP_NAMES = new Set(BOOTSTRAP_FILE_ORDER.map(f => f.toUpperCase()));
+
+function isBootstrapFile(filename: string): boolean {
+  const base = filename.split('/').pop()?.toUpperCase() ?? '';
+  return BOOTSTRAP_NAMES.has(base);
+}
+
+type View = 'review' | 'drift' | 'conflict';
+
+function ScanPageContent() {
+  const searchParams = useSearchParams();
+  const isDemo = searchParams.get('demo') === 'true';
+
+  const [agentMap, setAgentMap] = useState<AgentMap | null>(() => isDemo ? getDemoAgentMap() : null);
+  const [fileContents, setFileContents] = useState<Record<string, string>>(() => isDemo ? getDemoFileContents() : {});
+  const [_inputCollapsed, setInputCollapsed] = useState(() => isDemo);
+  const [isLoading, setIsLoading] = useState(false);
+  const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
+  const [analyzedFiles, setAnalyzedFiles] = useState<ReturnType<typeof analyzeFile>[]>([]);
+  const [budget, setBudget] = useState<BootstrapBudget | null>(null);
+  const [currentSnapshot, setCurrentSnapshot] = useState<Snapshot | null>(null);
+  const [previousSnapshot, setPreviousSnapshot] = useState<Snapshot | null>(null);
+  const [driftReport, setDriftReport] = useState<DriftReport | null>(null);
+  const [editorFile, setEditorFile] = useState<string | null>(null);
+  const [editorFinding, setEditorFinding] = useState<ReviewFinding | null>(null);
+  const [activeView, setActiveView] = useState<View>('review');
+
+  // Apply ?view= query param on mount
+  const initialView = searchParams.get('view');
+  useEffect(() => {
+    const valid: View[] = ['review', 'drift', 'conflict'];
+    if (initialView && (valid as string[]).includes(initialView)) {
+      setActiveView(initialView as View);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
-export default function HomePage() {
+  const snapshotInputRef = useRef<HTMLInputElement>(null);
+  const scanStatsFiredRef = useRef(false);
 
+  // Demo mode: run config review on initial demo data (state initialized in useState above)
+  useEffect(() => {
+    if (isDemo && fileContents && Object.keys(fileContents).length > 0) {
+      const mdFiles = Object.entries(fileContents).filter(([k]) => k.toLowerCase().endsWith('.md') && isBootstrapFile(k));
+      if (mdFiles.length > 0) {
+        const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+        setAnalyzedFiles(analyzed);
+        setReviewResult(runReview(analyzed));
+      }
+      // Load pre-built Phase 3 demo data for full experience
+      setCurrentSnapshot(DEMO_SNAPSHOT);
+      setDriftReport(DEMO_DRIFT_REPORT);
+      setBudget(DEMO_BUDGET);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  return (
-    <main className="min-h-screen bg-[#0a0e17]">
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-30 border-b border-[#506880]/80 bg-[#0a0e17]/90 backdrop-blur-xl">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg border border-[#7db8fc]/30 bg-[#7db8fc]/10 flex items-center justify-center">
-              <svg className="w-4 h-4 text-[#7db8fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-            </div>
-            <span className="font-bold text-[#f1f5f9]">Driftwatch</span>
+ function loadDemoData() {
+    const demoMap = getDemoAgentMap();
+    const demoContents = getDemoFileContents();
+    setAgentMap(demoMap);
+    setFileContents(demoContents);
+    setInputCollapsed(true);
+    setActiveView('review');
+    window.history.pushState({}, '', '/?demo=true');
+
+    const mdFiles = Object.entries(demoContents).filter(([k]) => k.toLowerCase().endsWith('.md') && isBootstrapFile(k));
+    if (mdFiles.length > 0) {
+      const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+      setAnalyzedFiles(analyzed);
+      setReviewResult(runReview(analyzed));
+    }
+    setCurrentSnapshot(DEMO_SNAPSHOT);
+    setDriftReport(DEMO_DRIFT_REPORT);
+    setBudget(DEMO_BUDGET);
+  }
+
+  function applyAnalyzer(fileName: string, content: string, map: AgentMap): AgentMap {
+    const name = fileName.toUpperCase();
+    if (name === 'AGENTS.MD') return analyzeAgentsMd(content, map);
+    if (name === 'OPENCLAW.JSON') return analyzeOpenClawConfig(content, map);
+    if (name === 'HEARTBEAT.MD') return analyzeHeartbeat(content, map);
+    return map;
+  }
+
+  function openFileEditor(path: string, finding?: ReviewFinding) {
+    setEditorFile(path);
+    setEditorFinding(finding ?? null);
+  }
+
+  function handleContentChange(path: string, newContent: string) {
+    setFileContents(prev => ({ ...prev, [path]: newContent }));
+  }
+
+  function handleRescan() {
+    setEditorFile(null);
+    // Re-run review with updated file contents
+    const allContents = fileContents;
+    const mdFiles = Object.entries(allContents).filter(([k]) => k.toLowerCase().endsWith('.md') && isBootstrapFile(k));
+    if (mdFiles.length > 0) {
+      const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+      setAnalyzedFiles(analyzed);
+      const review = runReview(analyzed);
+      setReviewResult(review);
+      const fileBudget = calculateBudget(analyzed);
+      setBudget(fileBudget);
+      if (agentMap) {
+        serializeSnapshot(analyzed, review, fileBudget, agentMap).then(snap => {
+          setCurrentSnapshot(snap);
+          if (previousSnapshot) setDriftReport(computeDrift(previousSnapshot, snap));
+        });
+      }
+    }
+  }
+
+  function buildMapFromTree(tree: string, extraContents: Record<string, string> = {}) {
+    scanStatsFiredRef.current = false;
+    setIsLoading(true);
+    const allContents = { ...fileContents, ...extraContents };
+    setTimeout(() => {
+      const parsed = parseAgentTree(tree);
+      let enriched = parsed;
+      for (const [fileName, content] of Object.entries(allContents)) {
+        enriched = applyAnalyzer(fileName, content, enriched);
+      }
+      setAgentMap(enriched);
+      setInputCollapsed(true);
+
+      // Run config review on file contents (only if we actually have content)
+      const mdFiles = Object.entries(allContents).filter(([k, v]) => k.toLowerCase().endsWith('.md') && v.length > 0 && isBootstrapFile(k));
+      if (mdFiles.length > 0) {
+        const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
+        setAnalyzedFiles(analyzed);
+        const review = runReview(analyzed);
+        setReviewResult(review);
+        const fileBudget = calculateBudget(analyzed);
+        setBudget(fileBudget);
+
+        // Fire-and-forget scan stats (real scans only, once per scan)
+        if (!scanStatsFiredRef.current) {
+          scanStatsFiredRef.current = true;
+          const truncatedFileCount = new Set(
+            review.findings.filter(f => f.category === 'truncation').map(f => f.file)
+          ).size;
+          fetch('/api/scan-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filesScanned: analyzed.length,
+              totalChars: fileBudget.totalChars,
+              truncatedFiles: truncatedFileCount,
+            }),
+          }).catch(() => {});
+        }
+
+        // Build snapshot + drift (async for content hashing)
+        serializeSnapshot(analyzed, review, fileBudget, enriched).then(snap => {
+          setCurrentSnapshot(snap);
+          // If previous snapshot loaded, compute drift
+          setPreviousSnapshot(prev => {
+            if (prev) setDriftReport(computeDrift(prev, snap));
+            return prev;
+          });
+        });
+      } else {
+        // No file contents — clear any stale review data
+        setAnalyzedFiles([]);
+        setReviewResult(null);
+        setBudget(null);
+        setCurrentSnapshot(null);
+      }
+
+      setIsLoading(false);
+    }, 150);
+  }
+
+  // Called by DirectoryScanner when user confirms file selection
+  const handleDirectoryConfirm = (
+    paths: string[],
+    meta?: { manifestVersion: string; fileContents: Record<string, string> }
+  ) => {
+    setFileContents({});
+    // Normalize keys from relative paths (workspace/AGENTS.md) to basenames (AGENTS.md)
+    // so the existing applyAnalyzer matching logic works unchanged.
+    const normalizedContents: Record<string, string> = {};
+    if (meta?.fileContents) {
+      for (const [relPath, content] of Object.entries(meta.fileContents)) {
+        const basename = relPath.split('/').pop() ?? relPath;
+        normalizedContents[basename] = content;
+      }
+    }
+    setFileContents(normalizedContents);
+    const tree = pathsToTree(paths);
+    buildMapFromTree(tree, normalizedContents);
+  };
+
+  function handleNewMap(options: { clearSnapshots: boolean }) {
+    setAgentMap(null);
+    setFileContents({});
+    setReviewResult(null);
+    setCurrentSnapshot(null);
+    setPreviousSnapshot(null);
+    setDriftReport(null);
+    setBudget(null);
+    setInputCollapsed(false);
+    setActiveView('review');
+    window.history.pushState({}, '', '/');
+    if (options.clearSnapshots) {
+      setCurrentSnapshot(null);
+      setPreviousSnapshot(null);
+      setDriftReport(null);
+    }
+  }
+
+  // Main content rendered inside MapShell
+  const mainContent = (
+    <>
+      {!agentMap ? (
+        /* ── INPUT SECTION ─────────────────────────────────────────────── */
+        <div className="w-full max-w-[520px] mx-auto px-4 py-16 flex flex-col gap-8">
+
+          {/* Headline + sub-copy */}
+          <div className="text-center flex flex-col gap-3">
+            <h1 className="text-[28px] font-semibold text-[#e2e8f0] leading-[1.3] tracking-[-0.01em]">
+              Find what&apos;s being silently cut from your agent config.
+            </h1>
+            <p className="text-[16px] text-[#94a3b8] leading-relaxed max-w-[440px] mx-auto">
+              Scan your OpenClaw workspace. Check file sizes against context window limits, find truncation zones, see exactly where content is being dropped.
+            </p>
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* CTAs — stacked: scanner on top, demo below */}
+          <div className="flex flex-col gap-3">
+            <DirectoryScanner onConfirm={handleDirectoryConfirm} />
+            <button
+              onClick={loadDemoData}
+              className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#1e2a38] bg-transparent px-6 py-3 text-[13px] font-mono font-medium text-[#94a3b8] hover:text-[#e2e8f0] hover:border-[#2d3f5a] transition-colors cursor-pointer"
+            >
+              Try demo data
+            </button>
+          </div>
+
+          {/* Trust signals */}
+          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+            <span className="text-[12px] text-[#506880]">Runs in your browser</span>
+            <span className="text-[10px] text-[#1e2a38]">&middot;</span>
+            <span className="text-[12px] text-[#506880]">Nothing uploaded</span>
+            <span className="text-[10px] text-[#1e2a38]">&middot;</span>
+            <span className="text-[12px] text-[#506880]">Chrome or Edge required</span>
+          </div>
+
+          {/* Capabilities */}
+          <div className="flex flex-col gap-5 pt-2 border-t border-[#1e2a38]">
+            <div className="flex flex-col gap-1">
+              <span className="text-[13px] font-mono font-medium text-[#e2e8f0]">Truncation detection</span>
+              <span className="text-[14px] text-[#94a3b8] leading-snug">See which bootstrap files exceed context window limits and where content gets cut.</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[13px] font-mono font-medium text-[#e2e8f0]">Config health review</span>
+              <span className="text-[14px] text-[#94a3b8] leading-snug">Check for contradictions, structural issues, and agent-edit artifacts across your config files.</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[13px] font-mono font-medium text-[#e2e8f0]">Drift tracking</span>
+              <span className="text-[14px] text-[#94a3b8] leading-snug">Snapshot your config state, compare across sessions, catch unintended changes.</span>
+            </div>
+          </div>
+
+          {/* Skill promotion */}
+          <p className="text-[13px] text-[#506880] text-center leading-relaxed pt-2 border-t border-[#1e2a38]">
+            Also available as a CLI skill.{' '}
             <a
-              href="https://github.com/DanAndBub/bubboard"
+              href="https://clawhub.ai/danandbub/driftwatch-oc"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-[#7a8a9b] hover:text-[#b0bec9] transition-colors"
+              className="text-[#3b82f6] hover:text-[#e2e8f0] transition-colors"
             >
-              GitHub
-            </a>
-            <Link
-              href="/map"
-              className="px-4 py-1.5 rounded-lg border border-[#7db8fc]/30 bg-[#7db8fc]/10 text-[#7db8fc] hover:bg-[#7db8fc]/20 hover:border-blue-400 transition-all font-medium text-sm"
-            >
-              Scan Yours →
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="pt-14">
-        {/* MINI BANNER */}
-        <div className="text-center py-10 px-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-[#f1f5f9]">
-            Agent configs drift.{' '}
-            <span className="bg-gradient-to-r from-blue-400 via-blue-300 to-cyan-400 bg-clip-text text-transparent">
-              Now you can see exactly where.
-            </span>
-          </h1>
-          <p className="text-[#b0bec9] text-base max-w-lg mx-auto mt-3">
-            Scan your OpenClaw workspace. See config drift, find truncation risks, track costs — all in your browser.
+              The Driftwatch skill
+            </a>{' '}
+            runs{' '}
+            <code className="font-mono text-[12px] text-[#94a3b8] bg-[#111820] px-1.5 py-0.5 rounded">scan my config</code>{' '}
+            directly in your workspace.
           </p>
         </div>
+      ) : (
+        /* ── VIEW-BASED LAYOUT ──────────────────────────────────────────── */
+        <>
+          {activeView === 'review' && (
+            <ReviewView
+              analyzedFiles={analyzedFiles}
+              budget={budget}
+            />
+          )}
+          {activeView === 'conflict' && (
+            <ConflictScannerView />
+          )}
+          {activeView === 'drift' && (
+            <DriftView driftReport={driftReport} />
+          )}
+        </>
+      )}
 
-        {/* INTERACTIVE DEMO */}
-        <div className="px-6 pb-12">
-          <div className="max-w-6xl mx-auto relative">
-            {/* Floating badge */}
-            <div
-              className="absolute -top-5 right-8 z-10 text-white text-xs font-semibold px-3 py-1 rounded-full"
-              style={{ background: 'linear-gradient(135deg, #3b82f6, #a78bfa)' }}
-            >
-              ✦ Interactive Demo
-            </div>
+      {/* Editor Slide-in Panel — overlays main content area */}
+      {editorFile && fileContents[editorFile] !== undefined && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-30 bg-black/40"
+            onClick={() => setEditorFile(null)}
+          />
+          <EditorPanel
+            path={editorFile}
+            content={fileContents[editorFile]}
+            finding={editorFinding}
+            onClose={() => { setEditorFile(null); setEditorFinding(null); }}
+            onContentChange={handleContentChange}
+            onRescan={handleRescan}
+          />
+        </>
+      )}
+    </>
+  );
 
-            {/* Live demo — full app on desktop, compact on mobile */}
-            <div className="hidden md:block">
-              <LandingDemo />
-            </div>
-            <div className="md:hidden">
-              <div className="rounded-2xl border border-[#506880] bg-[#111827] overflow-hidden p-4" style={{ boxShadow: '0 0 80px rgba(59,130,246,0.08), 0 8px 40px rgba(0,0,0,0.6)' }}>
-                <CompactDemo />
-              </div>
-            </div>
-          </div>
-        </div>
+  return (
+    <MapShell
+      isDemo={isDemo}
+      topBar={
+        <MapTopBar
+          isDemo={isDemo}
+          onNewMap={handleNewMap}
+          showNewMap={agentMap !== null}
+          snapshotCount={(currentSnapshot ? 1 : 0) + (previousSnapshot ? 1 : 0)}
+        />
+      }
+      onScanYours={() => {
+        handleNewMap({ clearSnapshots: false });
+        window.history.pushState({}, '', '/');
+      }}
+      sidebar={
+        agentMap ? (
+          <MapSidebar
+            activeView={activeView}
+            onViewChange={setActiveView}
 
-        {/* TRUNCATION CALLOUT */}
-        <div className="px-6 pb-10">
-          <div className="max-w-2xl mx-auto rounded-xl border border-[#7db8fc]/30 bg-[#7db8fc]/5 px-8 py-6">
-            <p className="text-[#7db8fc] text-base leading-relaxed text-center">
-              OpenClaw cuts the middle of oversized files &mdash; your agent sees a marker,
-              but you get no warning about what was lost. We show you exactly which
-              lines your agent can&rsquo;t see.
-            </p>
-          </div>
-        </div>
+            hasFindings={(reviewResult?.findings.length ?? 0) > 0}
+            onDownloadSnapshot={() => {
+              if (currentSnapshot) downloadSnapshot(currentSnapshot);
+            }}
+            onUploadSnapshot={() => snapshotInputRef.current?.click()}
+          />
+        ) : null
+      }
+    >
+      {mainContent}
 
-        {/* WHY DRIFTWATCH SECTION */}
-        <div className="py-16 px-6">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#f1f5f9] text-center mb-12">
-              Built for the moment you realize something&rsquo;s off
-            </h2>
-            <div className="grid md:grid-cols-3 gap-10">
-              <div>
-                <h3 className="text-xl font-semibold text-[#f1f5f9] mb-4">Your agent forgets things</h3>
-                <p className="text-[#b0bec9] text-base leading-relaxed">OpenClaw config files control what your agent knows. When they get too long, the middle gets cut &mdash; silently. Your agent loses instructions you wrote and you get no warning.</p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-[#f1f5f9] mb-4">Changes pile up invisibly</h3>
-                <p className="text-[#b0bec9] text-base leading-relaxed">You edit AGENTS.md, tweak a heartbeat, add a skill. Six weeks later you can&rsquo;t remember what changed. Drift compounds. Bugs hide in the gap between what you wrote and what&rsquo;s actually loaded.</p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-[#f1f5f9] mb-4">Driftwatch makes it visible</h3>
-                <p className="text-[#b0bec9] text-base leading-relaxed">Scan your workspace. See which files are oversized, which sections get truncated, how costs are trending, and what changed since last time. Fix problems before they cost you.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Hidden file input for snapshot upload */}
+      <input
+        ref={snapshotInputRef}
+        type="file"
+        accept=".json"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const text = await file.text();
+          const result = importSnapshot(text);
+          if (result.ok) {
+            setPreviousSnapshot(result.snapshot);
+            if (currentSnapshot) {
+              setDriftReport(computeDrift(result.snapshot, currentSnapshot));
+            }
+          } else {
+            alert(result.error);
+          }
+          e.target.value = '';
+        }}
+      />
+    </MapShell>
+  );
+}
 
-        {/* CTA SECTION */}
-        <div className="py-12 px-6 text-center">
-          <p className="text-[#b0bec9] text-lg mb-6">That was a demo. Now see yours.</p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link
-              href="/map"
-              className="px-8 py-4 rounded-xl font-semibold text-white text-lg"
-              style={{
-                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                boxShadow: '0 0 30px rgba(59,130,246,0.4)',
-              }}
-            >
-              Scan Your Workspace →
-            </Link>
-            <a
-              href="https://github.com/DanAndBub/bubboard"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 rounded-xl font-semibold text-[#b0bec9] text-lg border border-[#506880] bg-[#111827] hover:border-[#7db8fc]/40 hover:text-[#f1f5f9] transition-all"
-            >
-              View on GitHub
-            </a>
-          </div>
-        </div>
-
-        {/* FEATURES STRIP */}
-        <div className="py-8 px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-xs text-[#7a8a9b] uppercase tracking-widest mb-4">What&rsquo;s available now</p>
-            <div className="flex flex-wrap gap-3 justify-center mb-6">
-              {[
-                '🗺 Architecture map',
-                '🔍 Config review',
-                '📊 Drift detection',
-                '💰 Cost tracking',
-                '✏️ In-browser editor',
-              ].map((pill) => (
-                <span
-                  key={pill}
-                  className="px-4 py-2 rounded-full border border-[#506880] bg-[#111827] text-sm text-[#b0bec9]"
-                >
-                  {pill}
-                </span>
-              ))}
-            </div>
-            <p className="text-sm text-[#7a8a9b] font-mono">
-              <span className="text-[#7db8fc]">Scan</span>
-              {' → '}
-              <span className="text-[#7db8fc]">Review</span>
-              {' → '}
-              <span className="text-[#7db8fc]">Fix</span>
-              {' → '}
-              <span className="text-[#7db8fc]">Track</span>
-            </p>
-          </div>
-        </div>
-
-        {/* WAITLIST */}
-        <div className="border-t border-[#506880]">
-          <WaitlistForm />
-        </div>
-
-        {/* FOOTER */}
-        <Footer />
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-[#506880] text-sm">Loading...</div>
       </div>
-    </main>
+    }>
+      <ScanPageContent />
+    </Suspense>
   );
 }

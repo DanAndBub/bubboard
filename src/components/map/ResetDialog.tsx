@@ -6,14 +6,12 @@ import { createPortal } from 'react-dom';
 interface ResetDialogProps {
   open: boolean;
   onClose: () => void;
-  onReset: (options: { clearCosts: boolean; clearSnapshots: boolean }) => void;
-  costRecordCount: number;
+  onReset: (options: { clearSnapshots: boolean }) => void;
   snapshotCount: number;
   anchorRef?: React.RefObject<HTMLElement | null>;
 }
 
-export default function ResetDialog({ open, onClose, onReset, costRecordCount, snapshotCount, anchorRef }: ResetDialogProps) {
-  const [clearCosts, setClearCosts] = useState(false);
+export default function ResetDialog({ open, onClose, onReset, snapshotCount, anchorRef }: ResetDialogProps) {
   const [clearSnapshots, setClearSnapshots] = useState(false);
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -58,16 +56,16 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
 
   // Reset checkboxes when dialog opens — use key-based reset instead
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { if (open) { setClearCosts(false); setClearSnapshots(false); } }, [open]);
+  useEffect(() => { if (open) { setClearSnapshots(false); } }, [open]);
 
   if (!open || !pos) return null;
 
-  const hasDestructive = clearCosts || clearSnapshots;
+  const hasDestructive = clearSnapshots;
 
   const dialog = (
     <div
       ref={ref}
-      className="fixed w-72 rounded-lg border border-[#506880] overflow-hidden"
+      className="fixed w-72 rounded-lg border border-[#1e2a38] overflow-hidden"
       style={{
         top: pos.top,
         right: pos.right,
@@ -77,28 +75,12 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
       }}
     >
       <div className="p-3 space-y-2.5">
-        <p className="text-xs font-medium text-[#f1f5f9]">Reset map</p>
+        <p className="text-xs font-medium text-[#e2e8f0]">Reset scan</p>
 
         {/* Always-on: map data */}
         <label className="flex items-center gap-2.5 text-xs cursor-default">
-          <input type="checkbox" checked disabled className="accent-[#7db8fc] rounded" />
-          <span className="text-[#b0bec9]">Reset map &amp; config data</span>
-        </label>
-
-        {/* Optional: costs */}
-        <label className="flex items-center gap-2.5 text-xs cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={clearCosts}
-            onChange={e => setClearCosts(e.target.checked)}
-            className="accent-[#7db8fc] rounded"
-          />
-          <span className="text-[#b0bec9] group-hover:text-[#f1f5f9] transition-colors">
-            Clear cost data
-            {costRecordCount > 0 && (
-              <span className="text-[#7a8a9b] ml-1">({costRecordCount.toLocaleString()} records)</span>
-            )}
-          </span>
+          <input type="checkbox" checked disabled className="accent-[#3b82f6] rounded" />
+          <span className="text-[#94a3b8]">Reset config data</span>
         </label>
 
         {/* Optional: snapshots */}
@@ -108,11 +90,11 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
               type="checkbox"
               checked={clearSnapshots}
               onChange={e => setClearSnapshots(e.target.checked)}
-              className="accent-[#7db8fc] rounded"
+              className="accent-[#3b82f6] rounded"
             />
-            <span className="text-[#b0bec9] group-hover:text-[#f1f5f9] transition-colors">
+            <span className="text-[#94a3b8] group-hover:text-[#e2e8f0] transition-colors">
               Clear drift snapshots
-              <span className="text-[#7a8a9b] ml-1">({snapshotCount})</span>
+              <span className="text-[#506880] ml-1">({snapshotCount})</span>
             </span>
           </label>
         )}
@@ -127,18 +109,18 @@ export default function ResetDialog({ open, onClose, onReset, costRecordCount, s
         {/* Actions */}
         <div className="flex gap-2 pt-1">
           <button
-            onClick={() => { onReset({ clearCosts, clearSnapshots }); onClose(); }}
+            onClick={() => { onReset({ clearSnapshots }); onClose(); }}
             className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               hasDestructive
                 ? 'bg-[#f87171]/20 text-[#f87171] border border-[#f87171]/30 hover:bg-[#f87171]/30'
-                : 'bg-[#7db8fc]/10 text-[#7db8fc] border border-[#7db8fc]/30 hover:bg-[#7db8fc]/20'
+                : 'bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/30 hover:bg-[#3b82f6]/20'
             }`}
           >
             Reset
           </button>
           <button
             onClick={onClose}
-            className="px-3 py-1.5 rounded-lg text-xs text-[#7a8a9b] border border-[#506880] hover:text-[#b0bec9] transition-colors"
+            className="px-3 py-1.5 rounded-lg text-xs text-[#506880] border border-[#1e2a38] hover:text-[#94a3b8] transition-colors"
           >
             Cancel
           </button>

@@ -1,11 +1,17 @@
 import type { Metadata } from 'next';
-import { JetBrains_Mono } from 'next/font/google';
+import { JetBrains_Mono, IBM_Plex_Sans } from 'next/font/google';
 import './globals.css';
-import FeedbackWidget from '@/components/FeedbackWidget';
 
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains',
   subsets: ['latin'],
+  display: 'swap',
+});
+
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: '--font-ibm-plex',
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -28,9 +34,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${jetbrainsMono.variable} antialiased bg-grid`}>
+      <body className={`${jetbrainsMono.variable} ${ibmPlexSans.variable} antialiased`}>
         {children}
-        <FeedbackWidget />
       </body>
     </html>
   );

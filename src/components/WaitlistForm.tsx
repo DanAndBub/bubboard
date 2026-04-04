@@ -36,11 +36,11 @@ export default function WaitlistForm() {
     <section className="py-24 px-6">
       <div className="max-w-2xl mx-auto">
         <div
-          className="relative rounded-2xl border border-[#506880] bg-[#111827] p-8 md:p-12 overflow-hidden"
+          className="relative rounded-2xl border border-[#1e2a38] bg-[#111820] p-8 md:p-12 overflow-hidden"
           style={{ boxShadow: '0 0 60px rgba(59, 130, 246, 0.06)' }}
         >
           {/* Background glow */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#7db8fc]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#3b82f6]/5 rounded-full blur-3xl pointer-events-none" />
 
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-sm text-[#fbbf24] mb-6">
@@ -48,10 +48,10 @@ export default function WaitlistForm() {
             Coming Soon — Driftwatch Pro
           </div>
 
-          <h2 className="text-2xl md:text-3xl font-bold text-[#f1f5f9] mb-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#e2e8f0] mb-3">
             More is coming
           </h2>
-          <p className="text-[#b0bec9] mb-8 leading-relaxed">
+          <p className="text-[#94a3b8] mb-8 leading-relaxed">
             Driftwatch Pro will show you what your config is actually costing you &mdash; and how to fix it.
           </p>
 
@@ -76,11 +76,11 @@ export default function WaitlistForm() {
               },
             ].map(({ q, a }) => (
               <li key={q} className="text-sm">
-                <span className="flex items-center gap-3 text-[#f1f5f9] font-medium mb-1">
+                <span className="flex items-center gap-3 text-[#e2e8f0] font-medium mb-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
                   {q}
                 </span>
-                <span className="text-[#7a8a9b] pl-[18px]">{a}</span>
+                <span className="text-[#506880] pl-[18px]">{a}</span>
               </li>
             ))}
           </ul>
@@ -104,7 +104,7 @@ export default function WaitlistForm() {
                 placeholder="you@example.com"
                 required
                 disabled={status === 'loading'}
-                className="flex-1 px-4 py-3 rounded-xl border border-[#506880] bg-[#0d1520] text-[#f1f5f9] placeholder-[#7a8a9b] font-mono text-sm disabled:opacity-50 transition-all"
+                className="flex-1 px-4 py-3 rounded-xl border border-[#1e2a38] bg-[#0d1520] text-[#e2e8f0] placeholder-[#506880] font-mono text-sm disabled:opacity-50 transition-all"
               />
               <button
                 type="submit"
@@ -134,7 +134,7 @@ export default function WaitlistForm() {
             <p className="mt-3 text-sm text-[#f87171]">{message}</p>
           )}
 
-          <p className="mt-4 text-xs text-[#7a8a9b]">
+          <p className="mt-4 text-xs text-[#506880]">
             No spam. Unsubscribe anytime. We&apos;ll only reach out when something real ships.
           </p>
         </div>

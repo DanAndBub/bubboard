@@ -52,19 +52,6 @@ export interface DriftReport {
   previousTimestamp: string;
   currentTimestamp: string;
   daysBetween: number;
-  filesAdded: string[];
-  filesRemoved: string[];
   filesChanged: FileChange[];
-  filesUnchanged: string[];
-  significantGrowth: FileChange[]; // >30% growth
-  possibleAgentBloat: FileChange[]; // >50% growth
-  healthScoreDelta: number;
-  newFindings: ReviewFinding[];
-  resolvedFindings: ReviewFinding[];
-  persistentFindings: ReviewFinding[];
-  agentTopologyChanges: {
-    added: string[];
-    removed: string[];
-  };
-  budgetDelta: number;
+  totalCharsDelta: number;
 }

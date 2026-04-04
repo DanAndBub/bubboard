@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driftwatch — Homepage Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --bg:             #0b1017;
+      --surface:        #111820;
+      --border:         #1e2a38;
+      --border-hover:   #2d3f5a;
+      --text-primary:   #e2e8f0;
+      --text-secondary: #94a3b8;
+      --text-muted:     #506880;
+      --accent:         #3b82f6;
+      --accent-hover:   #2563eb;
+      --accent-subtle:  #1e3a5f;
+      --success:        #22c55e;
+      --font-mono:      'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+      --font-sans:      'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* ── Base ──────────────────────────────────────────────────── */
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Layout ────────────────────────────────────────────────── */
+    .page {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Top Bar ───────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      height: 48px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-mark svg {
+      width: 12px;
+      height: 12px;
+      color: var(--accent);
+    }
+
+    .logo-text {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 15px;
+      color: var(--text-primary);
+      letter-spacing: 0;
+    }
+
+    /* ── Main Content ──────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 24px 48px;
+    }
+
+    .content {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 28px;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .hero p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    /* ── CTAs ──────────────────────────────────────────────────── */
+    .ctas {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-primary svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    /* ── Trust Signals ─────────────────────────────────────────── */
+    .trust {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .trust span {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .trust .dot {
+      color: var(--border);
+      font-size: 10px;
+      user-select: none;
+    }
+
+    /* ── Capabilities ──────────────────────────────────────────── */
+    .capabilities {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .cap-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cap-label {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .cap-desc {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ── Skill Link ────────────────────────────────────────────── */
+    .skill-link {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .skill-link a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+
+    .skill-link a:hover {
+      color: var(--text-primary);
+    }
+
+    .skill-link code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--surface);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ── Focus States ──────────────────────────────────────────── */
+    .btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* ── Mobile ────────────────────────────────────────────────── */
+    @media (max-width: 639px) {
+      .main {
+        padding: 40px 20px 32px;
+        align-items: flex-start;
+      }
+
+      .content {
+        gap: 28px;
+      }
+
+      .hero h1 {
+        font-size: 24px;
+      }
+
+      .hero p {
+        font-size: 15px;
+      }
+
+      .ctas {
+        flex-direction: column;
+      }
+
+      .trust {
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .trust .dot {
+        display: none;
+      }
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+    /* ── Annotation Layer (mockup only) ────────────────────────── */
+    .annotation-bar {
+      background: #1a1a2e;
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .annotation-bar h2 {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      text-transform: none;
+    }
+
+    .annotation-bar .cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .annotation-bar ul {
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .annotation-bar .removed { color: #ef4444; }
+    .annotation-bar .added { color: var(--success); }
+    .annotation-bar .changed { color: var(--accent); }
+
+    @media (max-width: 639px) {
+      .annotation-bar .cols {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- ── Top Bar ──────────────────────────────────────────────── -->
+    <header class="topbar">
+      <a href="#" class="topbar-logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <span class="logo-text">Driftwatch</span>
+      </a>
+    </header>
+
+    <!-- ── Main Content ─────────────────────────────────────────── -->
+    <main class="main">
+      <div class="content">
+
+        <!-- Hero -->
+        <div class="hero">
+          <h1>Find what's being silently cut from your agent config.</h1>
+          <p>Scan your OpenClaw workspace. Check file sizes against context window limits, find truncation zones, see exactly where content is being dropped.</p>
+        </div>
+
+        <!-- CTAs -->
+        <div class="ctas">
+          <button class="btn btn-primary" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Select workspace folder
+          </button>
+          <button class="btn btn-secondary" type="button">
+            Try demo data
+          </button>
+        </div>
+
+        <!-- Trust signals -->
+        <div class="trust">
+          <span>Runs in your browser</span>
+          <span class="dot">&middot;</span>
+          <span>Nothing uploaded</span>
+          <span class="dot">&middot;</span>
+          <span>Chrome or Edge required</span>
+        </div>
+
+        <!-- Capabilities -->
+        <div class="capabilities">
+          <div class="cap-item">
+            <span class="cap-label">Truncation detection</span>
+            <span class="cap-desc">See which bootstrap files exceed context window limits and where content gets cut.</span>
+          </div>
+          <div class="cap-item">
+            <span class="cap-label">Config health review</span>
+            <span class="cap-desc">Check for contradictions, structural issues, and agent-edit artifacts across your config files.</span>
+          </div>
+          <div class="cap-item">
+            <span class="cap-label">Drift tracking</span>
+            <span class="cap-desc">Snapshot your config state, compare across sessions, catch unintended changes.</span>
+          </div>
+        </div>
+
+        <!-- Skill link -->
+        <div class="skill-link">
+          Also available as a CLI skill. <a href="https://clawhub.ai/danandbub/driftwatch-oc" target="_blank" rel="noopener noreferrer">The Driftwatch skill</a> runs <code>scan my config</code> directly in your workspace.
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ── Design Annotations (for review only — not part of final design) ── -->
+    <div class="annotation-bar">
+      <div class="cols">
+        <div>
+          <h2>What was removed</h2>
+          <ul>
+            <li class="removed">"BOOTSTRAP FILE INSPECTOR" all-caps category label</li>
+            <li class="removed">Community counter (scans / truncations caught / chars analyzed)</li>
+            <li class="removed">Truncation percentage stat ("0% of workspaces...")</li>
+            <li class="removed">"we count scans, not content" disclaimer</li>
+            <li class="removed">Animated gradient border on CTA</li>
+            <li class="removed">Dot grid background pattern</li>
+            <li class="removed">Purple accent in gradient (#8b5cf6)</li>
+          </ul>
+        </div>
+        <div>
+          <h2>What changed</h2>
+          <ul>
+            <li class="changed">Headline: "See what your agent can't see" → states what it actually does</li>
+            <li class="changed">Subhead: expanded to explain what scanning means</li>
+            <li class="changed">Typography: mixed fonts → JetBrains Mono (labels) + IBM Plex Sans (body)</li>
+            <li class="changed">Trust signals: stacked with dividers → inline with middots</li>
+            <li class="added">Added "Capabilities" section — 3 concrete things the tool does</li>
+            <li class="changed">Skill link: cleaned up, uses code tag for command</li>
+            <li class="changed">CTA buttons: simplified, no animated gradient, consistent sizing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

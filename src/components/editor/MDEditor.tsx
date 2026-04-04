@@ -38,15 +38,15 @@ interface SaveDialogProps {
 function SaveDialog({ onConfirm, onCancel }: SaveDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-[#111827] border border-[#506880] rounded-xl shadow-2xl w-full max-w-sm mx-4 p-5">
-        <h2 className="text-sm font-semibold text-[#f1f5f9] mb-2">Save Changes?</h2>
-        <p className="text-xs text-[#7a8a9b] mb-5">
+      <div className="bg-[#111820] border border-[#1e2a38] rounded-xl shadow-2xl w-full max-w-sm mx-4 p-5">
+        <h2 className="text-sm font-semibold text-[#e2e8f0] mb-2">Save Changes?</h2>
+        <p className="text-xs text-[#506880] mb-5">
           Remember: Driftwatch edits are only in browser. Copy this content and paste it into your local file for changes to take effect.
         </p>
         <div className="flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="text-xs px-3 py-1.5 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] transition-all"
+            className="text-xs px-3 py-1.5 rounded border border-[#1e2a38] text-[#506880] hover:text-[#94a3b8] transition-all"
           >
             Cancel
           </button>
@@ -79,7 +79,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
   const canSaveToFS = !!fileHandle;
 
   const barColor = charCount > threshold.critical ? 'bg-red-500'
-    : charCount > threshold.warning ? 'bg-amber-500' : 'bg-[#7db8fc]';
+    : charCount > threshold.warning ? 'bg-amber-500' : 'bg-[#3b82f6]';
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -144,30 +144,30 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
       )}
 
       {/* Header — title row */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#506880]/50 shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e2a38]/50 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs font-mono text-[#f1f5f9] truncate">{path}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#7db8fc]/10 text-[#7db8fc] border border-[#7db8fc]/20">
+          <span className="text-xs font-mono text-[#e2e8f0] truncate">{path}</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20">
             editing
           </span>
         </div>
-        <button onClick={onCancel} className="text-xs px-2 py-1 text-[#7a8a9b] hover:text-[#b0bec9] transition-colors shrink-0">
+        <button onClick={onCancel} className="text-xs px-2 py-1 text-[#506880] hover:text-[#94a3b8] transition-colors shrink-0">
           ✕
         </button>
       </div>
 
       {/* Action buttons row */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-[#506880] shrink-0">
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-[#1e2a38] shrink-0">
         <button
           onClick={handleRevert}
           disabled={value === backup}
-          className="text-xs px-2.5 py-1 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] disabled:opacity-30 transition-all"
+          className="text-xs px-2.5 py-1 rounded border border-[#1e2a38] text-[#506880] hover:text-[#94a3b8] disabled:opacity-30 transition-all"
         >
           Revert
         </button>
         <button
           onClick={handleCopyToClipboard}
-          className="text-xs px-2.5 py-1 rounded border border-[#506880] text-[#7a8a9b] hover:text-[#b0bec9] transition-all"
+          className="text-xs px-2.5 py-1 rounded border border-[#1e2a38] text-[#506880] hover:text-[#94a3b8] transition-all"
         >
           Copy
         </button>
@@ -192,9 +192,9 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
       </div>
 
       {/* Status bar */}
-      <div className="px-4 py-2 border-b border-[#506880] shrink-0 space-y-1.5">
+      <div className="px-4 py-2 border-b border-[#1e2a38] shrink-0 space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono text-[#b0bec9]">
+          <span className="text-[10px] font-mono text-[#94a3b8]">
             {charCount.toLocaleString()} chars
             {delta !== 0 && (
               <span className={delta > 0 ? 'text-[#fbbf24] ml-1.5' : 'text-[#34d399] ml-1.5'}>
@@ -202,15 +202,15 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
               </span>
             )}
           </span>
-          <span className="text-[9px] text-[#7a8a9b]">
+          <span className="text-[9px] text-[#506880]">
             Limit: {threshold.hardLimit.toLocaleString()} · Recommended: &lt;{threshold.recommended.toLocaleString()}
           </span>
         </div>
-        <div className="h-1 rounded-full bg-[#0a0e17] overflow-hidden">
+        <div className="h-1 rounded-full bg-[#0b1017] overflow-hidden">
           <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${Math.min(100, pct)}%` }} />
         </div>
         {!canSaveToFS && (
-          <p className="text-[10px] text-[#7a8a9b]">
+          <p className="text-[10px] text-[#506880]">
             💡 File System Access not available in this browser. Changes apply to this session only. Use &quot;Copy&quot; to save content manually.
           </p>
         )}
@@ -221,7 +221,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
 
       {/* FIX 4 — Post-save re-scan prompt */}
       {saved && (
-        <div className="px-4 py-2 border-b border-[#506880] bg-green-500/5 flex items-center justify-between shrink-0">
+        <div className="px-4 py-2 border-b border-[#1e2a38] bg-green-500/5 flex items-center justify-between shrink-0">
           <span className="text-xs text-[#34d399]">Content updated. Re-scan to see updated findings?</span>
           <div className="flex items-center gap-2">
             {onRescan && (
@@ -229,7 +229,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
                 Re-scan
               </button>
             )}
-            <button onClick={() => setSaved(false)} className="text-xs text-[#7a8a9b] hover:text-[#b0bec9]">
+            <button onClick={() => setSaved(false)} className="text-xs text-[#506880] hover:text-[#94a3b8]">
               Later
             </button>
           </div>
@@ -243,7 +243,7 @@ export default function MDEditor({ path, content, fileHandle, onSave, onCancel, 
           value={value}
           onChange={(e) => { setValue(e.target.value); setSaved(false); setError(null); }}
           spellCheck={false}
-          className="w-full min-h-full bg-transparent text-xs font-mono text-[#b0bec9] leading-relaxed px-4 py-3 resize-none outline-none"
+          className="w-full min-h-full bg-transparent text-xs font-mono text-[#94a3b8] leading-relaxed px-4 py-3 resize-none outline-none"
           style={{ tabSize: 2 }}
         />
       </div>

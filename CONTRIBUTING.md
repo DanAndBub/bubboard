@@ -27,8 +27,8 @@ Thank you for contributing! This guide ensures consistent, high-quality contribu
 
 ```bash
 # Clone the repo
-git clone https://github.com/DanAndBub/bubboard.git
-cd bubboard
+git clone https://github.com/DanAndBub/Driftwatch.git
+cd Driftwatch
 
 # Install dependencies
 npm install
@@ -588,7 +588,7 @@ npm run build
 
 2. **Open PR on GitHub**
    - Use the link provided in the push output
-   - Or go to: https://github.com/DanAndBub/bubboard/compare/master...feat/your-feature-name
+   - Or go to: https://github.com/DanAndBub/Driftwatch/compare/master...feat/your-feature-name
 
 3. **Fill out the PR template**
    ```markdown
