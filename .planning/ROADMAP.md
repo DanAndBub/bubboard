@@ -37,4 +37,10 @@
 - `src/lib/types.ts` — WorkspaceFiles type (the input)
 - `/mnt/c/Users/conta/Documents/shared-brain/specs/driftwatch/conflict-scanner-gsd.md` — Original spec
 
-**Status:** Not started
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Conflict detection engine: types, helpers, rule modules, runner, and unit tests
+- [ ] 01-02-PLAN.md — UI integration: demo data, ConflictScannerView component, page.tsx wiring
+
+**Status:** Planned
