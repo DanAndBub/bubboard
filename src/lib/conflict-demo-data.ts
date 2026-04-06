@@ -1,0 +1,58 @@
+import type { ConflictResult } from '@/lib/conflict/types';
+
+export const DEMO_CONFLICT_RESULT: ConflictResult = {
+  findings: [
+    {
+      ruleId: 'STRUCT_SUBAGENT_VISIBILITY',
+      severity: 'warning',
+      category: 'structural',
+      files: ['HEARTBEAT.md'],
+      message: 'Subagent visibility gap: HEARTBEAT.md contains directive "Always route code tasks to sonnet" but subagents cannot see this file.',
+      conflictingPhrases: ['always'],
+      recommendation: 'Move subagent-relevant instructions to AGENTS.md or TOOLS.md (files visible to subagents).',
+    },
+    {
+      ruleId: 'STRUCT_COMPACTION_RISK',
+      severity: 'warning',
+      category: 'structural',
+      files: ['AGENTS.md'],
+      message: 'Compaction risk: imperative "Must check tests before committing" in section "Workflow" may be lost during context compaction. Only content under "Session Startup" and "Red Lines" is reliably preserved.',
+      conflictingPhrases: ['must'],
+      recommendation: 'Move critical instructions to "## Session Startup" or "## Red Lines" sections in AGENTS.md.',
+    },
+    {
+      ruleId: 'CROSS_ESCALATION',
+      severity: 'warning',
+      category: 'cross-file',
+      files: ['AGENTS.md', 'SOUL.md'],
+      message: 'Potential contradiction: "always escalate" (escalate/ask, in AGENTS.md) conflicts with "figure it out" (self-resolve, in SOUL.md).',
+      conflictingPhrases: ['always escalate', 'figure it out'],
+      recommendation: 'Review both instructions. Your agent sees all bootstrap files together — contradictions cause unpredictable behavior. Pick one approach and remove the other.',
+    },
+    {
+      ruleId: 'WITHIN_SELF_CONFLICT',
+      severity: 'info',
+      category: 'within-file',
+      files: ['AGENTS.md'],
+      message: 'Self-conflict in AGENTS.md: section "Delegation Rules" says "always delegate" but section "Quick Tasks" says "handle directly".',
+      conflictingPhrases: ['always delegate', 'handle directly'],
+      recommendation: 'Clarify the boundary between delegated and direct tasks to avoid ambiguous agent behavior.',
+    },
+    {
+      ruleId: 'DUP_NEAR_IDENTICAL',
+      severity: 'info',
+      category: 'duplicate',
+      files: ['AGENTS.md', 'SOUL.md'],
+      message: 'Near-duplicate content (85% similar) found across files: "I orchestrate. I do not execute. Decisions = me..."',
+      conflictingPhrases: [],
+      recommendation: 'Duplicated instructions waste tokens and can drift apart over time. Keep the canonical version in one file and reference it from others.',
+    },
+  ],
+  structuralCount: 2,
+  crossFileCount: 1,
+  withinFileCount: 1,
+  duplicateCount: 1,
+  totalCount: 5,
+  filesAnalyzed: 8,
+  rulesExecuted: 10,
+};
