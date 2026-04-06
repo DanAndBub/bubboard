@@ -10,6 +10,9 @@ import { DEMO_DRIFT_REPORT, DEMO_SNAPSHOT, DEMO_BUDGET } from '@/lib/phase3-demo
 import type { AgentMap } from '@/lib/types';
 import { analyzeFile, analyzeFiles } from '@/lib/config-review/analyze-file';
 import { runReview, type ReviewResult } from '@/lib/config-review/runner';
+import { runConflict } from '@/lib/conflict/runner';
+import type { ConflictResult } from '@/lib/conflict/types';
+import { DEMO_CONFLICT_RESULT } from '@/lib/conflict-demo-data';
 import { calculateBudget } from '@/lib/config-review/budget';
 import { BOOTSTRAP_FILE_ORDER } from '@/lib/config-review/thresholds';
 import type { BootstrapBudget, ReviewFinding } from '@/lib/config-review/types';
@@ -45,6 +48,7 @@ function ScanPageContent() {
   const [_inputCollapsed, setInputCollapsed] = useState(() => isDemo);
   const [isLoading, setIsLoading] = useState(false);
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
+  const [conflictResult, setConflictResult] = useState<ConflictResult | null>(null);
   const [analyzedFiles, setAnalyzedFiles] = useState<ReturnType<typeof analyzeFile>[]>([]);
   const [budget, setBudget] = useState<BootstrapBudget | null>(null);
   const [currentSnapshot, setCurrentSnapshot] = useState<Snapshot | null>(null);
@@ -76,6 +80,7 @@ function ScanPageContent() {
         const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
         setAnalyzedFiles(analyzed);
         setReviewResult(runReview(analyzed));
+        setConflictResult(DEMO_CONFLICT_RESULT);
       }
       // Load pre-built Phase 3 demo data for full experience
       setCurrentSnapshot(DEMO_SNAPSHOT);
@@ -99,6 +104,7 @@ function ScanPageContent() {
       const analyzed = analyzeFiles(Object.fromEntries(mdFiles));
       setAnalyzedFiles(analyzed);
       setReviewResult(runReview(analyzed));
+      setConflictResult(DEMO_CONFLICT_RESULT);
     }
     setCurrentSnapshot(DEMO_SNAPSHOT);
     setDriftReport(DEMO_DRIFT_REPORT);
@@ -132,6 +138,7 @@ function ScanPageContent() {
       setAnalyzedFiles(analyzed);
       const review = runReview(analyzed);
       setReviewResult(review);
+      setConflictResult(runConflict(analyzed));
       const fileBudget = calculateBudget(analyzed);
       setBudget(fileBudget);
       if (agentMap) {
@@ -163,6 +170,7 @@ function ScanPageContent() {
         setAnalyzedFiles(analyzed);
         const review = runReview(analyzed);
         setReviewResult(review);
+        setConflictResult(runConflict(analyzed));
         const fileBudget = calculateBudget(analyzed);
         setBudget(fileBudget);
 
@@ -196,6 +204,7 @@ function ScanPageContent() {
         // No file contents — clear any stale review data
         setAnalyzedFiles([]);
         setReviewResult(null);
+        setConflictResult(null);
         setBudget(null);
         setCurrentSnapshot(null);
       }
@@ -228,6 +237,7 @@ function ScanPageContent() {
     setAgentMap(null);
     setFileContents({});
     setReviewResult(null);
+    setConflictResult(null);
     setCurrentSnapshot(null);
     setPreviousSnapshot(null);
     setDriftReport(null);
@@ -321,7 +331,7 @@ function ScanPageContent() {
             />
           )}
           {activeView === 'conflict' && (
-            <ConflictScannerView />
+            <ConflictScannerView conflictResult={conflictResult} />
           )}
           {activeView === 'drift' && (
             <DriftView driftReport={driftReport} />
